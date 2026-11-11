@@ -170,7 +170,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
         </div>
       </main>
 
-      <AdminBottomNav pendingCount={pendingCount} onOpenMenu={() => setIsMobileMenuOpen(true)} />
+      <Suspense fallback={null}><AdminBottomNav pendingCount={pendingCount} onOpenMenu={() => setIsMobileMenuOpen(true)} /></Suspense>
     </div>
   );
 }

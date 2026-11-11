@@ -6,15 +6,11 @@ import AdminSupportClient from './admin-support-client';
 
 export const instant = false;
 
-function SupportSkeleton() {
-  return (
-    <div className="p-8 text-center text-[#77717b]">
-      در حال بارگذاری تیکت‌ها...
-    </div>
-  );
+function Skeleton() {
+  return <div className="p-8 text-center text-[#77717b] text-sm">در حال بارگذاری تیکت‌ها...</div>;
 }
 
-async function SupportContent() {
+async function Content() {
   const tickets = await db
     .select({
       ticket: supportTickets,
@@ -24,14 +20,9 @@ async function SupportContent() {
     .from(supportTickets)
     .leftJoin(customers, eq(supportTickets.customerId, customers.id))
     .orderBy(desc(supportTickets.lastMessageAt));
-
   return <AdminSupportClient tickets={tickets} />;
 }
 
-export default function AdminSupportPage() {
-  return (
-    <Suspense fallback={<SupportSkeleton />}>
-      <SupportContent />
-    </Suspense>
-  );
+export default function Page() {
+  return <Suspense fallback={<Skeleton />}><Content /></Suspense>;
 }
