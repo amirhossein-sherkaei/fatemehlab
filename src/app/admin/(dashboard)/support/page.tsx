@@ -14,16 +14,24 @@ function SupportSkeleton() {
   );
 }
 
-export default async function AdminSupportPage() {
-  const tickets = await db.select({
-    ticket: supportTickets,
-    customerName: customers.name,
-    customerEmail: customers.email,
-  }).from(supportTickets).leftJoin(customers, eq(supportTickets.customerId, customers.id)).orderBy(desc(supportTickets.lastMessageAt));
+async function SupportContent() {
+  const tickets = await db
+    .select({
+      ticket: supportTickets,
+      customerName: customers.name,
+      customerEmail: customers.email,
+    })
+    .from(supportTickets)
+    .leftJoin(customers, eq(supportTickets.customerId, customers.id))
+    .orderBy(desc(supportTickets.lastMessageAt));
 
+  return <AdminSupportClient tickets={tickets} />;
+}
+
+export default function AdminSupportPage() {
   return (
     <Suspense fallback={<SupportSkeleton />}>
-      <AdminSupportClient tickets={tickets} />
+      <SupportContent />
     </Suspense>
   );
 }

@@ -126,6 +126,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
 
 export default function RichTextEditor({ content, onChange }: { content: string; onChange: (html: string) => void }) {
   const editor = useEditor({
+    immediatelyRender: false,
     extensions: [
       StarterKit,
       Image.configure({ inline: true, allowBase64: true }),
