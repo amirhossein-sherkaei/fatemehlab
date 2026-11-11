@@ -4,6 +4,7 @@ import { Vazirmatn } from "next/font/google";
 import { Toaster } from "sonner";
 import BottomNav from "@/components/storefront/BottomNav";
 import FloatingSupportButton from "@/components/storefront/FloatingSupportButton";
+import './cache-bust-enamad';
 import "./globals.css";
 
 const vazirmatn = Vazirmatn({
@@ -41,7 +42,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fa" dir="rtl" className={vazirmatn.variable}>
-      <body className="min-h-[100dvh] bg-background font-sans text-foreground overflow-x-hidden">
+      <body className="min-h-[100dvh] bg-background font-sans text-foreground overflow-x-hidden">`n        <CacheBust />
         <Toaster position="top-center" richColors theme="light" closeButton />
         {children}
         <Suspense fallback={null}>
