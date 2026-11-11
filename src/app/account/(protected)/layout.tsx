@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 import { db } from '@/lib/db';
 import { customers } from '@/db/schema';
@@ -6,7 +7,6 @@ import { getCurrentCustomer } from '@/lib/customer-auth';
 import AccountSidebar from '@/components/account/AccountSidebar';
 import AccountBottomNav from '@/components/account/AccountBottomNav';
 import AccountMobileHeader from '@/components/account/AccountMobileHeader';
-
 
 export const instant = false;
 
@@ -19,21 +19,25 @@ export default async function AccountLayout({ children }: { children: React.Reac
 
   return (
     <div className="min-h-screen bg-[#fafafc]">
-      {/* سایدبار فقط در دسکتاپ */}
-      <AccountSidebar customer={{ name: customer.name, email: customer.email }} />
+      <Suspense fallback={null}>
+        <AccountSidebar customer={{ name: customer.name, email: customer.email }} />
+      </Suspense>
 
-      {/* محتوای اصلی */}
       <main className="md:mr-64 pb-24 md:pb-8">
-        {/* نوار بالای موبایل با دکمه بازگشت به فروشگاه */}
-        <AccountMobileHeader />
+        <Suspense fallback={null}>
+          <AccountMobileHeader />
+        </Suspense>
 
         <div className="max-w-5xl mx-auto p-4 md:p-8">
-          {children}
+          <Suspense fallback={<div className="p-8 text-center text-gray-500">در حال بارگذاری...</div>}>
+            {children}
+          </Suspense>
         </div>
       </main>
 
-      {/* نوار پایین فقط در موبایل */}
-      <AccountBottomNav />
+      <Suspense fallback={null}>
+        <AccountBottomNav />
+      </Suspense>
     </div>
   );
 }

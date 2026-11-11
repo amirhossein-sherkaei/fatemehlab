@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { LayoutDashboard, ShoppingBag, LogOut, Settings, Menu, X, Package, BookOpen, MessageSquare, Bell, HelpCircle, User, BellRing, Headphones, TicketPercent } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { Toaster } from 'sonner';
 import AdminBottomNav from '@/components/admin/AdminBottomNav';
 import { useAdminNotifications } from '@/hooks/useAdminNotifications';
@@ -117,7 +117,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
       <Toaster position="top-center" richColors theme="light" />
 
       <aside className="sticky top-0 z-20 hidden h-screen w-72 shrink-0 flex-col border-l border-[#e9e5eb] bg-white/70 backdrop-blur-2xl md:flex">
-        <SidebarContent />
+        <Suspense fallback={null}><SidebarContent /></Suspense>
       </aside>
 
       <div className="fixed left-0 right-0 top-0 z-50 flex h-16 items-center justify-between border-b border-[#e9e5eb] bg-white/80 px-4 backdrop-blur-xl md:hidden">
@@ -155,7 +155,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
               </button>
             </div>
             <div className="flex-1 overflow-y-auto">
-              <SidebarContent />
+              <Suspense fallback={null}><SidebarContent /></Suspense>
             </div>
           </div>
         </>

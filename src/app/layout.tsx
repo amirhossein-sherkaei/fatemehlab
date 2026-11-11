@@ -45,10 +45,10 @@ export default function RootLayout({
         <Toaster position="top-center" richColors theme="light" closeButton />
         {children}
         <Suspense fallback={null}>
-          <FloatingSupportButton />
+          <Suspense fallback={null}><FloatingSupportButton /></Suspense>
         </Suspense>
         <Suspense fallback={null}>
-          <BottomNav />
+          <Suspense fallback={null}><BottomNav /></Suspense>
         </Suspense>
       </body>
     </html>
