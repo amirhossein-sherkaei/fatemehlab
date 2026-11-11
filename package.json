@@ -32,6 +32,7 @@
     "react-dom": "19.3.0",
     "sms-typescript": "^2.0.3",
     "sonner": "^2.0.8",
+    "zarinpal-node-sdk": "^2.2.0",
     "zod": "^4.6.7",
     "zustand": "^5.1.0"
   },

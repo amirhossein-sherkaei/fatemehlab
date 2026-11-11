@@ -93,6 +93,8 @@ export const orders = pgTable("orders", {
   totalAmount: integer("total_amount").notNull(),
   status: text("status").notNull().default("pending"),
   trackingCode: text("tracking_code").notNull().unique().default("FL-PENDING"),
+  paymentAuthority: text("payment_authority"),
+  paymentRefId: text("payment_ref_id"),
   couponCode: text("coupon_code"),
   discountAmount: integer("discount_amount").notNull().default(0),
   createdAt: timestamp("created_at").defaultNow().notNull(),
