@@ -124,7 +124,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     
     setLoading(true);
     setIsSubmitting(true);
-    const toastId = toast.loading('در حال ثبت سفارش...');
+    const toastId = toast.loading('در حال ثبت سفارش و اتصال به درگاه...');
 
     try {
       const res = await fetch('/api/orders', {
@@ -134,18 +134,24 @@ const handleSubmit = async (e: React.FormEvent) => {
       });
       const data = await res.json();
 
-      if (res.ok) {
-        toast.success('سفارش با موفقیت ثبت شد', { id: toastId });
-        clearCart();
-        router.push(`/order/success?id=${data.orderId}&code=${data.trackingCode}`);
-      } else {
-        toast.error(data.message || 'خطا در ثبت سفارش', { id: toastId });
-        setIsSubmitting(false);
-      }
-    } catch {
-      toast.error('خطا در ارتباط با سرور', { id: toastId });
+      if (!res.ok) throw new Error(data.message || 'خطا در ثبت سفارش');
+
+      const payRes = await fetch('/api/payment/request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: data.orderId }),
+      });
+      const payData = await payRes.json();
+
+      if (!payRes.ok) throw new Error(payData.message || 'خطا در اتصال به درگاه');
+
+      toast.success('در حال انتقال به درگاه پرداخت...', { id: toastId });
+      clearCart();
+      window.location.href = payData.redirectUrl;
+
+    } catch (err: any) {
+      toast.error(err.message || 'خطا در ارتباط با سرور', { id: toastId });
       setIsSubmitting(false);
-    } finally {
       setLoading(false);
     }
   };
