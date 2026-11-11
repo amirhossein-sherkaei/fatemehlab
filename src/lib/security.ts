@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server';
 // OWASP CSRF Protection: Validate Origin header against an allowlist.
 // This prevents cross-origin state-changing requests.
 const ALLOWED_ORIGINS = [
+  'https://fatemehbeautyland.ir',
+  'https://www.fatemehbeautyland.ir',
   'https://fatemehlab.vercel.app',
   'https://fatemehlab.ir',
   'http://localhost:3000',
