@@ -11,10 +11,25 @@ function LayoutSkeleton() {
   );
 }
 
+function PageSkeleton() {
+  return (
+    <div className="p-8 space-y-4 animate-pulse">
+      <div className="h-8 bg-gray-200 rounded-lg w-1/3" />
+      <div className="grid grid-cols-4 gap-4">
+        {[1,2,3,4].map(i => <div key={i} className="h-32 bg-gray-200 rounded-2xl" />)}
+      </div>
+    </div>
+  );
+}
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <Suspense fallback={<LayoutSkeleton />}>
-      <AdminLayoutClient>{children}</AdminLayoutClient>
+      <AdminLayoutClient>
+        <Suspense fallback={<PageSkeleton />}>
+          {children}
+        </Suspense>
+      </AdminLayoutClient>
     </Suspense>
   );
 }
