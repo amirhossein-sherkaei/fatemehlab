@@ -20,5 +20,11 @@ async function Content({ params }: { params: Promise<{ id: string }> }) {
 }
 
 export default function Page({ params }: { params: Promise<{ id: string }> }) {
-  return <Suspense fallback={<Skeleton />}><AdminGuard><Content params={params} /></AdminGuard></Suspense>;
+  return (
+    <Suspense fallback={<Skeleton />}>
+      <AdminGuard>
+        <Content params={params} />
+      </AdminGuard>
+    </Suspense>
+  );
 }

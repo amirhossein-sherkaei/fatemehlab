@@ -21,6 +21,7 @@ async function Content({ params }: { params: Promise<{ id: string }> }) {
   if (orderData.length === 0) notFound();
   const order = orderData[0];
   const items = await db.select().from(orderItems).where(eq(orderItems.orderId, id));
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center gap-4">
@@ -32,6 +33,7 @@ async function Content({ params }: { params: Promise<{ id: string }> }) {
           <p className="text-sm text-muted-foreground mt-1 font-mono" dir="ltr">{order.trackingCode}</p>
         </div>
       </div>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-1 bg-white border border-border rounded-2xl shadow-sm p-6 space-y-4">
           <h2 className="text-lg font-bold border-b border-border pb-3 mb-4 flex items-center gap-2"><User className="w-5 h-5 text-sage" /> مشتری</h2>
@@ -46,6 +48,7 @@ async function Content({ params }: { params: Promise<{ id: string }> }) {
             <p className="text-sm bg-[#F8F9FA] p-3 rounded-lg border border-border leading-relaxed">{order.address}</p>
           </div>
         </div>
+
         <div className="md:col-span-2 space-y-6">
           <div className="bg-white border border-border rounded-2xl shadow-sm p-6">
             <h2 className="text-lg font-bold border-b border-border pb-3 mb-4 flex items-center gap-2"><Package className="w-5 h-5 text-sage" /> محصولات سفارش</h2>
@@ -65,6 +68,7 @@ async function Content({ params }: { params: Promise<{ id: string }> }) {
               <span className="font-black text-xl text-sage">{formatToman(order.totalAmount)}</span>
             </div>
           </div>
+
           <StatusUpdater orderId={order.id} currentStatus={order.status} />
         </div>
       </div>
@@ -73,5 +77,11 @@ async function Content({ params }: { params: Promise<{ id: string }> }) {
 }
 
 export default function Page({ params }: { params: Promise<{ id: string }> }) {
-  return <Suspense fallback={<Skeleton />}><AdminGuard><Content params={params} /></AdminGuard></Suspense>;
+  return (
+    <Suspense fallback={<Skeleton />}>
+      <AdminGuard>
+        <Content params={params} />
+      </AdminGuard>
+    </Suspense>
+  );
 }

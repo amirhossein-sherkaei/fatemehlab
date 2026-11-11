@@ -13,13 +13,43 @@ function Skeleton() {
 
 async function Content({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const result = await db.select({ ticket: supportTickets, customerName: customers.name, customerEmail: customers.email }).from(supportTickets).leftJoin(customers, eq(supportTickets.customerId, customers.id)).where(eq(supportTickets.id, id)).limit(1);
+  const result = await db
+    .select({
+      ticket: supportTickets,
+      customerName: customers.name,
+      customerEmail: customers.email,
+    })
+    .from(supportTickets)
+    .leftJoin(customers, eq(supportTickets.customerId, customers.id))
+    .where(eq(supportTickets.id, id))
+    .limit(1);
+
   if (result.length === 0) notFound();
-  const messages = await db.select().from(supportMessages).where(eq(supportMessages.ticketId, id)).orderBy(asc(supportMessages.createdAt));
-  const customer = { name: result[0].customerName || 'کاربر', email: result[0].customerEmail || '' };
-  return <AdminChatClient ticket={result[0].ticket} customer={customer} initialMessages={messages} />;
+
+  const messages = await db
+    .select()
+    .from(supportMessages)
+    .where(eq(supportMessages.ticketId, id))
+    .orderBy(asc(supportMessages.createdAt));
+
+  const customer = {
+    name: result[0].customerName || 'کاربر',
+    email: result[0].customerEmail || '',
+  };
+
+  return (
+    <AdminChatClient
+      ticket={result[0].ticket}
+      customer={customer}
+      initialMessages={messages}
+    />
+  );
 }
 
 export default function Page({ params }: { params: Promise<{ id: string }> }) {
-  return <Suspense fallback={<Skeleton />}><Content params={params} /></Suspense>;
+  return (
+    <Suspense fallback={<Skeleton />}>
+      <Content params={params} />
+    </Suspense>
+  );
 }
