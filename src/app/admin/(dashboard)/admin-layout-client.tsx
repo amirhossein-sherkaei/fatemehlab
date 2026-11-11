@@ -3,12 +3,11 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, ShoppingBag, LogOut, Settings, Menu, X, Package, BookOpen, MessageSquare, Bell, HelpCircle, User, BellRing, Headphones, TicketPercent } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, LogOut, Settings, Menu, X, Package, BookOpen, MessageSquare, Bell, HelpCircle, User, BellRing, TicketPercent } from 'lucide-react';
 import { Suspense, useState, useEffect } from 'react';
 import { Toaster } from 'sonner';
 import AdminBottomNav from '@/components/admin/AdminBottomNav';
 import { useAdminNotifications } from '@/hooks/useAdminNotifications';
-
 
 export default function AdminLayoutClient({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -43,7 +42,6 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
     { name: 'محصولات', href: '/admin/products', icon: ShoppingBag },
     { name: 'مجله', href: '/admin/articles', icon: BookOpen },
     { name: 'نظرات', href: '/admin/reviews', icon: MessageSquare },
-    { name: 'پشتیبانی', href: '/admin/support', icon: Headphones },
     { name: 'کد تخفیف', href: '/admin/coupons', icon: TicketPercent },
     { name: 'تنظیمات', href: '/admin/settings', icon: Settings },
     { name: 'راهنما', href: '/admin/help', icon: HelpCircle },
@@ -170,7 +168,9 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
         </div>
       </main>
 
-      <Suspense fallback={null}><AdminBottomNav pendingCount={pendingCount} onOpenMenu={() => setIsMobileMenuOpen(true)} /></Suspense>
+      <Suspense fallback={null}>
+        <AdminBottomNav pendingCount={pendingCount} onOpenMenu={() => setIsMobileMenuOpen(true)} />
+      </Suspense>
     </div>
   );
 }

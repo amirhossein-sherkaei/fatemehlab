@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, Package, Heart, MapPin, User, LogOut, ArrowRight, MessageCircle } from 'lucide-react';
+import { LayoutDashboard, Package, Heart, MapPin, User, LogOut, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 
 const menuItems = [
@@ -11,7 +11,6 @@ const menuItems = [
   { name: 'سفارشات من', href: '/account/orders', icon: Package },
   { name: 'علاقه‌مندی‌ها', href: '/account/wishlist', icon: Heart },
   { name: 'آدرس‌ها', href: '/account/addresses', icon: MapPin },
-  { name: 'پشتیبانی', href: '/account/support', icon: MessageCircle },
   { name: 'پروفایل', href: '/account/profile', icon: User },
 ];
 
