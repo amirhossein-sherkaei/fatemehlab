@@ -12,12 +12,9 @@ const vazirmatn = Vazirmatn({
 });
 
 export const metadata: Metadata = {
-  title: "36688862",
+  title: "فاطمه بیوتی لند | فروشگاه محصولات آرایشی و بهداشتی",
   description: "محصولات آرایشی و مراقبتی فاطمه بیوتی لند را بررسی کنید؛ مشخصات، قیمت و وضعیت موجودی هر محصول در صفحه اختصاصی آن نمایش داده می‌شود.",
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "https://fatemehbeautyland.ir"),
-  other: {
-    enamad: "36688862",
-  },
   icons: {
     icon: '/logo.png',
     shortcut: '/logo.png',
