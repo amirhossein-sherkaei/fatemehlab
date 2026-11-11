@@ -3,7 +3,6 @@ import AdminLayoutClient from './admin-layout-client';
 export const instant = false;
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  // امنیت کاملاً توسط فایل proxy.ts مدیریت می‌شود.
-  // نیازی به redirect در اینجا نیست که باعث خطای 441 شود.
+  // 认证逻辑移至 proxy.ts，此处不再使用服务端 redirect 避免 441 错误
   return <AdminLayoutClient>{children}</AdminLayoutClient>;
 }

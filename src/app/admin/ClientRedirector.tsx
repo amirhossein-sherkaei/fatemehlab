@@ -5,9 +5,7 @@ import { Loader2 } from 'lucide-react';
 
 export default function ClientRedirector({ to }: { to: string }) {
   const router = useRouter();
-  useEffect(() => {
-    router.replace(to);
-  }, [router, to]);
+  useEffect(() => { router.replace(to); }, [router, to]);
   return (
     <div className="flex min-h-[50vh] items-center justify-center">
       <div className="flex flex-col items-center gap-3">
