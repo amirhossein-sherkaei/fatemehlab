@@ -79,11 +79,29 @@ export default function Footer() {
       </div>
 
       <div className="container-custom fl-footer-bottom">
-        <p>© {year} فاطمه بیوتی لند. تمامی حقوق محفوظ است.</p>
-        <p className="flex items-center gap-2">
-          <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#c61d70]" />
-          مراقبت، با انتخابی آگاهانه
-        </p>
+        <div className="flex flex-col items-start md:flex-row md:items-center gap-3 md:gap-6">
+          <p>© {year} فاطمه بیوتی لند. تمامی حقوق محفوظ است.</p>
+          <p className="hidden md:flex items-center gap-2 opacity-70 text-[10px]">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#c61d70]" />
+            مراقبت، با انتخابی آگاهانه
+          </p>
+        </div>
+        
+        {/* لوگوی اینماد */}
+        <div className="mt-4 md:mt-0 flex items-center justify-center bg-white rounded-lg p-1">
+          <a 
+            referrerPolicy="origin" 
+            target="_blank" 
+            href="https://trustseal.enamad.ir/?id=8646028&Code=0k8tNe8JU0wOu1wOUF3YVI3faqSFyznQ"
+          >
+            <img 
+              referrerPolicy="origin" 
+              src="https://trustseal.enamad.ir/logo.aspx?id=8646028&Code=0k8tNe8JU0wOu1wOUF3YVI3faqSFyznQ" 
+              alt="نماد اعتماد الکترونیکی" 
+              style={{ cursor: 'pointer', height: '85px', width: 'auto' }} 
+            />
+          </a>
+        </div>
       </div>
     </footer>
   );
