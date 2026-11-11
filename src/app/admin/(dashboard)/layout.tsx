@@ -1,8 +1,21 @@
+import { Suspense } from 'react';
 import AdminLayoutClient from './admin-layout-client';
 
 export const instant = false;
 
+// 用于给客户端组件加载时的占位符
+function LayoutFallback() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-[#fafafc]">
+      <div className="w-10 h-10 border-4 border-[#c61d70] border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  );
+}
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  // 认证逻辑移至 proxy.ts，此处不再使用服务端 redirect 避免 441 错误
-  return <AdminLayoutClient>{children}</AdminLayoutClient>;
+  return (
+    <Suspense fallback={<LayoutFallback />}>
+      <AdminLayoutClient>{children}</AdminLayoutClient>
+    </Suspense>
+  );
 }
