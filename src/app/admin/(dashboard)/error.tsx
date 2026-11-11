@@ -1,14 +1,9 @@
 'use client';
-import { useEffect } from 'react';
 import { unstable_rethrow } from 'next/navigation';
 import { AlertTriangle, RotateCcw } from 'lucide-react';
 
 export default function AdminError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
-  // 核心：放行框架内部的重定向信号，避免被误判为崩溃
   unstable_rethrow(error);
-
-  useEffect(() => { console.error('[Admin Error Boundary]', error); }, [error]);
-
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center p-8 text-center bg-white rounded-3xl border border-rose-100 shadow-sm">
       <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mb-4">
