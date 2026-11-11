@@ -1,18 +1,40 @@
 'use client';
-
+import { unstable_rethrow } from 'next/navigation';
 import { AlertTriangle, RotateCcw } from 'lucide-react';
 
-export default function AdminError({ reset }: { error: Error; reset: () => void }) {
+export default function AdminError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+  // اگر خطا از نوع redirect یا notFound باشد، اینجا throw میشود و به بالا میرود
+  unstable_rethrow(error);
+
   return (
-    <div className="flex min-h-[60vh] flex-col items-center justify-center p-8 text-center">
-      <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mb-4">
+    <div className="min-h-[60vh] p-6 bg-white rounded-3xl border border-rose-100 m-4">
+      <div className="flex items-center gap-3 mb-4">
         <AlertTriangle className="text-rose-500 w-8 h-8" />
+        <h2 className="text-xl font-black text-rose-600">خطای واقعی این است:</h2>
       </div>
-      <h2 className="text-xl font-black text-[#28242b] mb-2">خطایی رخ داد</h2>
-      <p className="text-sm text-[#77717b] mb-6 max-w-md">لطفاً دوباره تلاش کنید.</p>
-      <button onClick={() => reset()} className="flex items-center gap-2 rounded-xl bg-[#c61d70] px-6 py-3 text-sm font-bold text-white hover:bg-[#a9155d]">
-        <RotateCcw size={16} /> تلاش مجدد
-      </button>
+      
+      <div className="space-y-3">
+        <div>
+          <p className="text-xs font-bold text-[#28242b] mb-1">پیام خطا:</p>
+          <pre className="bg-rose-50 p-3 rounded-lg text-xs text-rose-700 overflow-auto" dir="ltr">{error.message || 'بدون پیام'}</pre>
+        </div>
+        
+        {error.digest && (
+          <div>
+            <p className="text-xs font-bold text-[#28242b] mb-1">Digest:</p>
+            <pre className="bg-amber-50 p-3 rounded-lg text-xs text-amber-700" dir="ltr">{error.digest}</pre>
+          </div>
+        )}
+        
+        <div>
+          <p className="text-xs font-bold text-[#28242b] mb-1">Stack Trace:</p>
+          <pre className="bg-gray-50 p-3 rounded-lg text-[10px] text-gray-700 overflow-auto max-h-64" dir="ltr">{error.stack || 'بدون stack'}</pre>
+        </div>
+        
+        <button onClick={() => reset()} className="flex items-center gap-2 rounded-xl bg-[#c61d70] px-6 py-3 text-sm font-bold text-white hover:bg-[#a9155d] mt-4">
+          <RotateCcw size={16} /> تلاش مجدد
+        </button>
+      </div>
     </div>
   );
 }
