@@ -43,3 +43,5 @@ next-env.d.ts
 # Fix script backups
 _fix_backup_*
 
+
+_fix_backup_*
