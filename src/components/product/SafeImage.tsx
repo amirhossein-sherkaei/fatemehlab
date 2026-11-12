@@ -18,7 +18,7 @@ interface SafeImageProps {
 export default function SafeImage({ src, alt, fill, width, height, className, sizes, priority }: SafeImageProps) {
   const [error, setError] = useState(false);
 
-  // اگر عکسی وجود نداشت یا لینکش خراب بود، این طرح لوکس نمایش داده می‌شود
+  // طرح جایگزین لوکس در صورت نبود عکس
   if (!src || src.trim() === '' || error) {
     if (fill) {
       return (
@@ -37,6 +37,7 @@ export default function SafeImage({ src, alt, fill, width, height, className, si
     );
   }
 
+  // حذف unoptimized برای فعال‌سازی فشرده‌سازی خودکار Next.js (WebP)
   return (
     <Image 
       src={src} 
@@ -44,7 +45,6 @@ export default function SafeImage({ src, alt, fill, width, height, className, si
       fill={fill} 
       width={!fill ? width : undefined}
       height={!fill ? height : undefined}
-      unoptimized={src.startsWith('http')} 
       sizes={sizes} 
       priority={priority}
       className={className}

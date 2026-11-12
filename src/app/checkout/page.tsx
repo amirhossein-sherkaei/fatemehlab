@@ -30,6 +30,34 @@ export default function CheckoutPage() {
   });
 
   useEffect(() => { setIsMounted(true); }, []);
+  // 🛡️ اعتبارسنجی مجدد کد تخفیف وقتی سبد خرید تغییر می‌کند
+  useEffect(() => {
+    if (!appliedCoupon) return;
+    
+    const revalidate = async () => {
+      try {
+        const res = await fetch('/api/coupons/validate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code: appliedCoupon.code, orderAmount: getTotalPrice() }),
+        });
+        const data = await res.json();
+        
+        if (!res.ok || !data.success) {
+          setAppliedCoupon(null);
+          setCouponCode('');
+          setCouponError(data.message || 'کد تخفیف به دلیل تغییر سبد خرید حذف شد');
+          toast.error('کد تخفیف به دلیل تغییر مبلغ سبد خرید حذف شد');
+        } else {
+          setAppliedCoupon({ code: data.coupon.code, discount: data.discount, description: data.coupon.description || '' });
+        }
+      } catch {
+        // خطای شبکه را نادیده می‌گیریم
+      }
+    };
+
+    revalidate();
+  }, [getTotalPrice(), appliedCoupon?.code]); // فقط وقتی مبلغ یا کد تغییر کند
 
   useEffect(() => {
     fetch('/api/account/me')

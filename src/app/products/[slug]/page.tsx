@@ -42,12 +42,12 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   // ══════════ محاسبه هوشمند محصولات خریداری‌شده با هم ══════════
   let fbtProducts: any[] = [];
   try {
-    // ۱. پیدا کردن سفارشاتی که این محصول در آن‌ها بوده
+    // ۱. پیدا کردن سفارشاتی که این محصول در آن‌ها بوده (بهینه‌شده)
     const ordersWithProduct = await db.select({ orderId: orderItems.orderId }).from(orderItems).where(eq(orderItems.productId, product.id)).limit(50);
     const orderIds = ordersWithProduct.map(o => o.orderId);
 
     if (orderIds.length > 0) {
-      // ۲. پیدا کردن سایر محصولات در آن سفارشات
+      // ۲. پیدا کردن سایر محصولات در آن سفارشات با یک کوئری واحد (جلوگیری از N+1)
       const otherItems = await db.select({ productId: orderItems.productId })
         .from(orderItems)
         .where(and(inArray(orderItems.orderId, orderIds), ne(orderItems.productId, product.id)))
@@ -57,6 +57,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
       
       const fbtIds = otherItems.map(i => i.productId);
       if (fbtIds.length > 0) {
+        // دریافت محصولات با یک کوئری
         fbtProducts = await db.select().from(products).where(and(inArray(products.id, fbtIds), eq(products.status, 'published')));
       }
     }

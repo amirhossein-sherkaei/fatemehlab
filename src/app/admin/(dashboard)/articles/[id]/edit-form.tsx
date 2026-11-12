@@ -4,7 +4,8 @@ import { ArrowRight, Loader2, UploadCloud, Image as ImageIcon, X, Save, Eye, Spa
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import RichTextEditor from '@/components/admin/RichTextEditor';
+import dynamic from 'next/dynamic';
+const RichTextEditor = dynamic(() => import('@/components/admin/RichTextEditor'), { ssr: false, loading: () => <div className="h-[400px] bg-gray-100 animate-pulse rounded-xl" /> });
 
 
 export default function EditForm({ article }: { article: any }) {
