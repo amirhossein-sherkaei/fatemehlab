@@ -92,7 +92,7 @@ export default async function RootLayout({
         />
       </head>
       <body className="min-h-[100dvh] font-sans text-foreground overflow-x-hidden">
-        {promoText && <PromoBar text={promoBarText} expiresAt={promoBarExpiresAt} />}
+        {promoText && <PromoBar text={promoText} expiresAt={promoExpiresAt} />}
         <AuroraBackground />
         <Toaster position="top-center" richColors theme="light" closeButton />
         <CartDrawer />
