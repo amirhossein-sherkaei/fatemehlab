@@ -28,9 +28,20 @@ const FAQ_GROUPS = [
   },
 ];
 
+const jsonLdFaq = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: FAQ_GROUPS.flatMap(group => group.items.map(item => ({
+    "@type": "Question",
+    name: item.question,
+    acceptedAnswer: { "@type": "Answer", text: item.answer }
+  })))
+};
+
 export default function FAQPage() {
   return (
     <div className="min-h-screen flex flex-col bg-transparent">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdFaq) }} />
       <Header />
       <main className="flex-1">
         <section className="fl-page-intro">

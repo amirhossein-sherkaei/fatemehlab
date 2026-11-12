@@ -10,8 +10,16 @@ import Footer from '@/components/storefront/Footer';
 
 
 export const metadata = {
-  title: 'مجله فاطمه بیوتی لند | دنیای زیبایی و مراقبت',
-  description: 'جدیدترین مقالات، آموزش‌ها و راهنمای خرید محصولات آرایشی و بهداشتی',
+  title: 'مجله فاطمه بیوتی لند | آموزش آرایش، مراقبت پوست و مو',
+  description: 'جدیدترین مقالات آموزشی، راهنمای خرید محصولات آرایشی، مراقبت از پوست و مو را در مجله فاطمه بیوتی لند بخوانید.',
+  keywords: ['مجله زیبایی', 'آموزش آرایش', 'مراقبت پوست', 'مراقبت مو', 'راهنمای خرید لوازم آرایشی'],
+  alternates: { canonical: '/journal' },
+  openGraph: {
+    title: 'مجله فاطمه بیوتی لند',
+    description: 'آموزش آرایش، مراقبت پوست و مو',
+    type: 'website',
+    locale: 'fa_IR',
+  },
 };
 
 const categoryLabels: Record<string, string> = {

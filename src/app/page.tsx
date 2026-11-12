@@ -34,6 +34,16 @@ const getCategoryIcon = (slug: string) => {
   return Star;
 };
 
+const jsonLdHomeFaq = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: [
+    { "@type": "Question", name: "چطور از قیمت و موجودی محصول مطلع شوم؟", acceptedAnswer: { "@type": "Answer", text: "قیمت و وضعیت موجودی در صفحه اختصاصی محصول نمایش داده می‌شود." } },
+    { "@type": "Question", name: "چطور سفارش خود را ثبت کنم؟", acceptedAnswer: { "@type": "Answer", text: "محصول را انتخاب کنید، به سبد خرید اضافه کنید و مراحل تسویه‌حساب را تکمیل کنید." } },
+    { "@type": "Question", name: "چطور وضعیت سفارش را پیگیری کنم؟", acceptedAnswer: { "@type": "Answer", text: "از صفحه رهگیری سفارش و با اطلاعات درخواستی، وضعیت سفارش خود را بررسی کنید." } }
+  ]
+};
+
 export default async function Home() {
   const dbProducts = await getCachedPublishedProducts();
   const newProducts = dbProducts.slice(0, 4);
@@ -42,6 +52,7 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen flex flex-col relative">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdHomeFaq) }} />
       <Header />
       <main className="flex-1 relative z-10">
         

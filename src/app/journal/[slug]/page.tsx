@@ -51,9 +51,28 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
     .orderBy(desc(articles.createdAt))
     .limit(3);
 
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatemehbeautyland.ir';
+  const jsonLdArticle = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: article.title,
+    image: article.coverImage ? [article.coverImage] : [`${baseUrl}/logo.png`],
+    datePublished: new Date(article.createdAt).toISOString(),
+    dateModified: new Date(article.updatedAt).toISOString(),
+    author: { "@type": "Person", name: article.author || "تیم فاطمه بیوتی لند" },
+    publisher: {
+      "@type": "Organization",
+      name: "فاطمه بیوتی لند",
+      logo: { "@type": "ImageObject", url: `${baseUrl}/logo.png` },
+    },
+    description: article.excerpt,
+    mainEntityOfPage: { "@type": "WebPage", "@id": `${baseUrl}/journal/${article.slug}` },
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-white overflow-x-hidden">
       <ReadingProgress />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdArticle) }} />
       <Header />
       
       <main className="flex-1 w-full max-w-[100vw]">
