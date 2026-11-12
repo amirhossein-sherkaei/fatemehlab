@@ -11,6 +11,7 @@ export default function SettingsPage() {
   const [settings, setSettings] = useState<Record<string, any>>({});
   const [promoText, setPromoText] = useState('');
   const [promoExpiresAt, setPromoExpiresAt] = useState<Date | null>(null);
+  const [promoActive, setPromoActive] = useState(true);
 
   useEffect(() => {
     fetch('/api/admin/settings')
@@ -23,6 +24,9 @@ export default function SettingsPage() {
           setPromoText(map.promoBarText || '');
           if (map.promoBarExpiresAt) {
             setPromoExpiresAt(new Date(map.promoBarExpiresAt));
+          }
+          if (map.promoBarActive !== undefined) {
+            setPromoActive(Boolean(map.promoBarActive));
           }
         }
       })
@@ -37,9 +41,10 @@ export default function SettingsPage() {
     if (!confirm('آیا از حذف کامل نوار تبلیغاتی مطمئن هستید؟')) return;
     setPromoText('');
     setPromoExpiresAt(null);
+    setPromoActive(false);
     
     // ارسال مستقیم به سرور برای پاک کردن
-    const newSettings = { ...settings, promoBarText: '', promoBarExpiresAt: null };
+    const newSettings = { ...settings, promoBarText: '', promoBarExpiresAt: null, promoBarActive: false };
     try {
       const res = await fetch('/api/admin/settings', {
         method: 'POST',
@@ -62,7 +67,8 @@ export default function SettingsPage() {
         body: JSON.stringify({ 
           ...settings, 
           promoBarText: promoText, 
-          promoBarExpiresAt: promoExpiresAt ? promoExpiresAt.toISOString() : null 
+          promoBarExpiresAt: promoExpiresAt ? promoExpiresAt.toISOString() : null,
+          promoBarActive: promoActive 
         }),
       });
       if (res.ok) toast.success('تنظیمات با موفقیت ذخیره شد');
@@ -180,7 +186,26 @@ export default function SettingsPage() {
               <p className="text-[10px] text-[#77717b]">اگر تنظیم شود، یک تایمر شمارش معکوس در نوار نمایش داده می‌شود و پس از آن به طور خودکار حذف می‌شود.</p>
             </div>
           </div>
-        </div>
+        
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+            <div className="space-y-2 md:col-span-2 pb-4 border-b border-[#e9e5eb]">
+              <div className="flex items-center justify-between">
+                <div>
+                  <label className="text-xs font-bold text-[#28242b] block">وضعیت نمایش نوار</label>
+                  <p className="text-[10px] text-[#77717b] mt-1">
+                    {promoActive ? 'نوار در حال حاضر در سایت فعال است' : 'نوار در سایت غیرفعال شده است'}
+                  </p>
+                </div>
+                <button 
+                  type="button"
+                  onClick={() => setPromoActive(!promoActive)}
+                  className={`relative w-14 h-7 rounded-full transition-all duration-300 shrink-0 ${promoActive ? 'bg-[#c61d70] shadow-lg shadow-[#c61d70]/30' : 'bg-[#e9e5eb]'}`}
+                  aria-label="تغییر وضعیت"
+                >
+                  <span className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow-md transition-all duration-300 ${promoActive ? 'right-1' : 'right-8'}`} />
+                </button>
+              </div>
+            </div></div>
       </div>
 
       {/* Sticky Mobile Save Bar */}

@@ -7,15 +7,18 @@ export default async function PromoBarWrapper() {
     const settings = await db.select().from(siteSettings);
     const textSetting = settings.find(s => s.key === 'promoBarText');
     const expiresSetting = settings.find(s => s.key === 'promoBarExpiresAt');
+    const activeSetting = settings.find(s => s.key === 'promoBarActive');
 
     const promoText = textSetting?.value as string | null;
     const promoExpiresAt = expiresSetting?.value as string | null;
+    // پیش‌فرض: اگر تنظیمی وجود نداشت، فعال در نظر گرفته می‌شود
+    const isActive = activeSetting ? Boolean(activeSetting.value) : true;
 
-    if (!promoText) return null;
+    // اگر غیرفعال است یا متنی وجود ندارد، هیچ چیزی نمایش داده نشود
+    if (!promoText || !isActive) return null;
 
     return <PromoBar text={promoText} expiresAt={promoExpiresAt} />;
   } catch (error) {
-    // اگر دیتابیس در دسترس نبود (مثلاً در زمان build)، نوار نمایش داده نمی‌شود
     return null;
   }
 }
