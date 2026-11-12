@@ -1,11 +1,10 @@
 import { NextResponse } from 'next/server';
 import { validateOrigin, rejectCsrf } from '@/lib/security';
 import { db } from '@/lib/db';
-import { orders, orderItems, products, coupons } from '@/db/schema';
+import { orders, orderItems, products, coupons, customers } from '@/db/schema';
 import { eq, inArray } from 'drizzle-orm';
 import { z } from 'zod';
 import { getCurrentCustomer } from '@/lib/customer-auth';
-import { rateLimit } from '@/lib/rate-limit';
 
 const orderSchema = z.object({
   customer: z.object({
@@ -23,6 +22,7 @@ const orderSchema = z.object({
     name: z.string().optional(),
   })).min(1),
   couponCode: z.string().optional().nullable(),
+  usedPoints: z.number().min(0).optional().default(0),
 });
 
 export async function POST(req: Request) {
@@ -35,7 +35,15 @@ export async function POST(req: Request) {
 
     const body = await req.json();
     const validated = orderSchema.parse(body);
-    const { customer, cartItems, couponCode } = validated;
+    const { customer, cartItems, couponCode, usedPoints } = validated;
+
+    // دریافت اطلاعات مشتری برای بررسی امتیازات
+    const [customerData] = await db.select().from(customers).where(eq(customers.id, currentCustomer.id)).limit(1);
+    if (!customerData) return NextResponse.json({ message: 'کاربر یافت نشد.' }, { status: 404 });
+
+    if (usedPoints > customerData.loyaltyPoints) {
+      return NextResponse.json({ message: 'امتیاز کافی برای استفاده ندارید.' }, { status: 400 });
+    }
 
     const productIds = cartItems.map((item) => item.id);
     const dbProducts = await db.select().from(products).where(inArray(products.id, productIds));
@@ -43,7 +51,6 @@ export async function POST(req: Request) {
     let subtotal = 0;
     const validatedItems: any[] = [];
 
-    // 1. بررسی محصولات و موجودی (بدون کسر موجودی)
     for (const item of cartItems) {
       const dbProduct = dbProducts.find((p) => p.id === item.id);
       if (!dbProduct || dbProduct.status !== 'published') return NextResponse.json({ message: 'محصول یافت نشد.' }, { status: 400 });
@@ -59,7 +66,6 @@ export async function POST(req: Request) {
       });
     }
 
-    // 2. محاسبه تخفیف
     let discountAmount = 0;
     let validCouponCode = null;
 
@@ -81,11 +87,13 @@ export async function POST(req: Request) {
       }
     }
 
-    const finalAmount = subtotal - discountAmount;
+    // محاسبه تخفیف امتیاز (هر ۱ امتیاز = ۱۰,۰۰۰ ریال = ۱,۰۰۰ تومان)
+    const pointsDiscount = usedPoints * 10000;
+    const finalAmount = Math.max(0, subtotal - discountAmount - pointsDiscount);
+
     const orderId = crypto.randomUUID();
     const trackingCode = `FL-${orderId.slice(0, 6).toUpperCase()}`;
 
-    // 3. ثبت سفارش (با مبلغ نهایی و کد تخفیف)
     const newOrder = await db.transaction(async (tx) => {
       const [order] = await tx.insert(orders).values({
         id: orderId,
@@ -98,7 +106,8 @@ export async function POST(req: Request) {
         postalCode: customer.postalCode,
         notes: customer.notes || null,
         totalAmount: finalAmount,
-        discountAmount: discountAmount,
+        discountAmount: discountAmount + pointsDiscount,
+        usedPoints: usedPoints,
         couponCode: validCouponCode,
         status: 'pending',
         trackingCode,

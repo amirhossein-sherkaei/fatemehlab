@@ -99,6 +99,7 @@ export const orders = pgTable("orders", {
   paymentRefId: text("payment_ref_id"),
   couponCode: text("coupon_code"),
   discountAmount: integer("discount_amount").notNull().default(0),
+  usedPoints: integer("used_points").notNull().default(0),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

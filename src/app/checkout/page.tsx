@@ -24,6 +24,9 @@ export default function CheckoutPage() {
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number; description: string } | null>(null);
   const [applyingCoupon, setApplyingCoupon] = useState(false);
   const [couponError, setCouponError] = useState('');
+  const [loyaltyPoints, setLoyaltyPoints] = useState(0);
+  const [usePoints, setUsePoints] = useState(false);
+  const [pointsToUse, setPointsToUse] = useState(0);
   
   const [formData, setFormData] = useState({
     firstName: '', lastName: '', phone: '', address: '', city: '', postalCode: '', notes: '',
@@ -63,6 +66,9 @@ export default function CheckoutPage() {
     fetch('/api/account/me')
       .then(r => r.ok ? r.json() : null)
       .then(data => {
+        if (data?.success && data.customer?.loyaltyPoints) {
+          setLoyaltyPoints(data.customer.loyaltyPoints);
+        }
         if (!data?.success) {
           router.replace('/account/login?redirect=/checkout');
         } else {
@@ -158,7 +164,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       const res = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ customer: formData, cartItems: items, couponCode: appliedCoupon?.code || null }),
+        body: JSON.stringify({ customer: formData, cartItems: items, couponCode: appliedCoupon?.code || null, usedPoints: usePoints ? pointsToUse : 0 }),
       });
       const data = await res.json();
 
@@ -340,6 +346,44 @@ const handleSubmit = async (e: React.FormEvent) => {
                 )}
               </div>
 
+                            {/* بخش استفاده از امتیاز */}
+              {loyaltyPoints > 0 && (
+                <div className="border-t border-[#e9e5eb] mt-4 pt-4 space-y-3">
+                  <label className="flex items-center justify-between cursor-pointer group">
+                    <div className="flex items-center gap-2">
+                      <input 
+                        type="checkbox" 
+                        checked={usePoints}
+                        onChange={(e) => {
+                          setUsePoints(e.target.checked);
+                          setPointsToUse(e.target.checked ? Math.min(loyaltyPoints, Math.floor(getTotalPrice() / 1000)) : 0);
+                        }}
+                        className="w-4 h-4 accent-[#c61d70]"
+                      />
+                      <span className="text-xs font-bold text-[#28242b] group-hover:text-[#c61d70] transition-colors">استفاده از امتیازات باشگاه مشتریان</span>
+                    </div>
+                    <span className="text-[10px] font-black text-[#c61d70] bg-[#fff0f7] px-2 py-1 rounded-md">{loyaltyPoints.toLocaleString('fa-IR')} امتیاز</span>
+                  </label>
+
+                  {usePoints && (
+                    <div className="bg-[#fff0f7] rounded-xl p-3 border border-[#f2d7e5] animate-in slide-in-from-top-2">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs font-bold text-[#28242b]">تعداد امتیاز برای استفاده:</span>
+                        <span className="text-xs font-black text-[#c61d70]">{pointsToUse.toLocaleString('fa-IR')} امتیاز</span>
+                      </div>
+                      <input 
+                        type="range" 
+                        min={0} 
+                        max={Math.min(loyaltyPoints, Math.floor(getTotalPrice() / 1000))}
+                        value={pointsToUse}
+                        onChange={(e) => setPointsToUse(parseInt(e.target.value))}
+                        className="w-full accent-[#c61d70]"
+                      />
+                      <p className="text-[10px] text-[#77717b] mt-2">تخفیف اعمال شده: {((pointsToUse * 1000)).toLocaleString('fa-IR')} تومان</p>
+                    </div>
+                  )}
+                </div>
+              )}
               {appliedCoupon && (
                 <div className="border-t border-[#e9e5eb] mt-3 pt-3 flex justify-between text-sm">
                   <span className="text-[#77717b]">جمع با تخفیف</span>

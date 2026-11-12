@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Loader2, PackageSearch } from 'lucide-react';
 import SafeImage from '@/components/product/SafeImage';
@@ -14,23 +14,47 @@ export default function LoadMoreProducts({ initialProducts }: { initialProducts:
   const [page, setPage] = useState(2);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(initialProducts.length === 12);
+  const observerRef = useRef<HTMLDivElement>(null);
 
-  const loadMore = async () => {
+  const loadMore = useCallback(async () => {
+    if (loading || !hasMore) return;
     setLoading(true);
     try {
       const res = await fetch(`/api/products?page=${page}`);
       const data = await res.json();
-      if (data.success) {
+      if (data.success && data.products.length > 0) {
         setProducts((prev) => [...prev, ...data.products]);
         setHasMore(data.products.length === 12);
         setPage((prev) => prev + 1);
+      } else {
+        setHasMore(false);
       }
     } catch (err) {
       console.error('Failed to load more');
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, loading, hasMore]);
+
+  // اسکرول بی‌نهایت با IntersectionObserver
+  useEffect(() => {
+    if (!hasMore) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          loadMore();
+        }
+      },
+      { threshold: 0.1, rootMargin: '200px' }
+    );
+
+    if (observerRef.current) {
+      observer.observe(observerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [loadMore, hasMore]);
 
   return (
     <div className="space-y-8">
@@ -71,17 +95,13 @@ export default function LoadMoreProducts({ initialProducts }: { initialProducts:
         })}
       </div>
 
-      {hasMore && (
-        <div className="flex justify-center pt-6">
-          <button 
-            onClick={loadMore} 
-            disabled={loading} 
-            className="flex items-center gap-2 px-8 py-3.5 bg-white border border-[#e9e5eb] text-[#28242b] text-sm font-bold rounded-2xl shadow-sm hover:border-[#c61d70] hover:text-[#c61d70] transition-all disabled:opacity-50"
-          >
-            {loading ? <Loader2 size={18} className="animate-spin text-[#c61d70]" /> : 'مشاهده محصولات بیشتر'}
-          </button>
-        </div>
-      )}
+      {/* نشانگر اسکرول بی‌نهایت */}
+      <div ref={observerRef} className="flex justify-center pt-6">
+        {loading && <Loader2 size={24} className="animate-spin text-[#c61d70]" />}
+        {!hasMore && products.length > 0 && (
+          <p className="text-xs text-[#77717b] font-bold">شما به پایان لیست محصولات رسیدید.</p>
+        )}
+      </div>
 
       {!hasMore && products.length === 0 && (
         <div className="text-center py-20">

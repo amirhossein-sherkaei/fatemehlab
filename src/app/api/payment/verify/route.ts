@@ -53,7 +53,25 @@ export async function GET(req: Request) {
           .set({ status: 'paid', paymentRefId: data.data.ref_id.toString() })
           .where(eq(orders.id, orderId));
 
-        // 4. 🏆 اعطای امتیاز باشگاه مشتریان
+        // 4. 🏆 کسر امتیاز استفاده شده و اعطای امتیاز جدید
+        if (order.customerId) {
+          const [customer] = await tx.select().from(customers).where(eq(customers.id, order.customerId)).limit(1);
+          if (customer) {
+            const earnedPoints = Math.floor(order.totalAmount / 100000);
+            const newPoints = Math.max(0, customer.loyaltyPoints - order.usedPoints + earnedPoints);
+            
+            let newTier = 'bronze';
+            if (newPoints >= 1500) newTier = 'gold';
+            else if (newPoints >= 500) newTier = 'silver';
+
+            await tx.update(customers)
+              .set({ 
+                loyaltyPoints: newPoints,
+                tier: newTier
+              })
+              .where(eq(customers.id, order.customerId));
+          }
+        }
         if (order.customerId) {
           const [customer] = await tx.select().from(customers).where(eq(customers.id, order.customerId)).limit(1);
           if (customer) {
