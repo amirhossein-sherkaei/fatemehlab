@@ -34,7 +34,26 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen flex flex-col relative">
-      
+      <Header />
+      <main className="flex-1 relative z-10">
+        
+        {/* ===== HERO ===== */}
+        <section className="fl-home-hero">
+          <div className="container-custom fl-hero-grid">
+            <div className="fl-hero-copy-wrap">
+              <span className="fl-eyebrow"><span className="fl-eyebrow-dot" />FATEMEH BEAUTY LAND / BEAUTY & CARE</span>
+              <h1 className="fl-hero-title">زیبایی، با <span>انتخابی آگاهانه.</span></h1>
+              <p className="fl-hero-copy">محصولات آرایشی و مراقبتی را با آرامش بررسی کنید؛ مشخصات، تصاویر، قیمت و وضعیت موجودی هر محصول در صفحه اختصاصی آن قرار می‌گیرد.</p>
+              <div className="fl-hero-actions">
+                <Link href="/products" className="btn-primary">مشاهده محصولات <ArrowLeft size={16} /></Link>
+                <Link href="/about" className="btn-secondary">آشنایی با ما</Link>
+              </div>
+              <div className="fl-hero-meta">
+                <span><BadgeCheck size={14} /> مشخصات محصول</span>
+                <span><Search size={14} /> جست‌وجوی آسان</span>
+                <span><PackageCheck size={14} /> رهگیری سفارش</span>
+              </div>
+            </div>
             <div className="fl-hero-art" aria-label="هویت بصری">
               <div className="fl-hero-art-top"><span>FATEMEH BEAUTY LAND</span><span>BEAUTY · CARE</span></div>
               <div className="fl-orbit" aria-hidden="true" />
@@ -74,7 +93,7 @@ export default async function Home() {
                   <Link
                     key={cat.id}
                     href={`/products?category=${cat.slug}`}
-                    className="group flex flex-col items-center justify-center rounded-2xl border border-[#e9e5eb] bg-white p-4 shadow-sm transition-all hover:-translate-y-1 hover:border-[#c61d70]/30 hover:shadow-md"
+                    className="group flex flex-col items-center justify-center rounded-2xl border border-[#e9e5eb] bg-white/70 backdrop-blur-md p-4 shadow-sm transition-all hover:-translate-y-1 hover:border-[#c61d70]/30 hover:shadow-md hover:bg-white"
                   >
                     <div className="mb-3 grid h-12 w-12 place-items-center rounded-full bg-[#fff0f7] text-[#c61d70] transition-transform group-hover:scale-110">
                       <Icon size={24} strokeWidth={1.5} />
@@ -107,9 +126,9 @@ export default async function Home() {
                 const productDescription = getPublicProductDescription(product.description);
                 return (
                   <Link href={`/products/${product.slug}`} key={product.id} className="fl-product-card group">
-                    <div className="fl-product-media">
+                    <div className="fl-product-media bg-white/50 backdrop-blur-sm">
                       {productImage ? (
-                        <Image src={productImage} alt={`تصویر ${product.name}`} fill sizes="(max-width: 680px) 46vw, (max-width: 1024px) 30vw, 280px" />
+                        <Image src={productImage} alt={`تصویر ${product.name}`} fill unoptimized={productImage.startsWith('http')} sizes="(max-width: 680px) 46vw, (max-width: 1024px) 30vw, 280px" />
                       ) : (
                         <div className="fl-product-placeholder" aria-hidden="true"><span className="absolute text-[10px] font-bold tracking-[.16em] text-[#b77b9a]">FATEMEHLAB</span></div>
                       )}
@@ -142,7 +161,7 @@ export default async function Home() {
         {/* ===== FEATURED PRODUCTS (IF ANY) ===== */}
         {featuredProducts.length > 0 && (
           <section className="container-custom fl-section pt-0">
-            <div className="rounded-3xl border border-[#f0d8e5] bg-gradient-to-br from-[#fff8fc] to-[#fff] p-6 md:p-10 relative overflow-hidden">
+            <div className="rounded-3xl border border-[#f0d8e5] bg-gradient-to-br from-[#fff8fc]/80 to-[#fff]/80 backdrop-blur-md p-6 md:p-10 relative overflow-hidden shadow-sm">
               <div className="absolute top-0 right-0 w-64 h-64 bg-[#c61d70]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
               <div className="relative z-10">
                 <div className="fl-section-head mb-6">
@@ -158,9 +177,9 @@ export default async function Home() {
                     const productImage = getPublicProductImage(product.mainImage);
                     return (
                       <Link href={`/products/${product.slug}`} key={product.id} className="fl-product-card group">
-                        <div className="fl-product-media !border-[#f2d7e5]">
+                        <div className="fl-product-media !border-[#f2d7e5] bg-white/60">
                           {productImage ? (
-                            <Image src={productImage} alt={`تصویر ${product.name}`} fill sizes="(max-width: 680px) 46vw, (max-width: 1024px) 30vw, 280px" />
+                            <Image src={productImage} alt={`تصویر ${product.name}`} fill unoptimized={productImage.startsWith('http')} sizes="(max-width: 680px) 46vw, (max-width: 1024px) 30vw, 280px" />
                           ) : (
                             <div className="fl-product-placeholder" aria-hidden="true"><span className="absolute text-[10px] font-bold tracking-[.16em] text-[#b77b9a]">FATEMEHLAB</span></div>
                           )}
@@ -184,7 +203,7 @@ export default async function Home() {
 
         {/* ===== EDITORIAL ===== */}
         <section className="container-custom pb-10">
-          <div className="fl-editorial-panel">
+          <div className="fl-editorial-panel bg-white/60 backdrop-blur-md">
             <div className="fl-editorial-visual" aria-hidden="true" />
             <div className="fl-editorial-copy">
               <span className="fl-section-kicker">A BETTER WAY TO CHOOSE</span>
@@ -203,15 +222,18 @@ export default async function Home() {
               <h2 className="fl-section-title">پاسخ چند سؤال کاربردی</h2>
             </div>
             <div className="fl-faq-list">
-              <details className="fl-faq-item"><summary>چطور از قیمت و موجودی محصول مطلع شوم؟</summary><div className="fl-faq-answer">قیمت و وضعیت موجودی در صفحه اختصاصی محصول نمایش داده می‌شود. اگر قیمت محصول ثبت نشده باشد، امکان افزودن آن به سبد خرید فعال نخواهد بود.</div></details>
-              <details className="fl-faq-item"><summary>چطور سفارش خود را ثبت کنم؟</summary><div className="fl-faq-answer">محصول دارای قیمت و موجودی را انتخاب کنید، به سبد خرید اضافه کنید و مراحل تسویه‌حساب را تکمیل کنید.</div></details>
-              <details className="fl-faq-item"><summary>چطور وضعیت سفارش را پیگیری کنم؟</summary><div className="fl-faq-answer">پس از ثبت سفارش، از صفحه رهگیری سفارش و با اطلاعات درخواستی، وضعیت سفارش خود را بررسی کنید.</div></details>
+              <details className="fl-faq-item bg-white/60 backdrop-blur-md"><summary>چطور از قیمت و موجودی محصول مطلع شوم؟</summary><div className="fl-faq-answer">قیمت و وضعیت موجودی در صفحه اختصاصی محصول نمایش داده می‌شود. اگر قیمت محصول ثبت نشده باشد، امکان افزودن آن به سبد خرید فعال نخواهد بود.</div></details>
+              <details className="fl-faq-item bg-white/60 backdrop-blur-md"><summary>چطور سفارش خود را ثبت کنم؟</summary><div className="fl-faq-answer">محصول دارای قیمت و موجودی را انتخاب کنید، به سبد خرید اضافه کنید و مراحل تسویه‌حساب را تکمیل کنید.</div></details>
+              <details className="fl-faq-item bg-white/60 backdrop-blur-md"><summary>چطور وضعیت سفارش را پیگیری کنم؟</summary><div className="fl-faq-answer">پس از ثبت سفارش، از صفحه رهگیری سفارش و با اطلاعات درخواستی، وضعیت سفارش خود را بررسی کنید.</div></details>
             </div>
             <div className="mt-5 text-center"><Link href="/faq" className="fl-text-link">مشاهده راهنمای خرید <ArrowUpLeft size={15} /></Link></div>
           </div>
         </section>
+
+        {/* ===== RECENTLY VIEWED ===== */}
+        <RecentlyViewed />
+
       </main>
-      <RecentlyViewed />
       <Footer />
     </div>
   );
