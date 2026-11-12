@@ -12,6 +12,7 @@ import Header from '@/components/storefront/Header';
 import Footer from '@/components/storefront/Footer';
 import AddToCartButton from './add-to-cart';
 import WishlistButton from '@/components/storefront/WishlistButton';
+import ShareButton from '@/components/storefront/ShareButton';
 import ProductReviews from '@/components/storefront/ProductReviews';
 import FrequentlyBoughtTogether from '@/components/product/FrequentlyBoughtTogether';
 import RecentlyViewedTracker from '@/components/storefront/RecentlyViewedTracker';
@@ -171,6 +172,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                     <AddToCartButton product={product} />
                   </div>
                   <WishlistButton productId={product.id} variant="button" className="min-w-[140px]" />
+                  <ShareButton title={product.name} />
                 </div>
               </div>
 
