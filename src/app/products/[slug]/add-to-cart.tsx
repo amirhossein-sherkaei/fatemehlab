@@ -19,6 +19,7 @@ export default function AddToCartButton({ product }: { product: CartProduct }) {
   const [loading, setLoading] = useState(false);
   const [added, setAdded] = useState(false);
   const addItem = useCartStore((state) => state.addItem);
+  const openCart = useCartStore((state) => state.openCart);
   
   const hasPrice = product.price > 0;
   const hasStock = product.stock > 0;
@@ -42,7 +43,8 @@ export default function AddToCartButton({ product }: { product: CartProduct }) {
       
       setLoading(false);
       setAdded(true);
-      toast.success(`${quantity} عدد به سبد خرید اضافه شد`);
+      toast.success(\${quantity} عدد به سبد خرید اضافه شد);
+      openCart();
       
       setTimeout(() => setAdded(false), 2000);
     }, 500);

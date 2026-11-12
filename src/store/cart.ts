@@ -1,4 +1,4 @@
-﻿import { create } from 'zustand';
+import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 export interface CartItem {
@@ -12,17 +12,21 @@ export interface CartItem {
 
 interface CartStore {
   items: CartItem[];
+  isCartOpen: boolean;
   addItem: (item: Omit<CartItem, 'quantity'>) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
   getTotalPrice: () => number;
+  openCart: () => void;
+  closeCart: () => void;
 }
 
 export const useCartStore = create<CartStore>()(
   persist(
     (set, get) => ({
       items: [],
+      isCartOpen: false,
       addItem: (item) => {
         const currentItems = get().items;
         const existingItem = currentItems.find((i) => i.id === item.id);
@@ -45,7 +49,9 @@ export const useCartStore = create<CartStore>()(
       },
       clearCart: () => set({ items: [] }),
       getTotalPrice: () => get().items.reduce((total, item) => total + item.price * item.quantity, 0),
+      openCart: () => set({ isCartOpen: true }),
+      closeCart: () => set({ isCartOpen: false }),
     }),
-    { name: 'fatemehlab-cart' } // ذخیره در LocalStorage
+    { name: 'fatemehlab-cart' }
   )
 );

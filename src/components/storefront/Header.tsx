@@ -19,6 +19,7 @@ const navigation = [
 export default function Header() {
   const pathname = usePathname();
   const items = useCartStore((state) => state.items);
+  const openCart = useCartStore((state) => state.openCart);
   const [isMounted, setIsMounted] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -88,14 +89,10 @@ export default function Header() {
             >
               <Search size={18} strokeWidth={1.8} />
             </button>
-            <Link
-              href="/cart"
-              className="fl-icon-button relative"
-              aria-label={`سبد خرید${cartCount ? `، ${cartCount} کالا` : ''}`}
-            >
+            <button onClick={openCart} className="fl-icon-button relative" aria-label="سبد خرید">
               <ShoppingBag size={18} strokeWidth={1.8} />
-              {cartCount > 0 && <span className="fl-cart-count">{cartCount.toLocaleString('fa-IR')}</span>}
-            </Link>
+              {cartCount > 0 && <span className="fl-cart-count animate-in zoom-in">{cartCount.toLocaleString('fa-IR')}</span>}
+            </button>
             <button
               type="button"
               className="fl-icon-button md:hidden"
@@ -153,7 +150,10 @@ export default function Header() {
               </Link>
             ))}
             <Link href="/account" onClick={closeOverlays}>حساب کاربری</Link>
-            <Link href="/cart" onClick={closeOverlays}>سبد خرید</Link>
+            <button onClick={openCart} className="fl-icon-button relative" aria-label="سبد خرید">
+              <ShoppingBag size={18} strokeWidth={1.8} />
+              {cartCount > 0 && <span className="fl-cart-count animate-in zoom-in">{cartCount.toLocaleString('fa-IR')}</span>}
+            </button>
           </nav>
         </div>
       )}
