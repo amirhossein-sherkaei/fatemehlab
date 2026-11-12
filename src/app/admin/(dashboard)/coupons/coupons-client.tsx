@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, Trash2, Edit, Search, Loader2, X, Check, Percent, Tag, TicketPercent, Power } from 'lucide-react';
 import { toast } from 'sonner';
+import PersianDatePicker from '@/components/shared/PersianDatePicker';
 
 
 type Coupon = {
@@ -304,7 +305,11 @@ export default function CouponsClient({ initialCoupons }: { initialCoupons: Coup
 
               <div>
                 <label className="block text-xs font-bold text-[#28242b] mb-2">تاریخ انقضا - اختیاری</label>
-                <input type="date" value={expiresAt} onChange={(e) => setExpiresAt(e.target.value)} className="w-full px-4 py-3 bg-[#f8f7fa] border border-[#e9e5eb] rounded-xl text-sm outline-none focus:border-[#c61d70]" dir="ltr" />
+                <PersianDatePicker
+  value={expiresAt ? new Date(expiresAt) : null}
+  onChange={(date) => setExpiresAt(date ? date.toISOString().split('T')[0] : '')}
+  placeholder="انتخاب تاریخ انقضا..."
+/>
               </div>
 
               <label className="flex items-center gap-2 cursor-pointer">
