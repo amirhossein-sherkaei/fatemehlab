@@ -34,6 +34,13 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      {/* ✨ افکت‌های نوری پس‌زمینه (Aurora Glow) */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden -z-10">
+        <div className="absolute -top-[20%] -left-[10%] w-[50vw] h-[50vw] rounded-full bg-[#fff0f7]/60 blur-[120px] animate-float-slow" />
+        <div className="absolute top-[20%] -right-[10%] w-[40vw] h-[40vw] rounded-full bg-[#fce5f0]/50 blur-[100px] animate-float-slower" />
+        <div className="absolute -bottom-[10%] left-[20%] w-[60vw] h-[60vw] rounded-full bg-[#f8f7fa]/80 blur-[150px]" />
+      </div>
+
       <Header />
       <main className="flex-1">
         {/* ===== HERO ===== */}
