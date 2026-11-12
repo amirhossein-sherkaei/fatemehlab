@@ -254,7 +254,13 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               <span className="block text-[10px] text-[#918a95]">قیمت</span>
               <span className="text-base font-black text-[#28242b]">{formatToman(product.price)}</span>
             </div>
-            <div className="flex-1 max-w-[220px]"><AddToCartButton product={product} /></div>
+            <div className="flex-1 max-w-[220px]">
+              {isAvailable ? (
+                <AddToCartButton product={product} />
+              ) : (
+                <StockNotifyButton productId={product.id} />
+              )}
+            </div>
           </div>
         </div>
       )}

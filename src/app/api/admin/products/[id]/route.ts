@@ -36,7 +36,9 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     // 🚀 ارسال خودکار پیامک در صورت شارژ موجودی (اصلاح شده برای Vercel)
     if (updatedProduct && Number(updatedProduct.stock) > 0) {
       const pendingNotifs = await db.select().from(stockNotifications)
-        .where(and(eq(stockNotifications.productId, id), eq(stockNotifications.status, 'pending')));
+        .where(and(eq(stockNotifications.productId, id), eq(stockNotifications.status, 'pending')))
+        .limit(15)
+        .limit(15); // 🛡️ محدودیت ۱۵ اعلان برای جلوگیری از Timeout
       
       if (pendingNotifs.length > 0) {
         // در اینجا حتماً await می‌کنیم تا Vercel سرور را قبل از ارسال پیامک خاموش نکند
