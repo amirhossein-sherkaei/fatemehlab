@@ -4,6 +4,7 @@ import { Vazirmatn } from "next/font/google";
 import { Toaster } from "sonner";
 import BottomNav from "@/components/storefront/BottomNav";
 import CartDrawer from "@/components/storefront/CartDrawer";
+import AuroraBackground from "@/components/storefront/AuroraBackground";
 import QuickViewModal from "@/components/storefront/QuickViewModal";
 import "./globals.css";
 
@@ -64,6 +65,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-[100dvh] font-sans text-foreground overflow-x-hidden">
+        <AuroraBackground />
         <Toaster position="top-center" richColors theme="light" closeButton />
         <CartDrawer />
         <QuickViewModal />
