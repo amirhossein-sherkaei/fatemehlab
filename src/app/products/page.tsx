@@ -4,7 +4,7 @@ import { categories, products } from '@/db/schema';
 import { and, desc, eq, ilike, SQL, gte, asc } from 'drizzle-orm';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, Search, PackageSearch } from 'lucide-react';
+import { ArrowLeft, Search, PackageSearch, Eye } from 'lucide-react';
 import { formatToman } from '@/lib/currency';
 import { getPublicProductDescription, getPublicProductImage } from '@/lib/product-content';
 import Header from '@/components/storefront/Header';
@@ -150,6 +150,15 @@ export default async function ProductsPage({
                           <div className="absolute top-2 left-2 z-10">
                             <WishlistButton productId={product.id} />
                           </div>
+<div className="absolute top-10 left-2 z-10">
+  <button 
+    onClick={(e) => { e.preventDefault(); openQuickView({ id: product.id, name: product.name, slug: product.slug, price: product.price, mainImage: product.mainImage }); }}
+    className="w-9 h-9 flex items-center justify-center bg-white/90 backdrop-blur rounded-full text-[#77717b] hover:text-[#c61d70] hover:scale-110 shadow-md border border-[#e9e5eb] transition-all"
+    aria-label="نمایش سریع"
+  >
+    <Eye size={16} />
+  </button>
+</div>
                         </div>
                         <div className="p-4 flex-1 flex flex-col">
                           {product.brand && <span className="text-[10px] font-bold text-[#c61d70] mb-1">{product.brand}</span>}

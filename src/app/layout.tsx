@@ -4,6 +4,7 @@ import { Vazirmatn } from "next/font/google";
 import { Toaster } from "sonner";
 import BottomNav from "@/components/storefront/BottomNav";
 import CartDrawer from "@/components/storefront/CartDrawer";
+import QuickViewModal from "@/components/storefront/QuickViewModal";
 import "./globals.css";
 
 const vazirmatn = Vazirmatn({
@@ -65,6 +66,7 @@ export default function RootLayout({
       <body className="min-h-[100dvh] bg-background font-sans text-foreground overflow-x-hidden">
         <Toaster position="top-center" richColors theme="light" closeButton />
         <CartDrawer />
+        <QuickViewModal />
         {children}
         <Suspense fallback={null}>
           <BottomNav />
