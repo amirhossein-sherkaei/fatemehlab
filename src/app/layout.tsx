@@ -5,6 +5,7 @@ import { Toaster } from "sonner";
 import BottomNav from "@/components/storefront/BottomNav";
 import CartDrawer from "@/components/storefront/CartDrawer";
 import AuroraBackground from "@/components/storefront/AuroraBackground";
+import PwaInstallPrompt from "@/components/storefront/PwaInstallPrompt";
 import QuickViewModal from "@/components/storefront/QuickViewModal";
 import "./globals.css";
 
@@ -18,6 +19,14 @@ export const metadata: Metadata = {
   title: "فاطمه بیوتی لند | فروشگاه محصولات آرایشی و بهداشتی",
   description: "محصولات آرایشی و مراقبتی فاطمه بیوتی لند را بررسی کنید؛ مشخصات، قیمت و وضعیت موجودی هر محصول در صفحه اختصاصی آن نمایش داده می‌شود.",
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "https://fatemehbeautyland.ir"),
+  appleWebApp: {
+    capable: true,
+    title: "فاطمه بیوتی لند",
+    statusBarStyle: "default",
+  },
+  formatDetection: {
+    telephone: false,
+  },
   icons: {
     icon: '/logo.png',
     shortcut: '/logo.png',
@@ -68,6 +77,7 @@ export default function RootLayout({
         <AuroraBackground />
         <Toaster position="top-center" richColors theme="light" closeButton />
         <CartDrawer />
+        <PwaInstallPrompt />
         <QuickViewModal />
         {children}
         <Suspense fallback={null}>
