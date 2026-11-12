@@ -1,13 +1,15 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
-import { Save, Loader2, Store, ShieldCheck, CreditCard, Info } from 'lucide-react';
+import { Save, Loader2, Store, ShieldCheck, CreditCard, Info, Sparkles } from 'lucide-react';
 
 
 export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [settings, setSettings] = useState<Record<string, any>>({});
+  const [promoText, setPromoText] = useState('');
+  const [promoExpiresAt, setPromoExpiresAt] = useState('');
 
   useEffect(() => {
     fetch('/api/admin/settings')
@@ -16,6 +18,9 @@ export default function SettingsPage() {
         if (data.success) {
           const map: Record<string, any> = {};
           data.settings.forEach((s: any) => { map[s.key] = s.value; });
+          setSettings(map);
+          setPromoText(map.promoBarText || '');
+          setPromoExpiresAt(map.promoBarExpiresAt ? new Date(map.promoBarExpiresAt).toISOString().slice(0, 16) : '');
           setSettings(map);
         }
       })
@@ -32,7 +37,7 @@ export default function SettingsPage() {
       const res = await fetch('/api/admin/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(settings),
+        body: JSON.stringify({ ...settings, promoBarText: promoText, promoBarExpiresAt: promoExpiresAt }),
       });
       if (res.ok) toast.success('تنظیمات با موفقیت ذخیره شد');
       else toast.error('خطا در ذخیره تنظیمات');
@@ -115,6 +120,36 @@ export default function SettingsPage() {
         </div>
       </div>
 
+              {/* Promotion Settings */}
+        <div className="rounded-3xl border border-[#e9e5eb] bg-white p-5 shadow-sm md:p-6">
+          <h2 className="mb-5 flex items-center gap-2 border-b border-[#e9e5eb] pb-4 text-sm font-black text-[#28242b]">
+            <Sparkles size={18} className="text-[#c61d70]"/> نوار تبلیغاتی بالای سایت
+          </h2>
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+            <div className="space-y-2 md:col-span-2">
+              <label className="text-xs font-bold text-[#28242b]">متن نوار تبلیغاتی</label>
+              <input 
+                type="text" 
+                value={promoText} 
+                onChange={e => setPromoText(e.target.value)} 
+                className="w-full rounded-xl border border-[#e9e5eb] bg-[#f8f7fa] px-4 py-3 text-sm outline-none transition-colors focus:border-[#c61d70] focus:bg-white" 
+                placeholder="مثلاً: ارسال رایگان برای خرید بالای ۵۰۰ هزار تومان" 
+              />
+              <p className="text-[10px] text-[#77717b]">اگر خالی باشد، نوار تبلیغاتی نمایش داده نمی‌شود.</p>
+            </div>
+            <div className="space-y-2 md:col-span-2">
+              <label className="text-xs font-bold text-[#28242b]">تاریخ و ساعت پایان کمپین (اختیاری)</label>
+              <input 
+                type="datetime-local" 
+                value={promoExpiresAt} 
+                onChange={e => setPromoExpiresAt(e.target.value)} 
+                className="w-full rounded-xl border border-[#e9e5eb] bg-[#f8f7fa] px-4 py-3 text-sm outline-none transition-colors focus:border-[#c61d70] focus:bg-white" 
+                dir="ltr"
+              />
+              <p className="text-[10px] text-[#77717b]">اگر تنظیم شود، یک تایمر شمارش معکوس در نوار نمایش داده می‌شود و پس از آن به طور خودکار حذف می‌شود.</p>
+            </div>
+          </div>
+        </div>
       {/* Sticky Mobile Save Bar */}
       <div className="fixed bottom-24 left-3 right-3 z-40 md:hidden">
         <button onClick={handleSave} disabled={saving} className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#28242b] py-3.5 text-sm font-bold text-white shadow-2xl transition-transform active:scale-[0.98] disabled:opacity-50">

@@ -5,6 +5,7 @@ import { Toaster } from "sonner";
 import BottomNav from "@/components/storefront/BottomNav";
 import CartDrawer from "@/components/storefront/CartDrawer";
 import AuroraBackground from "@/components/storefront/AuroraBackground";
+import PromoBar from "@/components/storefront/PromoBar";
 import PwaInstallPrompt from "@/components/storefront/PwaInstallPrompt";
 import QuickViewModal from "@/components/storefront/QuickViewModal";
 import "./globals.css";
@@ -60,11 +61,28 @@ const jsonLd = {
   ]
 };
 
-export default function RootLayout({
+import { db } from '@/lib/db';
+import { siteSettings } from '@/db/schema';
+import { eq } from 'drizzle-orm';
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+    // دریافت تنظیمات نوار تبلیغاتی
+  let promoText = null;
+  let promoExpiresAt = null;
+  try {
+    const settings = await db.select().from(siteSettings);
+    const textSetting = settings.find(s => s.key === 'promoBarText');
+    const expiresSetting = settings.find(s => s.key === 'promoBarExpiresAt');
+    if (textSetting?.value) promoText = textSetting.value as string;
+    if (expiresSetting?.value) promoExpiresAt = expiresSetting.value as string;
+  } catch (e) {
+    console.error('Failed to load promo bar settings', e);
+  }
+
   return (
     <html lang="fa" dir="rtl" className={vazirmatn.variable}>
       <head>
@@ -74,6 +92,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-[100dvh] font-sans text-foreground overflow-x-hidden">
+        {promoText && <PromoBar text={promoBarText} expiresAt={promoBarExpiresAt} />}
         <AuroraBackground />
         <Toaster position="top-center" richColors theme="light" closeButton />
         <CartDrawer />
