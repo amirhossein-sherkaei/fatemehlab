@@ -39,56 +39,26 @@ export const useCartStore = create<CartStore>()(
       isCartOpen: false,
       recentlyViewed: [],
       quickViewProduct: null,
-
-      addItem: (item) => {
-        const currentItems = get().items;
-        const existingItem = currentItems.find((i) => i.id === item.id);
-        if (existingItem) {
-          set({
-            items: currentItems.map((i) =>
-              i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
-            ),
-          });
-        } else {
-          set({ items: [...currentItems, { ...item, quantity: 1 }] });
-        }
-      },
-            addBundle: (itemsToAdd) => {
-        const currentItems = [...get().items];
-        itemsToAdd.forEach(item => {
-          const existingIndex = currentItems.findIndex(i => i.id === item.id);
-          if (existingIndex > -1) {
-            currentItems[existingIndex].quantity += 1;
-          } else {
-            currentItems.push({ ...item, quantity: 1 });
-          }
-        });
-        set({ items: currentItems });
-      },
-      removeItem: (id) => set({ items: get().items.filter((i) => i.id !== id) }),
-      updateQuantity: (id, quantity) => {
-        if (quantity < 1) return;
-        set({
-          items: get().items.map((i) => (i.id === id ? { ...i, quantity } : i)),
-        });
-      },
-      clearCart: () => set({ items: [] }),
-      getTotalPrice: () => get().items.reduce((total, item) => total + item.price * item.quantity, 0),
-      
+      addItem: (item) => { ... },
+      removeItem: (id) => { ... },
+      updateQuantity: (id, quantity) => { ... },
+      clearCart: () => { ... },
+      getTotalPrice: () => { ... },
       openCart: () => set({ isCartOpen: true }),
       closeCart: () => set({ isCartOpen: false }),
-      
       openQuickView: (product) => set({ quickViewProduct: product }),
       closeQuickView: () => set({ quickViewProduct: null }),
-      
-      addRecentlyViewed: (product) => {
-        const current = get().recentlyViewed;
-        // حذف تکراری‌ها و اضافه کردن به ابتدای لیست
-        const filtered = current.filter((i) => i.id !== product.id);
-        const updated = [product, ...filtered].slice(0, 5); // فقط ۵ محصول آخر
-        set({ recentlyViewed: updated });
-      },
+      addRecentlyViewed: (product) => { ... },
     }),
     { name: 'fatemehlab-cart' }
   )
 );
+
+// 🛡️ همگام‌سازی سبد خرید بین تب‌ها
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', (event) => {
+    if (event.key === 'fatemehlab-cart') {
+      useCartStore.persist.rehydrate();
+    }
+  });
+}

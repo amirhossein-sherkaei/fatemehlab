@@ -17,6 +17,12 @@ export async function GET(req: Request) {
     const [order] = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
     if (!order) return NextResponse.redirect(`${baseUrl}/order/failure?reason=order_not_found`);
 
+        // 🛡️ بررسی تطابق Authority (جلوگیری از دستکاری سفارش)
+    if (order.paymentAuthority !== authority) {
+      console.error(`[SECURITY] Authority mismatch for order ${orderId}`);
+      return NextResponse.redirect(`${baseUrl}/order/failure?reason=security_error`);
+    }
+    
     if (order.status === 'paid' || order.status === 'processing') {
       return NextResponse.redirect(`${baseUrl}/order/success?id=${orderId}&code=${order.trackingCode}`);
     }

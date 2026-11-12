@@ -26,6 +26,7 @@ export async function PUT(req: Request) {
 
     const updateData: any = { name: validated.name, phone: validated.phone || null };
     let emailChanged = false;
+    let nameChanged = validated.name !== current.name;
 
     if (validated.email && validated.email.toLowerCase() !== current.email.toLowerCase()) {
       const existing = await db.select({ id: customers.id }).from(customers).where(eq(customers.email, validated.email.toLowerCase())).limit(1);
@@ -40,7 +41,7 @@ export async function PUT(req: Request) {
 
     const response = NextResponse.json({ success: true });
 
-    if (emailChanged) {
+    if (emailChanged || nameChanged) {
       const newToken = await createCustomerToken({
         id: current.id,
         email: updateData.email,
