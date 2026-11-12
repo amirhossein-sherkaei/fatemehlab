@@ -10,8 +10,15 @@ const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'fallback-secr
 
 export async function POST(req: Request) {
   try {
-    const { email, password } = await req.json();
+    // 🛡️ سپر امنیتی: جلوگیری از حملات Brute-force
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
+    const rl = await rateLimit('admin-login:' + ip);
+    
+    if (!rl.success) {
+      return NextResponse.json({ message: 'تلاش‌های ناموفق زیاد است. لطفاً ۵ دقیقه دیگر تلاش کنید.' }, { status: 429 });
+    }
 
+    const { email, password } = await req.json();
     const user = await db.select().from(adminUsers).where(eq(adminUsers.email, email)).limit(1);
 
     if (user.length === 0) {
@@ -33,7 +40,7 @@ export async function POST(req: Request) {
     response.cookies.set('admin_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: 'lax', // باگ خروج ناخواسته را برطرف کردیم
       maxAge: 60 * 60 * 24,
       path: '/',
     });

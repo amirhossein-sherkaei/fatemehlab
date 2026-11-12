@@ -17,6 +17,12 @@ export async function POST(req: Request) {
     const customer = await getCurrentCustomer();
     if (!customer) return NextResponse.json({ success: false, message: 'UNAUTHORIZED' }, { status: 401 });
 
+    // 🛡️ بررسی وجود توکن Blob
+    if (!process.env.BLOB_READ_WRITE_TOKEN) {
+      console.error('BLOB_READ_WRITE_TOKEN is missing');
+      return NextResponse.json({ success: false, message: 'سیستم آپلود موقتاً در دسترس نیست' }, { status: 500 });
+    }
+
     const formData = await req.formData();
     const file = formData.get('file') as File;
 
@@ -24,20 +30,17 @@ export async function POST(req: Request) {
     if (file.size > MAX_SIZE) return NextResponse.json({ success: false, message: 'حجم عکس حداکثر ۲ مگابایت است' }, { status: 400 });
     if (!ALLOWED_TYPES.includes(file.type)) return NextResponse.json({ success: false, message: 'فقط JPG, PNG یا WebP مجاز است' }, { status: 400 });
 
-    // حذف آواتار قبلی (اگر وجود داشت)
     const [current] = await db.select({ avatar: customers.avatar }).from(customers).where(eq(customers.id, customer.id)).limit(1);
     if (current?.avatar) {
       try { await del(current.avatar, { token: process.env.BLOB_READ_WRITE_TOKEN }); } catch {}
     }
 
-    // آپلود به Vercel Blob
     const blob = await put(`avatar-${customer.id}-${Date.now()}`, file, {
       access: 'public',
       addRandomSuffix: true,
       token: process.env.BLOB_READ_WRITE_TOKEN,
     });
 
-    // آپدیت دیتابیس
     await db.update(customers).set({ avatar: blob.url }).where(eq(customers.id, customer.id));
 
     return NextResponse.json({ success: true, avatar: blob.url });

@@ -3,6 +3,7 @@ import { db } from '@/lib/db';
 import { customers } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { getCurrentCustomer, createCustomerToken } from '@/lib/customer-auth';
+import { validateOrigin, rejectCsrf } from '@/lib/security';
 import { z } from 'zod';
 
 const profileSchema = z.object({
@@ -13,6 +14,10 @@ const profileSchema = z.object({
 
 export async function PUT(req: Request) {
   try {
+    // 🛡️ سپر امنیتی
+    const { valid: originValid } = validateOrigin(req);
+    if (!originValid) return rejectCsrf(req);
+
     const current = await getCurrentCustomer();
     if (!current) return NextResponse.json({ success: false, message: 'UNAUTHORIZED' }, { status: 401 });
 

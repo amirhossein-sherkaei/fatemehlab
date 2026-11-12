@@ -5,6 +5,7 @@ import { eq } from 'drizzle-orm';
 import * as argon2 from 'argon2';
 import { z } from 'zod';
 import { getCurrentCustomer } from '@/lib/customer-auth';
+import { validateOrigin, rejectCsrf } from '@/lib/security';
 
 const schema = z.object({
   currentPassword: z.string().optional(),
@@ -13,6 +14,10 @@ const schema = z.object({
 
 export async function POST(req: Request) {
   try {
+    // 🛡️ سپر امنیتی
+    const { valid: originValid } = validateOrigin(req);
+    if (!originValid) return rejectCsrf(req);
+
     const customer = await getCurrentCustomer();
     if (!customer) return NextResponse.json({ success: false, message: 'UNAUTHORIZED' }, { status: 401 });
 
@@ -22,7 +27,6 @@ export async function POST(req: Request) {
     const [cust] = await db.select().from(customers).where(eq(customers.id, customer.id)).limit(1);
     if (!cust) return NextResponse.json({ success: false, message: 'کاربر یافت نشد' }, { status: 404 });
 
-    // If user already has a password, verify the current one
     if (cust.passwordHash && cust.passwordHash !== '') {
       if (!currentPassword) {
         return NextResponse.json({ success: false, message: 'رمز عبور فعلی الزامی است' }, { status: 400 });
