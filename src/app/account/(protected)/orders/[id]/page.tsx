@@ -42,7 +42,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <Link href={/account/orders//print} target="_blank" className="flex items-center gap-2 px-4 py-2 bg-white border border-[#e9e5eb] text-[#28242b] text-sm font-bold rounded-xl shadow-sm hover:bg-[#f8f7fa]"><Printer size={16} /> پرینت فاکتور</Link>
+        <Link href={`/account/orders/${order.id}/print`} target="_blank" className="flex items-center gap-2 px-4 py-2 bg-white border border-[#e9e5eb] text-[#28242b] text-sm font-bold rounded-xl shadow-sm hover:bg-[#f8f7fa]"><Printer size={16} /> پرینت فاکتور</Link>
         <Link href="/account/orders" className="p-2 bg-white border border-[#e9e5eb] rounded-xl hover:bg-[#f8f7fa] transition-colors">
           <ArrowRight size={18} />
         </Link>
@@ -104,7 +104,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           {items.map((item) => (
             <div key={item.id} className="flex items-center justify-between py-3">
               <div className="flex items-center gap-3">
-        <Link href={/account/orders//print} target="_blank" className="flex items-center gap-2 px-4 py-2 bg-white border border-[#e9e5eb] text-[#28242b] text-sm font-bold rounded-xl shadow-sm hover:bg-[#f8f7fa]"><Printer size={16} /> پرینت فاکتور</Link>
+        <Link href={`/account/orders/${order.id}/print`} target="_blank" className="flex items-center gap-2 px-4 py-2 bg-white border border-[#e9e5eb] text-[#28242b] text-sm font-bold rounded-xl shadow-sm hover:bg-[#f8f7fa]"><Printer size={16} /> پرینت فاکتور</Link>
                 <span className="w-10 h-10 rounded-lg bg-[#f8f7fa] border border-[#e9e5eb] flex items-center justify-center text-sm font-black">{item.quantity.toLocaleString('fa-IR')}×</span>
                 <span className="font-bold text-sm text-[#28242b]">{item.productName}</span>
               </div>
