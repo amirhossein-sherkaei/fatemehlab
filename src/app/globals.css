@@ -1848,3 +1848,116 @@ body {
     font-size: 16px !important;
   }
 }
+/* ============================================================ */
+/*  DARK MODE (MIDNIGHT BEAUTY)                                 */
+/* ============================================================ */
+
+@custom-variant dark (&:is(.dark *));
+
+.dark {
+  /* Base Colors */
+  --fl-canvas: #0b090c;
+  --fl-soft: #131015;
+  --fl-ink: #f2edf5;
+  --fl-muted: #9e94a6;
+  --fl-line: #2a232e;
+  
+  background-color: #0b090c !important;
+  color: #f2edf5 !important;
+}
+
+/* Aurora Background for Dark Mode */
+.dark body {
+  background-color: #0b090c !important;
+  background-image: none !important;
+}
+
+.dark .orb-pink {
+  background: radial-gradient(circle, rgba(198, 29, 112, 0.15) 0%, rgba(11, 9, 12, 0) 70%) !important;
+}
+
+.dark .orb-purple {
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, rgba(11, 9, 12, 0) 70%) !important;
+}
+
+.dark .orb-peach {
+  background: radial-gradient(circle, rgba(225, 29, 72, 0.1) 0%, rgba(11, 9, 12, 0) 70%) !important;
+}
+
+/* Header */
+.dark .fl-header {
+  background: rgba(19, 16, 21, 0.75) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.dark .fl-icon-button {
+  color: #9e94a6;
+}
+.dark .fl-icon-button:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #f2edf5;
+}
+
+/* Cards & Panels */
+.dark .glass-panel, 
+.dark .glass-card,
+.dark .bg-white {
+  background: rgba(26, 22, 28, 0.7) !important;
+  border-color: #2a232e !important;
+  backdrop-filter: blur(16px) !important;
+}
+
+/* Text Overrides */
+.dark .text-\[\#28242b\] { color: #f2edf5 !important; }
+.dark .text-\[\#77717b\] { color: #9e94a6 !important; }
+.dark .text-\[\#918a95\] { color: #706677 !important; }
+
+/* Borders */
+.dark .border-\[\#e9e5eb\] { border-color: #2a232e !important; }
+.dark .divide-\[\#e9e5eb\] > :not([hidden]) ~ :not([hidden]) { border-color: #2a232e !important; }
+
+/* Inputs */
+.dark input, .dark textarea, .dark select {
+  background: #131015 !important;
+  border-color: #2a232e !important;
+  color: #f2edf5 !important;
+}
+.dark input:focus, .dark textarea:focus {
+  border-color: #c61d70 !important;
+  background: #0b090c !important;
+}
+
+/* Specific Components */
+.dark .fl-product-media {
+  background: linear-gradient(145deg, #1a161c, #131015) !important;
+  border-color: #2a232e !important;
+}
+
+.dark .fl-bottom-nav-inner {
+  background: rgba(19, 16, 21, 0.85) !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.dark .fl-bottom-nav-item {
+  color: #706677;
+}
+
+.dark .fl-bottom-nav-item.is-active {
+  color: #ff4d94;
+}
+
+.dark .fl-bottom-nav-pill {
+  background: linear-gradient(135deg, rgba(198, 29, 112, 0.2) 0%, rgba(198, 29, 112, 0.1) 100%) !important;
+  border-color: rgba(198, 29, 112, 0.3) !important;
+}
+
+/* Admin Sidebar */
+.dark aside {
+  background: rgba(19, 16, 21, 0.8) !important;
+  border-left-color: #2a232e !important;
+}
+
+.dark .admin-bottom-nav-inner {
+  background: rgba(19, 16, 21, 0.9) !important;
+  border-color: #2a232e !important;
+}

@@ -7,6 +7,7 @@ import CartDrawer from "@/components/storefront/CartDrawer";
 import AuroraBackground from "@/components/storefront/AuroraBackground";
 import PwaInstallPrompt from "@/components/storefront/PwaInstallPrompt";
 import PromoBarWrapper from "@/components/storefront/PromoBarWrapper";
+import { ThemeProvider } from "next-themes";
 import "./globals.css";
 
 const vazirmatn = Vazirmatn({
@@ -74,6 +75,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-[100dvh] font-sans text-foreground overflow-x-hidden">
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
         <Suspense fallback={null}>
           <PromoBarWrapper />
         </Suspense>
@@ -85,6 +87,7 @@ export default function RootLayout({
         <Suspense fallback={null}>
           <BottomNav />
         </Suspense>
+      </ThemeProvider>
       </body>
     </html>
   );

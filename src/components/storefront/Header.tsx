@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { Menu, ShoppingBag, X } from 'lucide-react';
 import { useCartStore } from '@/store/cart';
 import UserMenuButton from './UserMenuButton';
+import ThemeToggle from '@/components/shared/ThemeToggle';
 import InstantSearch from './InstantSearch';
 
 const navigation = [
@@ -74,6 +75,7 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center gap-1">
+            <ThemeToggle />
             <UserMenuButton />
 
 <InstantSearch />
