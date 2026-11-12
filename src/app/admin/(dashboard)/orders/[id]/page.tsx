@@ -8,6 +8,7 @@ import { formatToman } from '@/lib/currency';
 import { ArrowRight, User, Phone, MapPin, Package } from 'lucide-react';
 import Link from 'next/link';
 import StatusUpdater from './status-updater';
+import { Printer } from 'lucide-react';
 
 export const instant = false;
 
@@ -25,6 +26,7 @@ async function Content({ params }: { params: Promise<{ id: string }> }) {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center gap-4">
+        <Link href={/admin/orders//print} target="_blank" className="flex items-center gap-2 px-4 py-2 bg-[#c61d70] text-white text-sm font-bold rounded-xl shadow-sm hover:bg-[#a9155d]"><Printer size={16} /> پرینت فاکتور</Link>
         <Link href="/admin/orders" prefetch={false} className="p-2 bg-white border border-border rounded-xl hover:bg-[#F8F9FA] transition-colors shadow-sm">
           <ArrowRight className="w-5 h-5 text-foreground" />
         </Link>

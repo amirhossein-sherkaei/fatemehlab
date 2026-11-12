@@ -1961,3 +1961,43 @@ body {
   background: rgba(19, 16, 21, 0.9) !important;
   border-color: #2a232e !important;
 }
+/* ============================================================ */
+/*  PRINT MEDIA QUERIES FOR INVOICES & LABELS                   */
+/* ============================================================ */
+@media print {
+  @page {
+    size: A4;
+    margin: 15mm;
+  }
+  
+  body {
+    background: white !important;
+  }
+
+  /* مخفی کردن همه چیز */
+  body * {
+    visibility: hidden;
+  }
+
+  /* فقط فاکتور قابل مشاهده باشد */
+  #print-area, #print-area * {
+    visibility: visible;
+  }
+
+  /* موقعیت فاکتور */
+  #print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* مخفی کردن المان‌هایی که نباید چاپ شوند */
+  .no-print, header, footer, nav, .fl-bottom-nav, .admin-bottom-nav, aside {
+    display: none !important;
+  }
+}
