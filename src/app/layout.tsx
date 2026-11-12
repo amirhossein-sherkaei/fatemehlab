@@ -38,7 +38,30 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fa" dir="rtl" className={vazirmatn.variable}>
-      <body className="min-h-[100dvh] bg-background font-sans text-foreground overflow-x-hidden">
+      <Link
+              href="/cart"
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "name": "فاطمه بیوتی لند",
+            "url": "https://fatemehbeautyland.ir",
+            "logo": "https://fatemehbeautyland.ir/logo.png",
+            "contactPoint": {
+              "@type": "ContactPoint",
+              "telephone": "+989905316327",
+              "contactType": "customer service",
+              "areaServed": "IR",
+              "availableLanguage": "Persian"
+            },
+            "sameAs": [
+              "https://instagram.com/fatemehlab.ir"
+            ]
+          })
+        }}
+      />
         <Toaster position="top-center" richColors theme="light" closeButton />
         <CartDrawer />
         {children}
