@@ -15,9 +15,8 @@ export default function BottomNav() {
 
   useEffect(() => { setIsMounted(true); }, []);
 
-  const cartCount = isMounted
-    ? items.reduce((total, item) => total + item.quantity, 0)
-    : 0;
+  const cartCount = isMounted ? items.reduce((total, item) => total + item.quantity, 0) : 0;
+  const isCartPage = pathname === '/cart' || pathname === '/checkout';
 
   const isHidden =
     pathname.startsWith('/admin') ||
@@ -88,7 +87,7 @@ export default function BottomNav() {
             >
               <div className="fl-bottom-nav-icon-wrap">
                 <Icon size={22} strokeWidth={isActive ? 2.4 : 1.7} />
-                {item.badge && item.badge > 0 ? (
+                {(item.badge && item.badge > 0 && !isCartPage) ? (
                   <span className="fl-bottom-nav-badge">
                     {item.badge.toLocaleString('fa-IR')}
                   </span>

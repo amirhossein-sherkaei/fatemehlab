@@ -38,9 +38,8 @@ export default function Header() {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [searchOpen, mobileMenuOpen]);
 
-  const cartCount = isMounted
-    ? items.reduce((total, item) => total + item.quantity, 0)
-    : 0;
+  const cartCount = isMounted ? items.reduce((total, item) => total + item.quantity, 0) : 0;
+  const isCartPage = pathname === '/cart' || pathname === '/checkout';
 
   const closeOverlays = () => {
     setSearchOpen(false);
@@ -97,7 +96,9 @@ export default function Header() {
               aria-label={`سبد خرید${cartCount ? `، ${cartCount} کالا` : ''}`}
             >
               <ShoppingBag size={18} strokeWidth={1.8} />
-              {cartCount > 0 && <span className="fl-cart-count animate-in zoom-in">{cartCount.toLocaleString('fa-IR')}</span>}
+              {cartCount > 0 && !isCartPage && (
+                <span className="fl-cart-count animate-in zoom-in">{cartCount.toLocaleString('fa-IR')}</span>
+              )}
             </button>
             
             <button
