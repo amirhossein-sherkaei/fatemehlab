@@ -1,3 +1,4 @@
+import { formatPersianDate, formatPersianDateTime } from '@/lib/format';
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -131,7 +132,7 @@ export default function CustomersClient() {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-xs text-[#77717b]">
-                      <div className="flex items-center gap-1.5"><Calendar size={12}/> {new Date(customer.createdAt).toLocaleDateString('fa-IR')}</div>
+                      <div className="flex items-center gap-1.5"><Calendar size={12}/> {formatPersianDate(customer.createdAt)}</div>
                     </td>
                   </tr>
                 ))

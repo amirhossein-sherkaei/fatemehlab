@@ -1,3 +1,4 @@
+import { formatPersianDate, formatPersianDateTime } from '@/lib/format';
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -141,7 +142,7 @@ export default function ArticlesClient({ initialArticles }: { initialArticles: a
                   <span className="text-[10px] font-bold text-sage bg-sage/10 px-2 py-0.5 rounded">
                     {categoryLabels[article.category] || article.category}
                   </span>
-                  <span className="text-[10px] text-muted">{new Date(article.createdAt).toLocaleDateString('fa-IR')}</span>
+                  <span className="text-[10px] text-muted">{formatPersianDate(article.createdAt)}</span>
                 </div>
                 <h3 className="font-bold text-sm text-ink mb-1 line-clamp-2">{article.title}</h3>
                 {article.excerpt && <p className="text-xs text-muted line-clamp-2 mb-3">{article.excerpt}</p>}

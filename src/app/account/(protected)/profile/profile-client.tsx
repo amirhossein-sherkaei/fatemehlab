@@ -1,3 +1,4 @@
+import { formatPersianDate, formatPersianDateTime } from '@/lib/format';
 'use client';
 
 import { useState, useRef, useMemo } from 'react';
@@ -566,7 +567,7 @@ export default function ProfileClient({ customer, stats, recentOrders, isOtpUser
                       </span>
                     </div>
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-[#918a95]">
-                      <span>{new Date(order.createdAt).toLocaleDateString('fa-IR')}</span>
+                      <span>{formatPersianDate(order.createdAt)}</span>
                       <span>·</span>
                       <span className="font-bold text-[#28242b]">{formatToman(order.totalAmount)}</span>
                     </div>
@@ -621,7 +622,7 @@ export default function ProfileClient({ customer, stats, recentOrders, isOtpUser
             <div className="rounded-xl border border-white/10 bg-white/10 p-3 backdrop-blur-sm">
               <Clock size={16} className="mb-2 text-[#f4b7d5]" />
               <p className="mb-1 text-[10px] text-white/60">عضویت شما</p>
-              <p className="text-sm font-black">{new Date(stats.memberSince).toLocaleDateString('fa-IR')}</p>
+              <p className="text-sm font-black">{formatPersianDate(stats.memberSince)}</p>
             </div>
             <div className="rounded-xl border border-white/10 bg-white/10 p-3 backdrop-blur-sm">
               <Award size={16} className="mb-2 text-[#f4b7d5]" />

@@ -1,3 +1,4 @@
+import { formatPersianDate, formatPersianDateTime } from '@/lib/format';
 'use client';
 import { useState, useEffect } from 'react';
 import { ArrowRight, Loader2, UploadCloud, Image as ImageIcon, X, Save, Eye, Sparkles, Settings, FileText, Globe, Wand2 } from 'lucide-react';
@@ -110,7 +111,7 @@ export default function EditForm({ article }: { article: any }) {
           </Link>
           <div>
             <h1 className="text-lg md:text-xl font-bold text-ink line-clamp-1">{formData.title || 'ویرایش مقاله'}</h1>
-            <p className="text-xs text-muted">آخرین به‌روزرسانی: {new Date(article.updatedAt).toLocaleDateString('fa-IR')}</p>
+            <p className="text-xs text-muted">آخرین به‌روزرسانی: {formatPersianDate(article.updatedAt)}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">

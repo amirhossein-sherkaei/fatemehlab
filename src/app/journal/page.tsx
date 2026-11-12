@@ -1,3 +1,4 @@
+import { formatPersianDate, formatPersianDateTime } from '@/lib/format';
 import { db } from '@/lib/db';
 import { articles } from '@/db/schema';
 import { eq, and, desc } from 'drizzle-orm';
@@ -167,7 +168,7 @@ export default async function JournalPage({
                     </p>
                     <div className="flex items-center justify-between pt-3 border-t border-[#e9e5eb] text-[10px] text-[#918a95] font-bold">
                       <span className="flex items-center gap-1"><Clock size={12} /> {article.readTime}</span>
-                      <span>{new Date(article.createdAt).toLocaleDateString('fa-IR')}</span>
+                      <span>{formatPersianDate(article.createdAt)}</span>
                     </div>
                   </div>
                 </Link>

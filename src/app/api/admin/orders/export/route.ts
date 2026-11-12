@@ -1,3 +1,4 @@
+import { formatPersianDate, formatPersianDateTime } from '@/lib/format';
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { orders, orderItems } from '@/db/schema';
@@ -40,7 +41,7 @@ export async function GET() {
         order.discountAmount?.toString() || '0',
         order.couponCode || '',
         statusMap[order.status] || order.status,
-        new Date(order.createdAt).toLocaleDateString('fa-IR'),
+        formatPersianDate(order.createdAt),
         productList,
       ]);
     }

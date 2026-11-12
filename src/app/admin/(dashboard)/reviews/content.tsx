@@ -1,3 +1,4 @@
+import { formatPersianDate, formatPersianDateTime } from '@/lib/format';
 'use client';
 import { useState, useEffect } from 'react';
 import { Check, X, Star, Loader2, MessageSquare, ShieldCheck, Trash2, Mail, Package, User } from 'lucide-react';
@@ -119,7 +120,7 @@ export default function AdminReviewsPage() {
                         </div>
                         <div className="flex items-center gap-3 mt-1 text-[10px] text-[#918a95]">
                           {review.email && <span className="flex items-center gap-1"><Mail size={10}/> {review.email}</span>}
-                          <span>{new Date(review.createdAt).toLocaleDateString('fa-IR')}</span>
+                          <span>{formatPersianDate(review.createdAt)}</span>
                         </div>
                       </div>
                     </div>

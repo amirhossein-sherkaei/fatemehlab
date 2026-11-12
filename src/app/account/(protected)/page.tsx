@@ -1,3 +1,4 @@
+import { formatPersianDate, formatPersianDateTime } from '@/lib/format';
 import { db } from '@/lib/db';
 import { orders, wishlist, addresses, customers } from '@/db/schema';
 import { eq, desc } from 'drizzle-orm';
@@ -149,7 +150,7 @@ export default async function AccountDashboard() {
                       </span>
                     </div>
                     <div className="flex items-center gap-3 text-[11px] text-[#918a95] md:text-xs">
-                      <span className="flex items-center gap-1"><Calendar size={12}/> {new Date(order.createdAt).toLocaleDateString('fa-IR')}</span>
+                      <span className="flex items-center gap-1"><Calendar size={12}/> {formatPersianDate(order.createdAt)}</span>
                       <span className="w-1 h-1 rounded-full bg-[#e9e5eb]"></span>
                       <span className="font-black text-[#28242b]">{formatToman(order.totalAmount)}</span>
                     </div>

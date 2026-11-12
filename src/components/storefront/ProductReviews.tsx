@@ -1,3 +1,4 @@
+import { formatPersianDate, formatPersianDateTime } from '@/lib/format';
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -279,7 +280,7 @@ export default function ProductReviews({ productId }: { productId: string }) {
                             </span>
                           )}
                         </div>
-                        <span className="text-[10px] text-[#918a95]">{new Date(review.createdAt).toLocaleDateString('fa-IR')}</span>
+                        <span className="text-[10px] text-[#918a95]">{formatPersianDate(review.createdAt)}</span>
                       </div>
                     </div>
                     <div className="flex text-amber-400">
@@ -306,7 +307,7 @@ export default function ProductReviews({ productId }: { productId: string }) {
                       <div className="flex items-center gap-2 mb-2">
                         <ShieldCheck size={14} className="text-[#c61d70]" />
                         <span className="text-xs font-black text-[#c61d70]">پاسخ فاطمه بیوتی لند</span>
-                        <span className="text-[10px] text-[#918a95]">{new Date(review.adminReplyAt).toLocaleDateString('fa-IR')}</span>
+                        <span className="text-[10px] text-[#918a95]">{formatPersianDate(review.adminReplyAt)}</span>
                       </div>
                       <p className="text-xs text-[#5a1038] leading-loose">{review.adminReply}</p>
                     </div>

@@ -1,3 +1,5 @@
+import { formatNumberInput, parseNumberInput } from '@/lib/format';
+import { formatPersianDate, formatPersianDateTime } from '@/lib/format';
 'use client';
 
 import { useState } from 'react';
@@ -238,7 +240,7 @@ export default function CouponsClient({ initialCoupons }: { initialCoupons: Coup
                   </div>
                   <div>
                     <p className="text-[10px] text-[#918a95] mb-1">انقضا</p>
-                    <p className="text-xs font-bold text-[#28242b]">{coupon.expiresAt ? new Date(coupon.expiresAt).toLocaleDateString('fa-IR') : 'ندارد'}</p>
+                    <p className="text-xs font-bold text-[#28242b]">{coupon.expiresAt ? formatPersianDate(coupon.expiresAt) : 'ندارد'}</p>
                   </div>
                 </div>
               </div>
@@ -279,12 +281,12 @@ export default function CouponsClient({ initialCoupons }: { initialCoupons: Coup
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-[#28242b] mb-2">{type === 'percent' ? 'درصد تخفیف *' : 'مبلغ تخفیف (ریال) *'}</label>
-                  <input type="number" value={value} onChange={(e) => setValue(e.target.value)} min={1} max={type === 'percent' ? 100 : undefined} className="w-full px-4 py-3 bg-[#f8f7fa] border border-[#e9e5eb] rounded-xl text-sm outline-none focus:border-[#c61d70]" dir="ltr" required />
+                  <input type="text" value={formatNumberInput(value)} onChange={(e) => setValue(parseNumberInput(e.target.value).toString())} className="w-full px-4 py-3 bg-[#f8f7fa] border border-[#e9e5eb] rounded-xl text-sm outline-none focus:border-[#c61d70]" dir="ltr" required />
                 </div>
                 {type === 'percent' && (
                   <div>
                     <label className="block text-xs font-bold text-[#28242b] mb-2">سقف تخفیف (ریال) - اختیاری</label>
-                    <input type="number" value={maxDiscountAmount} onChange={(e) => setMaxDiscountAmount(e.target.value)} className="w-full px-4 py-3 bg-[#f8f7fa] border border-[#e9e5eb] rounded-xl text-sm outline-none focus:border-[#c61d70]" dir="ltr" />
+                    <input type="text" value={formatNumberInput(maxDiscountAmount)} onChange={(e) => setMaxDiscountAmount(parseNumberInput(e.target.value).toString())} className="w-full px-4 py-3 bg-[#f8f7fa] border border-[#e9e5eb] rounded-xl text-sm outline-none focus:border-[#c61d70]" dir="ltr" />
                   </div>
                 )}
               </div>
@@ -292,11 +294,11 @@ export default function CouponsClient({ initialCoupons }: { initialCoupons: Coup
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-[#28242b] mb-2">حداقل مبلغ سفارش (ریال)</label>
-                  <input type="number" value={minOrderAmount} onChange={(e) => setMinOrderAmount(e.target.value)} placeholder="0" className="w-full px-4 py-3 bg-[#f8f7fa] border border-[#e9e5eb] rounded-xl text-sm outline-none focus:border-[#c61d70]" dir="ltr" />
+                  <input type="text" value={formatNumberInput(minOrderAmount)} onChange={(e) => setMinOrderAmount(parseNumberInput(e.target.value).toString())} placeholder="0" className="w-full px-4 py-3 bg-[#f8f7fa] border border-[#e9e5eb] rounded-xl text-sm outline-none focus:border-[#c61d70]" dir="ltr" />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-[#28242b] mb-2">سقف تعداد استفاده</label>
-                  <input type="number" value={usageLimit} onChange={(e) => setUsageLimit(e.target.value)} placeholder="نامحدود" className="w-full px-4 py-3 bg-[#f8f7fa] border border-[#e9e5eb] rounded-xl text-sm outline-none focus:border-[#c61d70]" dir="ltr" />
+                  <input type="text" value={formatNumberInput(usageLimit)} onChange={(e) => setUsageLimit(parseNumberInput(e.target.value).toString())} placeholder="نامحدود" className="w-full px-4 py-3 bg-[#f8f7fa] border border-[#e9e5eb] rounded-xl text-sm outline-none focus:border-[#c61d70]" dir="ltr" />
                 </div>
               </div>
 

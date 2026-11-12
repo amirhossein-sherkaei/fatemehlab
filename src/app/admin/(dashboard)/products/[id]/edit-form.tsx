@@ -1,3 +1,4 @@
+import { formatNumberInput, parseNumberInput } from '@/lib/format';
 'use client';
 import { useState } from 'react';
 import { ArrowRight, Loader2, UploadCloud, Plus, Trash2, AlertCircle, ShieldAlert } from 'lucide-react';
@@ -166,15 +167,15 @@ export default function EditForm({ product }: { product: any }) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">قیمت فروش (تومان)</label>
-              <input type="number" name="price" value={formData.price} onChange={handleChange} dir="ltr" className="w-full px-4 py-2.5 bg-[#F8F9FA] border border-border rounded-xl focus:ring-2 focus:ring-sage/50" />
+              <input type="text" name="price" value={formatNumberInput(formData.price)} onChange={(e) => setFormData({ ...formData, price: parseNumberInput(e.target.value) as any })} dir="ltr" className="w-full px-4 py-2.5 bg-[#F8F9FA] border border-border rounded-xl focus:ring-2 focus:ring-sage/50" />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">قیمت قبل از تخفیف (اختیاری)</label>
-              <input type="number" name="compareAtPrice" value={formData.compareAtPrice} onChange={handleChange} dir="ltr" className="w-full px-4 py-2.5 bg-[#F8F9FA] border border-border rounded-xl focus:ring-2 focus:ring-sage/50" />
+              <input type="text" name="compareAtPrice" value={formatNumberInput(formData.compareAtPrice)} onChange={(e) => setFormData({ ...formData, compareAtPrice: parseNumberInput(e.target.value) as any })} dir="ltr" className="w-full px-4 py-2.5 bg-[#F8F9FA] border border-border rounded-xl focus:ring-2 focus:ring-sage/50" />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">موجودی انبار</label>
-              <input type="number" name="stock" value={formData.stock} onChange={handleChange} dir="ltr" className="w-full px-4 py-2.5 bg-[#F8F9FA] border border-border rounded-xl focus:ring-2 focus:ring-sage/50" />
+              <input type="text" name="stock" value={formatNumberInput(formData.stock)} onChange={(e) => setFormData({ ...formData, stock: parseNumberInput(e.target.value) as any })} dir="ltr" className="w-full px-4 py-2.5 bg-[#F8F9FA] border border-border rounded-xl focus:ring-2 focus:ring-sage/50" />
             </div>
           </div>
         </section>

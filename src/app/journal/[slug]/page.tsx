@@ -1,3 +1,4 @@
+import { formatPersianDate, formatPersianDateTime } from '@/lib/format';
 import { db } from '@/lib/db';
 import { articles } from '@/db/schema';
 import { eq, ne, and, desc } from 'drizzle-orm';
@@ -78,7 +79,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
             <div className="flex flex-wrap items-center justify-center gap-3 md:gap-8 text-[10px] md:text-sm font-bold text-[#918a95] bg-white shadow-sm border border-[#f2d7e5] w-fit mx-auto px-4 md:px-8 py-3 md:py-4 rounded-xl md:rounded-2xl">
               <span className="flex items-center gap-1.5 md:gap-2"><User size={14} className="text-[#c61d70] md:w-[18px] md:h-[18px]" /> {article.author}</span>
               <span className="hidden md:block w-px h-6 bg-[#e9e5eb]" />
-              <span className="flex items-center gap-1.5 md:gap-2"><Calendar size={14} className="text-[#c61d70] md:w-[18px] md:h-[18px]" /> {new Date(article.createdAt).toLocaleDateString('fa-IR')}</span>
+              <span className="flex items-center gap-1.5 md:gap-2"><Calendar size={14} className="text-[#c61d70] md:w-[18px] md:h-[18px]" /> {formatPersianDate(article.createdAt)}</span>
               <span className="hidden md:block w-px h-6 bg-[#e9e5eb]" />
               <span className="flex items-center gap-1.5 md:gap-2"><Clock size={14} className="text-[#c61d70] md:w-[18px] md:h-[18px]" /> {article.readTime}</span>
             </div>

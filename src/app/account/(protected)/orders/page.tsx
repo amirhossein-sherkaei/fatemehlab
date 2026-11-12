@@ -1,3 +1,4 @@
+import { formatPersianDate, formatPersianDateTime } from '@/lib/format';
 import { db } from '@/lib/db';
 import { orders } from '@/db/schema';
 import { eq, desc } from 'drizzle-orm';
@@ -67,7 +68,7 @@ export default async function CustomerOrdersPage() {
                       </span>
                     </div>
                     <div className="flex flex-wrap gap-x-5 gap-y-1 text-xs text-[#77717b]">
-                      <span>تاریخ: {new Date(order.createdAt).toLocaleDateString('fa-IR')}</span>
+                      <span>تاریخ: {formatPersianDate(order.createdAt)}</span>
                       <span>مبلغ: {formatToman(order.totalAmount)}</span>
                     </div>
                   </div>

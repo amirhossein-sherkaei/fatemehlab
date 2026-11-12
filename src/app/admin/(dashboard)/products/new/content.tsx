@@ -1,3 +1,4 @@
+import { formatNumberInput, parseNumberInput } from '@/lib/format';
 'use client';
 import { useState } from 'react';
 import { ArrowRight, Loader2, UploadCloud, Plus, Trash2 } from 'lucide-react';
@@ -152,8 +153,8 @@ export default function NewProductPage() {
         <div className="space-y-2"><label className="text-sm font-medium">توضیحات کوتاه</label><textarea name="description" value={formData.description} onChange={handleChange} rows={2} className="w-full px-4 py-2.5 bg-[#F8F9FA] border border-border rounded-xl focus:ring-2 focus:ring-sage/50"></textarea></div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2"><label className="text-sm font-medium">قیمت (تومان)</label><input type="number" name="price" value={formData.price} onChange={handleChange} dir="ltr" className="w-full px-4 py-2.5 bg-[#F8F9FA] border border-border rounded-xl focus:ring-2 focus:ring-sage/50" /></div>
-          <div className="space-y-2"><label className="text-sm font-medium">موجودی</label><input type="number" name="stock" value={formData.stock} onChange={handleChange} dir="ltr" className="w-full px-4 py-2.5 bg-[#F8F9FA] border border-border rounded-xl focus:ring-2 focus:ring-sage/50" /></div>
+          <div className="space-y-2"><label className="text-sm font-medium">قیمت (تومان)</label><input type="text" name="price" value={formatNumberInput(formData.price)} onChange={(e) => setFormData({ ...formData, price: parseNumberInput(e.target.value) as any })} dir="ltr" className="w-full px-4 py-2.5 bg-[#F8F9FA] border border-border rounded-xl focus:ring-2 focus:ring-sage/50" /></div>
+          <div className="space-y-2"><label className="text-sm font-medium">موجودی</label><input type="text" name="stock" value={formatNumberInput(formData.stock)} onChange={(e) => setFormData({ ...formData, stock: parseNumberInput(e.target.value) as any })} dir="ltr" className="w-full px-4 py-2.5 bg-[#F8F9FA] border border-border rounded-xl focus:ring-2 focus:ring-sage/50" /></div>
         </div>
 
         <div className="space-y-2"><label className="text-sm font-medium">وضعیت انتشار</label><select name="status" value={formData.status} onChange={handleChange} className="w-full px-4 py-2.5 bg-[#F8F9FA] border border-border rounded-xl cursor-pointer"><option value="draft">پیش‌نویس</option><option value="published">منتشر شده</option></select></div>

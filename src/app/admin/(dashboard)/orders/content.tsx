@@ -1,3 +1,4 @@
+import { formatPersianDate, formatPersianDateTime } from '@/lib/format';
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -105,7 +106,7 @@ export default function AdminOrdersPage() {
                   <tr key={order.id} className="transition-colors hover:bg-[#fafafc]">
                     <td className="px-6 py-4 font-mono font-bold text-[#28242b]" dir="ltr">{order.trackingCode}</td>
                     <td className="px-6 py-4"><span className="font-bold text-[#28242b] block">{order.firstName} {order.lastName}</span><span className="text-[10px] text-[#77717b]" dir="ltr">{order.phone}</span></td>
-                    <td className="px-6 py-4 text-xs text-[#77717b]">{new Date(order.createdAt).toLocaleDateString('fa-IR')}</td>
+                    <td className="px-6 py-4 text-xs text-[#77717b]">{formatPersianDate(order.createdAt)}</td>
                     <td className="px-6 py-4 font-bold text-[#28242b]" dir="auto">{formatToman(order.totalAmount)}</td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-bold ${statusMap[order.status]?.color}`}>
