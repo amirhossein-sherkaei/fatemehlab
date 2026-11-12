@@ -30,7 +30,6 @@ export default function AddToCartButton({ product }: { product: CartProduct }) {
     setLoading(true);
     
     setTimeout(() => {
-      // ✅ حلقه: به تعداد quantity بار، آیتم را اضافه می‌کنیم
       for (let i = 0; i < quantity; i++) {
         addItem({ 
           id: product.id, 
@@ -43,7 +42,7 @@ export default function AddToCartButton({ product }: { product: CartProduct }) {
       
       setLoading(false);
       setAdded(true);
-      toast.success(\${quantity} عدد به سبد خرید اضافه شد);
+      toast.success(`${quantity} عدد به سبد خرید اضافه شد`);
       openCart();
       
       setTimeout(() => setAdded(false), 2000);

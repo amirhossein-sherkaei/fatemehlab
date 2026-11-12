@@ -89,10 +89,17 @@ export default function Header() {
             >
               <Search size={18} strokeWidth={1.8} />
             </button>
-            <button onClick={openCart} className="fl-icon-button relative" aria-label="سبد خرید">
+            
+            <button
+              type="button"
+              onClick={openCart}
+              className="fl-icon-button relative"
+              aria-label={`سبد خرید${cartCount ? `، ${cartCount} کالا` : ''}`}
+            >
               <ShoppingBag size={18} strokeWidth={1.8} />
               {cartCount > 0 && <span className="fl-cart-count animate-in zoom-in">{cartCount.toLocaleString('fa-IR')}</span>}
             </button>
+            
             <button
               type="button"
               className="fl-icon-button md:hidden"
@@ -150,10 +157,7 @@ export default function Header() {
               </Link>
             ))}
             <Link href="/account" onClick={closeOverlays}>حساب کاربری</Link>
-            <button onClick={openCart} className="fl-icon-button relative" aria-label="سبد خرید">
-              <ShoppingBag size={18} strokeWidth={1.8} />
-              {cartCount > 0 && <span className="fl-cart-count animate-in zoom-in">{cartCount.toLocaleString('fa-IR')}</span>}
-            </button>
+            <button onClick={() => { closeOverlays(); openCart(); }} className="text-right text-[#28242b] font-[650] text-[15px] py-[15px] px-[5px] border-b border-[#f0edf1]">سبد خرید</button>
           </nav>
         </div>
       )}
