@@ -35,7 +35,6 @@ const BENEFITS = [
 export default function RegisterPage() {
   const router = useRouter();
   
-  // ====== State های تایید شماره ======
   const [isPhoneVerified, setIsPhoneVerified] = useState(false);
   const [phoneStep, setPhoneStep] = useState<1 | 2>(1);
   const [mobile, setMobile] = useState('');
@@ -44,7 +43,6 @@ export default function RegisterPage() {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const [loadingPhone, setLoadingPhone] = useState(false);
 
-  // ====== State های فرم ثبت‌نام ======
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -55,7 +53,6 @@ export default function RegisterPage() {
   const [loadingForm, setLoadingForm] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  // ====== افکت‌ها ======
   useEffect(() => {
     if (timer > 0) {
       const interval = setInterval(() => setTimer((t) => t - 1), 1000);
@@ -69,7 +66,6 @@ export default function RegisterPage() {
     }
   }, [phoneStep, isPhoneVerified]);
 
-  // ====== منطق تایید شماره ======
   const handleSendOtp = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!/^09\d{9}$/.test(mobile)) {
@@ -117,14 +113,14 @@ export default function RegisterPage() {
       const data = await res.json();
       
       if (res.ok) {
-        // اگر کاربر قبلاً ثبت‌نام کرده بود
+        // 🚀 منطق بی‌نقص: اگر کاربر از قبل بوده و نیاز به آنبوردینگ ندارد
         if (data.isNewUser === false && data.needsOnboarding === false) {
           toast.success('شما قبلاً ثبت‌نام کرده‌اید! در حال انتقال به حساب کاربری...');
-          setTimeout(() => { window.location.href = '/account'; }, 1000);
+          setTimeout(() => { window.location.href = '/account'; }, 1500);
           return;
         }
         
-        // تایید موفق
+        // در غیر این صورت، فرم زیبای ثبت‌نام را نشان بده
         toast.success('شماره شما تایید شد! اکنون اطلاعات خود را تکمیل کنید.');
         setIsPhoneVerified(true);
       } else {
@@ -171,7 +167,6 @@ export default function RegisterPage() {
     }
   };
 
-  // ====== منطق ثبت‌نام (فرم) ======
   const strength = useMemo(() => evaluatePassword(password), [password]);
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const nameValid = name.trim().length >= 2;
@@ -187,7 +182,6 @@ export default function RegisterPage() {
     if (!canSubmit || loadingForm) return;
     setLoadingForm(true);
     try {
-      // ارسال اطلاعات به API آنبوردینگ (چون کاربر با OTP لاگین شده است)
       const res = await fetch('/api/account/onboarding', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -235,7 +229,6 @@ export default function RegisterPage() {
 
   return (
     <div className="relative min-h-screen bg-[#fafafc] overflow-hidden" dir="rtl">
-      {/* افکت‌های پس‌زمینه */}
       <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 h-[600px] w-[600px] rounded-full bg-[#c61d70]/12 blur-[120px]" />
         <div className="absolute -bottom-40 -left-40 h-[500px] w-[500px] rounded-full bg-[#f4b7d5]/30 blur-[100px]" />
@@ -244,7 +237,6 @@ export default function RegisterPage() {
 
       <div className="relative z-10 min-h-screen flex flex-col lg:flex-row">
         
-        {/* ================= مرحله ۱: تایید شماره موبایل ================= */}
         {!isPhoneVerified ? (
           <div className="w-full flex items-center justify-center p-4 md:p-8 min-h-screen">
             <div className="w-full max-w-[420px]">
@@ -306,8 +298,6 @@ export default function RegisterPage() {
             </div>
           </div>
         ) : (
-          
-          /* ================= مرحله ۲: فرم فوق‌العاده زیبای ثبت‌نام ================= */
           <>
             <div className="w-full lg:w-1/2 flex items-center justify-center p-4 md:p-8 min-h-screen lg:min-h-0">
               <div className="w-full max-w-md py-8">
@@ -331,7 +321,6 @@ export default function RegisterPage() {
                   </div>
 
                   <form onSubmit={handleSubmit} className="space-y-4">
-                    {/* نام */}
                     <div>
                       <label className="block text-xs font-bold text-[#28242b] mb-2">نام و نام خانوادگی</label>
                       <div className="relative group">
@@ -341,7 +330,6 @@ export default function RegisterPage() {
                       </div>
                     </div>
 
-                    {/* ایمیل */}
                     <div>
                       <label className="block text-xs font-bold text-[#28242b] mb-2">ایمیل</label>
                       <div className="relative group">
@@ -351,7 +339,6 @@ export default function RegisterPage() {
                       </div>
                     </div>
 
-                    {/* رمز عبور */}
                     <div>
                       <label className="block text-xs font-bold text-[#28242b] mb-2">رمز عبور</label>
                       <div className="relative group">
@@ -373,7 +360,6 @@ export default function RegisterPage() {
                       )}
                     </div>
 
-                    {/* تکرار رمز */}
                     <div>
                       <label className="block text-xs font-bold text-[#28242b] mb-2">تکرار رمز عبور</label>
                       <div className="relative group">
@@ -406,7 +392,6 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* ستون راست: کارت عضویت زنده */}
             <div className="hidden lg:flex lg:w-1/2 items-center justify-center p-8 relative">
               <div className="relative w-full max-w-md">
                 <div className="absolute -top-8 -right-6 text-[#c61d70]/30 animate-pulse" style={{ animationDuration: '3s' }}><Sparkles size={40} /></div>

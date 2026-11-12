@@ -10,11 +10,9 @@ function getRedis(): Redis | null {
   try {
     const url = process.env.UPSTASH_REDIS_REST_URL;
     const token = process.env.UPSTASH_REDIS_REST_TOKEN;
-    if (!url || !token || url.trim() === '' || token.trim() === '') return null;
+    if (!url || !token) return null;
     return new Redis({ url, token });
-  } catch {
-    return null;
-  }
+  } catch { return null; }
 }
 
 const IS_BYPASS = process.env.SMS_BYPASS_MODE === 'true';
@@ -35,33 +33,24 @@ export async function POST(req: Request) {
       const redis = getRedis();
       let storedCode: string | null = null;
 
-      // ۱. تلاش برای خواندن از Redis
       if (redis) {
         try { storedCode = await redis.get(`otp:${mobile}`); } catch (e) {}
       }
-
-      // ۲. اگر در Redis نبود، از کوکی امن می‌خوانیم (پشتیبان Serverless)
       if (!storedCode) {
         const cookieStore = await cookies();
         storedCode = cookieStore.get(`otp_${mobile}`)?.value || null;
       }
 
-      if (storedCode && storedCode === code) {
-        isValid = true;
-      }
+      if (storedCode && storedCode === code) isValid = true;
     }
 
     if (!isValid) {
       return NextResponse.json({ message: 'کد تایید نامعتبر یا منقضی شده است.' }, { status: 400 });
     }
 
-    // پاک کردن کدهای استفاده شده
     const redis = getRedis();
-    if (redis) {
-      try { await redis.del(`otp:${mobile}`); } catch (e) {}
-    }
+    if (redis) { try { await redis.del(`otp:${mobile}`); } catch (e) {} }
 
-    // پیدا کردن یا ساخت کاربر
     const existingUsers = await db.select().from(customers).where(eq(customers.phone, mobile));
     let customer;
     let isNewUser = false;
@@ -97,7 +86,6 @@ export async function POST(req: Request) {
       customer: { id: customer.id, name: customer.name, email: customer.email },
     });
 
-    // ست کردن کوکی لاگین
     response.cookies.set('customer_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -106,9 +94,7 @@ export async function POST(req: Request) {
       path: '/',
     });
 
-    // پاک کردن کوکی کد تایید
     response.cookies.set(`otp_${mobile}`, '', { maxAge: 0, path: '/' });
-
     return response;
   } catch (error) {
     return NextResponse.json({ message: 'خطای سرور' }, { status: 500 });

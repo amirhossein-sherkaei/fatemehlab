@@ -33,6 +33,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, message: 'ایمیل یا رمز عبور اشتباه است' }, { status: 401 });
     }
 
+    // 🛡️ بررسی کاربران OTP (که رمز ندارند)
+    if (!customer.passwordHash || customer.passwordHash === '') {
+      return NextResponse.json({ 
+        success: false, 
+        message: 'شما با کد یکبار مصرف ثبت‌نام کرده‌اید. لطفاً از تب «ورود با کد یکبار مصرف» استفاده کنید.' 
+      }, { status: 400 });
+    }
+
     const isValid = await argon2.verify(customer.passwordHash, validated.password);
     if (!isValid) {
       return NextResponse.json({ success: false, message: 'ایمیل یا رمز عبور اشتباه است' }, { status: 401 });
