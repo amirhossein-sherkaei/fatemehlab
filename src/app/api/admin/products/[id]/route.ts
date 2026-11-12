@@ -1,13 +1,12 @@
 import { NextResponse } from 'next/server';
 import { validateOrigin, rejectCsrf } from '@/lib/security';
 import { db } from '@/lib/db';
-import { products } from '@/db/schema';
+import { products, stockNotifications } from '@/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { verifyAdmin } from '@/lib/auth';
-import { stockNotifications } from '@/db/schema';
-import { sendBackInStockSms } from '@/lib/sms';
 import { tomanToRial } from '@/lib/currency';
+import { sendBackInStockSms } from '@/lib/sms';
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -19,7 +18,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     const body = await req.json();
     const { name, slug, sku, description, price, stock, status, mainImage, gallery, specifications, ingredients, usage } = body;
 
-        const [updatedProduct] = await db.update(products)
+    // 1. آپدیت محصول
+    const [updatedProduct] = await db.update(products)
       .set({ 
         name, slug, sku: sku || null, description, 
         price: tomanToRial(Number(price)), 
@@ -33,15 +33,16 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       .where(eq(products.id, id))
       .returning();
 
-    // 🚀 ارسال خودکار پیامک در صورت شارژ موجودی (اصلاح شده برای Vercel)
+    // 2. ارسال خودکار پیامک در صورت شارژ موجودی
     if (updatedProduct && Number(updatedProduct.stock) > 0) {
-      const pendingNotifs = await db.select().from(stockNotifications)
+      // 🛡️ استفاده از limit(15) برای جلوگیری از Timeout در Vercel
+      const pendingNotifs = await db.select()
+        .from(stockNotifications)
         .where(and(eq(stockNotifications.productId, id), eq(stockNotifications.status, 'pending')))
-        .limit(15)
-        .limit(15); // 🛡️ محدودیت ۱۵ اعلان برای جلوگیری از Timeout
-      
+        .limit(15);
+
       if (pendingNotifs.length > 0) {
-        // در اینجا حتماً await می‌کنیم تا Vercel سرور را قبل از ارسال پیامک خاموش نکند
+        // 🚀 await کردن برای اینکه Vercel سرور را زودتر خاموش نکند
         try {
           for (const notif of pendingNotifs) {
             if (notif.phoneOrEmail.startsWith('09')) {
@@ -50,8 +51,9 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
               console.log(`[Email Mock] Send email to ${notif.phoneOrEmail}`);
             }
             
-            // آپدیت وضعیت به notified
-            await db.update(stockNotifications).set({ status: 'notified' }).where(eq(stockNotifications.id, notif.id));
+            await db.update(stockNotifications)
+              .set({ status: 'notified' })
+              .where(eq(stockNotifications.id, notif.id));
           }
         } catch (err) {
           console.error('Stock notify error:', err);

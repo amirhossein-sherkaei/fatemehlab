@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import SafeImage from '@/components/product/SafeImage';
 import { useCartStore } from '@/store/cart';
 import { formatToman } from '@/lib/currency';
 import { X, Trash2, Plus, Minus, ShoppingBag, ArrowLeft, ShieldCheck, Sparkles } from 'lucide-react';
@@ -70,7 +70,7 @@ export default function CartDrawer() {
               <div key={item.id} className="flex gap-3 bg-white p-3 rounded-2xl border border-[#e9e5eb] shadow-sm group">
                 <div className="relative w-20 h-20 shrink-0 bg-[#fafafc] rounded-xl overflow-hidden border border-[#f5f0f2]">
                   {item.mainImage ? (
-                    <Image src={item.mainImage} alt={item.name} fill className="object-contain p-2" />
+                    <SafeImage src={item.mainImage} alt={item.name} fill className="object-contain p-2" />
                   ) : (
                     <Sparkles className="w-6 h-6 m-auto text-[#c61d70]/20" />
                   )}

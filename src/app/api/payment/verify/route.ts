@@ -23,6 +23,11 @@ export async function GET(req: Request) {
       return NextResponse.redirect(`${baseUrl}/order/failure?reason=security_error`);
     }
     
+    // 🛡️ جلوگیری از تایید سفارشات لغو شده
+    if (order.status === 'cancelled') {
+      return NextResponse.redirect(`${baseUrl}/order/failure?reason=cancelled`);
+    }
+
     if (order.status === 'paid' || order.status === 'processing') {
       return NextResponse.redirect(`${baseUrl}/order/success?id=${orderId}&code=${order.trackingCode}`);
     }
