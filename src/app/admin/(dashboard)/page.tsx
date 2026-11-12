@@ -92,7 +92,7 @@ async function DashboardContent() {
         {stats.map((stat, i) => {
           const Icon = stat.icon;
           return (
-            <div key={i} className="rounded-3xl border border-[#e9e5eb] bg-white p-4 md:p-5 shadow-sm hover:shadow-md transition-shadow">
+            <div key={i} className="rounded-3xl border border-[#e9e5eb] bg-white/70 backdrop-blur-md p-4 md:p-5 shadow-sm hover:shadow-md transition-shadow">
               <div className={`grid h-10 w-10 md:h-12 md:w-12 place-items-center rounded-2xl ${stat.bg} ${stat.color} mb-3`}>
                 <Icon size={22} className="md:w-6 md:h-6" />
               </div>
@@ -130,7 +130,7 @@ async function DashboardContent() {
         </div>
 
         {/* آخرین سفارشات */}
-        <div className="lg:col-span-2 bg-white rounded-3xl border border-[#e9e5eb] p-5 shadow-sm">
+        <div className="lg:col-span-2 bg-white/70 backdrop-blur-md rounded-3xl border border-[#e9e5eb] p-5 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-black text-[#28242b] flex items-center gap-2">
               <Clock size={16} className="text-[#c61d70]" /> آخرین سفارشات

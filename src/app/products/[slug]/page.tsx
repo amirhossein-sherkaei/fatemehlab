@@ -22,6 +22,31 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const [product] = await db.select().from(products).where(eq(products.slug, slug)).limit(1);
   if (!product || product.status !== 'published') return { title: 'محصول یافت نشد' };
+  
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatemehbeautyland.ir';
+  const productUrl = `${baseUrl}/products/${product.slug}`;
+  const title = `${product.name} | فاطمه بیوتی لند`;
+  const description = product.description || `خرید ${product.name} از فاطمه بیوتی لند با تضمین اصالت و ارسال سریع.`;
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: productUrl,
+    },
+    openGraph: {
+      title,
+      description,
+      url: productUrl,
+      siteName: 'فاطمه بیوتی لند',
+      images: product.mainImage ? [{ url: product.mainImage }] : [],
+      locale: 'fa_IR',
+      type: 'website',
+    },
+  };
+} = await params;
+  const [product] = await db.select().from(products).where(eq(products.slug, slug)).limit(1);
+  if (!product || product.status !== 'published') return { title: 'محصول یافت نشد' };
   return {
     title: `${product.name} | فاطمه بیوتی لند`,
     description: product.description || `خرید ${product.name} از فاطمه بیوتی لند با تضمین اصالت.`,
