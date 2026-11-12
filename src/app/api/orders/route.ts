@@ -6,6 +6,7 @@ import { eq, inArray, and, gte, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { getCurrentCustomer } from '@/lib/customer-auth';
 import { rateLimit } from '@/lib/rate-limit';
+import { calculateVolumeDiscount } from '@/lib/volume-discount';
 
 const orderSchema = z.object({
   customer: z.object({
@@ -59,8 +60,6 @@ export async function POST(req: Request) {
       const dbProduct = dbProducts.find((p) => p.id === item.id);
       if (!dbProduct || dbProduct.status !== 'published') return NextResponse.json({ message: 'محصول یافت نشد.' }, { status: 400 });
       if (dbProduct.price <= 0) return NextResponse.json({ message: `قیمت ${dbProduct.name} ثبت نشده است.` }, { status: 400 });
-      
-      // این چک اولیه است، چک نهایی در تراکنش انجام می‌شود
       if (dbProduct.stock < item.quantity) return NextResponse.json({ message: `موجودی ${dbProduct.name} کافی نیست.` }, { status: 400 });
 
       subtotal += dbProduct.price * item.quantity;
@@ -76,7 +75,7 @@ export async function POST(req: Request) {
     let validCouponCode = null;
 
     if (couponCode) {
-      // 🛡️ بررسی و مصرف اتمی کد تخفیف (جلوگیری از Race Condition)
+      // 🛡️ مصرف اتمی کد تخفیف (جلوگیری از Race Condition)
       const now = new Date();
       const [coupon] = await db.select().from(coupons).where(
         and(
@@ -88,7 +87,6 @@ export async function POST(req: Request) {
       ).limit(1);
 
       if (coupon && subtotal >= coupon.minOrderAmount) {
-        // آپدیت اتمی: فقط اگر ظرفیت باقی مانده باشد
         const updateResult = await db.update(coupons)
           .set({ usedCount: sql`${coupons.usedCount} + 1` })
           .where(
@@ -110,14 +108,23 @@ export async function POST(req: Request) {
       }
     }
 
+    // 🎯 تخفیف حجمی
+    const volumeResult = calculateVolumeDiscount(
+      cartItems.map(item => {
+        const dbProduct = dbProducts.find(p => p.id === item.id)!;
+        return { id: item.id, price: dbProduct.price, quantity: item.quantity };
+      })
+    );
+    const volumeDiscount = volumeResult.totalDiscount;
+
     const pointsDiscount = usedPoints * 10000;
-    const finalAmount = Math.max(0, subtotal - discountAmount - pointsDiscount);
+    const finalAmount = Math.max(0, subtotal - discountAmount - volumeDiscount - pointsDiscount);
 
     const orderId = crypto.randomUUID();
     const trackingCode = `FL-${orderId.slice(0, 6).toUpperCase()}`;
 
     const newOrder = await db.transaction(async (tx) => {
-      // 1. کسر موجودی انبار به صورت Atomic (جلوگیری از Race Condition)
+      // 1. کسر اتمی موجودی و جلوگیری از Race Condition
       for (const item of validatedItems) {
         const updateResult = await tx.update(products)
           .set({ stock: sql`${products.stock} - ${item.quantity}` })
@@ -125,7 +132,7 @@ export async function POST(req: Request) {
           .returning({ id: products.id });
 
         if (updateResult.length === 0) {
-          throw new Error(`موجودی ${item.productName} کافی نیست. ممکن است نفر دیگری همین الان خرید کرده باشد.`);
+          throw new Error(`موجودی ${item.productName} کافی نیست.`);
         }
       }
 
@@ -141,7 +148,7 @@ export async function POST(req: Request) {
         postalCode: customer.postalCode,
         notes: customer.notes || null,
         totalAmount: finalAmount,
-        discountAmount: discountAmount + pointsDiscount,
+        discountAmount: discountAmount + pointsDiscount + volumeDiscount,
         usedPoints: usedPoints,
         couponCode: validCouponCode,
         status: 'pending',
@@ -149,6 +156,14 @@ export async function POST(req: Request) {
       }).returning();
 
       await tx.insert(orderItems).values(validatedItems.map((item) => ({ ...item, orderId: orderId })));
+
+      // 🛡️ کسر فوری امتیاز برای جلوگیری از دوبار خرج کردن
+      if (usedPoints > 0) {
+        await tx.update(customers)
+          .set({ loyaltyPoints: sql`${customers.loyaltyPoints} - ${usedPoints}` })
+          .where(eq(customers.id, currentCustomer.id));
+      }
+
       return order;
     });
 
