@@ -31,7 +31,9 @@ export default async function ProfilePage() {
     orders: myOrders.length,
     wishlist: myWishlist.length,
     addresses: myAddresses.length,
-    memberSince: customer.createdAt,`n    loyaltyPoints: customer.loyaltyPoints,`n    tier: customer.tier,
+    memberSince: customer.createdAt,
+    loyaltyPoints: customer.loyaltyPoints,
+    tier: customer.tier,
   };
 
   const isOtpUser = customer.email.endsWith('@temp.fatemehlab.ir');

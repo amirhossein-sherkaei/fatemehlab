@@ -13,7 +13,6 @@ import {
 import { toast } from 'sonner';
 import { formatToman } from '@/lib/currency';
 
-
 function normalizeDigits(str: string): string {
   return str
     .replace(/[۰-۹]/g, (d) => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)))
@@ -56,18 +55,32 @@ const ORDER_STATUS: Record<string, { label: string; cls: string; icon: any }> = 
   cancelled: { label: 'لغو شده', cls: 'bg-rose-50 text-rose-700 border-rose-200', icon: X },
 };
 
-function computeMembership(memberSince: Date) {
-  const days = Math.max(0, Math.floor((Date.now() - new Date(memberSince).getTime()) / (1000 * 60 * 60 * 24)));
-  if (days >= 365) {
-    return { days, title: 'کاربر طلایی', next: null, progress: 100, remaining: 0, tone: 'amber' };
+function computeMembership(points: number, currentTier: string) {
+  const tiers = {
+    bronze: { title: 'برنزی', next: 'نقره‌ای', min: 0, max: 500, color: 'orange', bg: 'from-orange-400 to-amber-600' },
+    silver: { title: 'نقره‌ای', next: 'طلایی', min: 500, max: 1500, color: 'slate', bg: 'from-slate-400 to-gray-500' },
+    gold: { title: 'طلایی', next: null, min: 1500, max: Infinity, color: 'amber', bg: 'from-amber-400 to-yellow-600' },
+  };
+
+  const current = tiers[currentTier as keyof typeof tiers] || tiers.bronze;
+  
+  if (points >= current.max) {
+    return { points, title: 'کاربر طلایی', next: null, progress: 100, remaining: 0, bg: tiers.gold.bg, icon: Crown };
   }
-  if (days >= 90) {
-    return { days, title: 'کاربر نقره‌ای', next: 'کاربر طلایی', progress: ((days - 90) / (365 - 90)) * 100, remaining: 365 - days, tone: 'slate' };
-  }
-  if (days >= 30) {
-    return { days, title: 'کاربر برنزی', next: 'کاربر نقره‌ای', progress: ((days - 30) / (90 - 30)) * 100, remaining: 90 - days, tone: 'orange' };
-  }
-  return { days, title: 'کاربر جدید', next: 'کاربر برنزی', progress: (days / 30) * 100, remaining: 30 - days, tone: 'pink' };
+
+  const nextTier = tiers[current.next === 'نقره‌ای' ? 'silver' : 'gold' as keyof typeof tiers];
+  const progress = ((points - current.min) / (current.max - current.min)) * 100;
+  const remaining = current.max - points;
+
+  return { 
+    points, 
+    title: `کاربر ${current.title}`, 
+    next: `کاربر ${current.next}`, 
+    progress: Math.min(100, Math.max(0, progress)), 
+    remaining, 
+    bg: current.bg, 
+    icon: currentTier === 'gold' ? Crown : Award
+  };
 }
 
 function evaluatePassword(pwd: string) {
@@ -161,7 +174,6 @@ export default function ProfileClient({ customer, stats, recentOrders, isOtpUser
   const handleSaveProfile = async (e?: React.FormEvent) => {
     e?.preventDefault();
     
-    // Validate phone
     setPhoneError('');
     let normalizedPhone = formData.phone;
     if (formData.phone && formData.phone.trim() !== '') {
@@ -172,7 +184,6 @@ export default function ProfileClient({ customer, stats, recentOrders, isOtpUser
       }
     }
 
-    // If phone is changed, trigger OTP flow
     if (normalizedPhone !== (customer.phone || '')) {
       setSaving(true);
       try {
@@ -232,7 +243,6 @@ export default function ProfileClient({ customer, stats, recentOrders, isOtpUser
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
 
-      // Now save the rest of the profile (name/email) if changed
       if (formData.name !== customer.name || (isOtpUser && formData.email)) {
         await fetch('/api/account/profile', {
           method: 'PUT',
@@ -296,7 +306,7 @@ export default function ProfileClient({ customer, stats, recentOrders, isOtpUser
     { label: 'سفارشات', value: stats.orders, icon: Package, gradient: 'from-blue-500 to-blue-600', href: '/account/orders' },
     { label: 'علاقه‌مندی', value: stats.wishlist, icon: Heart, gradient: 'from-rose-500 to-pink-600', href: '/account/wishlist' },
     { label: 'آدرس‌ها', value: stats.addresses, icon: MapPin, gradient: 'from-amber-500 to-orange-600', href: '/account/addresses' },
-    { label: 'امتیاز من', value: membership.points, icon: Award, gradient: 'from-amber-400 to-orange-500', href: null },
+    { label: 'امتیاز من', value: membership.points, icon: Award, gradient: 'from-emerald-500 to-teal-600', href: null },
   ];
 
   const passwordFields: Array<{ key: 'current' | 'newPass' | 'confirm'; label: string }> = [
@@ -426,11 +436,6 @@ export default function ProfileClient({ customer, stats, recentOrders, isOtpUser
                   }`}
                 />
               </div>
-              {isOtpUser ? (
-                <p className="mt-1.5 text-[10px] font-bold text-[#c61d70]">لطفاً ایمیل موقت را به ایمیل واقعی خود تغییر دهید.</p>
-              ) : (
-                <p className="mt-1.5 text-[10px] text-[#918a95]">برای تغییر ایمیل با پشتیبانی تماس بگیرید</p>
-              )}
             </div>
 
             <div>
@@ -587,26 +592,36 @@ export default function ProfileClient({ customer, stats, recentOrders, isOtpUser
             به عنوان عضو فعال، به تخفیف‌های ویژه، پیشنهادهای اختصاصی و اطلاع‌رسانی زودتر محصولات جدید دسترسی دارید.
           </p>
           <div className="mb-5 rounded-2xl border border-white/10 bg-white/5 p-4">
-            <div className="mb-2 flex items-center justify-between">
-              <span className="text-xs font-bold text-white/80">سطح فعلی: <span className="text-[#f4b7d5]">{membership.title}</span></span>
-              {membership.next && (
-                <span className="text-[10px] text-white/60">تا {membership.next}: {membership.remaining.toLocaleString('fa-IR')} روز</span>
-              )}
+            <div className="mb-3 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <membership.icon size={16} className="text-[#f4b7d5]" />
+                <span className="text-xs font-bold text-white/80">سطح فعلی: <span className="text-[#f4b7d5]">{membership.title}</span></span>
+              </div>
+              <span className="text-xs font-black text-[#f4b7d5] bg-white/10 px-2 py-1 rounded-md">{membership.points.toLocaleString('fa-IR')} امتیاز</span>
             </div>
-            <div className="h-2 overflow-hidden rounded-full bg-white/10">
-              <div className="h-full rounded-full bg-gradient-to-l from-[#c61d70] to-[#f4b7d5] transition-all duration-1000" style={{ width: `${Math.min(100, Math.max(0, membership.progress))}%` }} />
-            </div>
-            <div className="mt-2 flex justify-between text-[10px] text-white/50">
-              <span>{membership.progress.toFixed(0)}٪</span>
-              {membership.next ? <span>سطح بعدی: {membership.next}</span> : <span>بالاترین سطح</span>}
-            </div>
+            
+            {membership.next ? (
+              <>
+                <div className="h-2 overflow-hidden rounded-full bg-white/10">
+                  <div className="h-full rounded-full bg-gradient-to-l from-[#c61d70] to-[#f4b7d5] transition-all duration-1000" style={{ width: `${membership.progress}%` }} />
+                </div>
+                <div className="mt-2 flex justify-between text-[10px] text-white/60">
+                  <span>{membership.progress.toFixed(0)}٪</span>
+                  <span>تا {membership.next}: {membership.remaining.toLocaleString('fa-IR')} امتیاز دیگر</span>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-2 text-xs font-bold text-amber-300 bg-amber-500/10 rounded-lg border border-amber-500/20">
+                🎉 شما در بالاترین سطح وفاداری هستید!
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-3 gap-3">
             <div className="rounded-xl border border-white/10 bg-white/10 p-3 backdrop-blur-sm">
               <Clock size={16} className="mb-2 text-[#f4b7d5]" />
               <p className="mb-1 text-[10px] text-white/60">عضویت شما</p>
-              <p className="text-sm font-black">{membership.days.toLocaleString('fa-IR')} روز</p>
+              <p className="text-sm font-black">{new Date(stats.memberSince).toLocaleDateString('fa-IR')}</p>
             </div>
             <div className="rounded-xl border border-white/10 bg-white/10 p-3 backdrop-blur-sm">
               <Award size={16} className="mb-2 text-[#f4b7d5]" />
@@ -615,8 +630,8 @@ export default function ProfileClient({ customer, stats, recentOrders, isOtpUser
             </div>
             <div className="rounded-xl border border-white/10 bg-white/10 p-3 backdrop-blur-sm">
               <Calendar size={16} className="mb-2 text-[#f4b7d5]" />
-              <p className="mb-1 text-[10px] text-white/60">تاریخ عضویت</p>
-              <p className="text-sm font-black">{new Date(stats.memberSince).toLocaleDateString('fa-IR')}</p>
+              <p className="mb-1 text-[10px] text-white/60">امتیاز فعلی</p>
+              <p className="text-sm font-black">{membership.points.toLocaleString('fa-IR')}</p>
             </div>
           </div>
         </div>
@@ -650,7 +665,6 @@ export default function ProfileClient({ customer, stats, recentOrders, isOtpUser
         </div>
       )}
 
-      {/* Phone Verification Modal */}
       {phoneModalOpen && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm" onClick={() => setPhoneModalOpen(false)}>
           <div className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
