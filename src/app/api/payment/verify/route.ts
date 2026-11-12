@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { orders, coupons, customers } from '@/db/schema';
+import { orders, customers } from '@/db/schema';
 import { eq, sql } from 'drizzle-orm';
 
 export async function GET(req: Request) {
@@ -44,10 +44,7 @@ export async function GET(req: Request) {
     if (data.data && (data.data.code === 100 || data.data.code === 101)) {
       // ✅ پرداخت موفق: آپدیت انبار، تخفیف و باشگاه مشتریان
       await db.transaction(async (tx) => {
-        // 1. افزایش تعداد استفاده از کد تخفیف
-        if (order.couponCode) {
-          await tx.update(coupons)
-            .set({ usedCount: sql`${coupons.usedCount} + 1` })
+         + 1` })
             .where(eq(coupons.code, order.couponCode));
         }
 

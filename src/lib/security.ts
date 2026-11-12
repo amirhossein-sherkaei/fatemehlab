@@ -51,6 +51,12 @@ export function validateImageUpload(file: File): { valid: boolean; message?: str
   if (file.size > MAX_IMAGE_SIZE) {
     return { valid: false, message: 'حجم فایل بیش از ۵ مگابایت است' };
   }
+  // 🛡️ بررسی دقیق پسوند (جلوگیری از فایل‌های دوگانه مثل image.jpg.php)
+  const ext = file.name.split('.').pop()?.toLowerCase();
+  const allowedExts = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+  if (!ext || !allowedExts.includes(ext)) {
+    return { valid: false, message: 'پسوند فایل مجاز نیست' };
+  }
   return { valid: true };
 }
 

@@ -76,13 +76,30 @@ export async function POST(req: Request) {
     let validCouponCode = null;
 
     if (couponCode) {
-      const [coupon] = await db.select().from(coupons).where(eq(coupons.code, couponCode.trim().toUpperCase())).limit(1);
-      if (coupon && coupon.isActive) {
-        const now = new Date();
-        const isExpired = coupon.expiresAt && new Date(coupon.expiresAt) < now;
-        const isExhausted = coupon.usageLimit && coupon.usedCount >= coupon.usageLimit;
-        
-        if (!isExpired && !isExhausted && subtotal >= coupon.minOrderAmount) {
+      // 🛡️ بررسی و مصرف اتمی کد تخفیف (جلوگیری از Race Condition)
+      const now = new Date();
+      const [coupon] = await db.select().from(coupons).where(
+        and(
+          eq(coupons.code, couponCode.trim().toUpperCase()),
+          eq(coupons.isActive, true),
+          sql`(${coupons.expiresAt} IS NULL OR ${coupons.expiresAt} > ${now})`,
+          sql`(${coupons.usageLimit} IS NULL OR ${coupons.usedCount} < ${coupons.usageLimit})`
+        )
+      ).limit(1);
+
+      if (coupon && subtotal >= coupon.minOrderAmount) {
+        // آپدیت اتمی: فقط اگر ظرفیت باقی مانده باشد
+        const updateResult = await db.update(coupons)
+          .set({ usedCount: sql`${coupons.usedCount} + 1` })
+          .where(
+            and(
+              eq(coupons.id, coupon.id),
+              sql`(${coupons.usageLimit} IS NULL OR ${coupons.usedCount} < ${coupons.usageLimit})`
+            )
+          )
+          .returning({ id: coupons.id });
+
+        if (updateResult.length > 0) {
           discountAmount = coupon.type === 'percent' ? Math.round((subtotal * coupon.value) / 100) : coupon.value;
           if (coupon.type === 'percent' && coupon.maxDiscountAmount && discountAmount > coupon.maxDiscountAmount) {
             discountAmount = coupon.maxDiscountAmount;
