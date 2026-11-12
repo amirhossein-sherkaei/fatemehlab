@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { Save, Loader2, Store, ShieldCheck, CreditCard, Info, Sparkles } from 'lucide-react';
+import PersianDatePicker from '@/components/shared/PersianDatePicker';
 
 export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
@@ -41,7 +42,6 @@ export default function SettingsPage() {
         body: JSON.stringify({ 
           ...settings, 
           promoBarText: promoText, 
-          // ارسال به صورت ISO به دیتابیس
           promoBarExpiresAt: promoExpiresAt ? promoExpiresAt.toISOString() : null 
         }),
       });
@@ -144,14 +144,12 @@ export default function SettingsPage() {
             </div>
             <div className="space-y-2 md:col-span-2">
               <label className="text-xs font-bold text-[#28242b]">تاریخ و ساعت پایان کمپین (اختیاری)</label>
-              <div className="w-full">
-  <PersianDatePicker
-    value={promoExpiresAt}
-    onChange={setPromoExpiresAt}
-    withTime={true}
-    placeholder="انتخاب تاریخ و ساعت..."
-  />
-</div>
+              <PersianDatePicker
+                value={promoExpiresAt}
+                onChange={setPromoExpiresAt}
+                withTime={true}
+                placeholder="انتخاب تاریخ و ساعت..."
+              />
               <p className="text-[10px] text-[#77717b]">اگر تنظیم شود، یک تایمر شمارش معکوس در نوار نمایش داده می‌شود و پس از آن به طور خودکار حذف می‌شود.</p>
             </div>
           </div>
