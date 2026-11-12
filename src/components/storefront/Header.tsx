@@ -16,6 +16,7 @@ const navigation = [
   { href: '/journal', label: 'مجله' },
   { href: '/track', label: 'رهگیری سفارش' },
   { href: '/faq', label: 'راهنمای خرید' },
+  { href: '/quiz', label: 'آزمون زیبایی' },
 ];
 
 export default function Header() {
