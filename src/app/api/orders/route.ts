@@ -2,9 +2,10 @@ import { NextResponse } from 'next/server';
 import { validateOrigin, rejectCsrf } from '@/lib/security';
 import { db } from '@/lib/db';
 import { orders, orderItems, products, coupons, customers } from '@/db/schema';
-import { eq, inArray } from 'drizzle-orm';
+import { eq, inArray, and, gte, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { getCurrentCustomer } from '@/lib/customer-auth';
+import { rateLimit } from '@/lib/rate-limit';
 
 const orderSchema = z.object({
   customer: z.object({
@@ -30,6 +31,10 @@ export async function POST(req: Request) {
     const { valid: originValid } = validateOrigin(req);
     if (!originValid) return rejectCsrf(req);
 
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
+    const rl = await rateLimit('order-submit:' + ip);
+    if (!rl.success) return NextResponse.json({ message: 'تعداد درخواست‌ها زیاد است. لطفاً بعداً تلاش کنید.' }, { status: 429 });
+
     const currentCustomer = await getCurrentCustomer();
     if (!currentCustomer) return NextResponse.json({ message: 'برای ثبت سفارش ابتدا وارد شوید.' }, { status: 401 });
 
@@ -37,7 +42,6 @@ export async function POST(req: Request) {
     const validated = orderSchema.parse(body);
     const { customer, cartItems, couponCode, usedPoints } = validated;
 
-    // دریافت اطلاعات مشتری برای بررسی امتیازات
     const [customerData] = await db.select().from(customers).where(eq(customers.id, currentCustomer.id)).limit(1);
     if (!customerData) return NextResponse.json({ message: 'کاربر یافت نشد.' }, { status: 404 });
 
@@ -55,6 +59,8 @@ export async function POST(req: Request) {
       const dbProduct = dbProducts.find((p) => p.id === item.id);
       if (!dbProduct || dbProduct.status !== 'published') return NextResponse.json({ message: 'محصول یافت نشد.' }, { status: 400 });
       if (dbProduct.price <= 0) return NextResponse.json({ message: `قیمت ${dbProduct.name} ثبت نشده است.` }, { status: 400 });
+      
+      // این چک اولیه است، چک نهایی در تراکنش انجام می‌شود
       if (dbProduct.stock < item.quantity) return NextResponse.json({ message: `موجودی ${dbProduct.name} کافی نیست.` }, { status: 400 });
 
       subtotal += dbProduct.price * item.quantity;
@@ -87,7 +93,6 @@ export async function POST(req: Request) {
       }
     }
 
-    // محاسبه تخفیف امتیاز (هر ۱ امتیاز = ۱۰,۰۰۰ ریال = ۱,۰۰۰ تومان)
     const pointsDiscount = usedPoints * 10000;
     const finalAmount = Math.max(0, subtotal - discountAmount - pointsDiscount);
 
@@ -95,6 +100,19 @@ export async function POST(req: Request) {
     const trackingCode = `FL-${orderId.slice(0, 6).toUpperCase()}`;
 
     const newOrder = await db.transaction(async (tx) => {
+      // 1. کسر موجودی انبار به صورت Atomic (جلوگیری از Race Condition)
+      for (const item of validatedItems) {
+        const updateResult = await tx.update(products)
+          .set({ stock: sql`${products.stock} - ${item.quantity}` })
+          .where(and(eq(products.id, item.productId), gte(products.stock, item.quantity)))
+          .returning({ id: products.id });
+
+        if (updateResult.length === 0) {
+          throw new Error(`موجودی ${item.productName} کافی نیست. ممکن است نفر دیگری همین الان خرید کرده باشد.`);
+        }
+      }
+
+      // 2. ثبت سفارش
       const [order] = await tx.insert(orders).values({
         id: orderId,
         customerId: currentCustomer.id,
@@ -120,6 +138,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true, orderId: newOrder.id, trackingCode: newOrder.trackingCode });
   } catch (error: any) {
     if (error instanceof z.ZodError) return NextResponse.json({ message: error.issues[0].message }, { status: 400 });
+    if (error.message && error.message.includes('موجودی')) {
+      return NextResponse.json({ message: error.message }, { status: 400 });
+    }
     return NextResponse.json({ message: 'خطا در ثبت سفارش' }, { status: 500 });
   }
 }

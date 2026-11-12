@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, integer, boolean, uuid, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, integer, boolean, uuid, jsonb, index } from "drizzle-orm/pg-core";
 
 export const categories = pgTable("categories", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -32,7 +32,11 @@ export const products = pgTable("products", {
   expiryDate: text("expiry_date"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  brandIdx: index("products_brand_idx").on(table.brand),
+  statusIdx: index("products_status_idx").on(table.status),
+  categoryIdx: index("products_category_idx").on(table.categoryId),
+}));
 
 export const adminUsers = pgTable("admin_users", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -58,7 +62,9 @@ export const customers = pgTable("customers", {
   loyaltyPoints: integer("loyalty_points").notNull().default(0),
   tier: text("tier").notNull().default("bronze"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  phoneIdx: index("customers_phone_idx").on(table.phone),
+}));
 
 export const addresses = pgTable("addresses", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -73,14 +79,18 @@ export const addresses = pgTable("addresses", {
   postalCode: text("postal_code").notNull(),
   isDefault: boolean("is_default").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  customerIdx: index("addresses_customer_idx").on(table.customerId),
+}));
 
 export const wishlist = pgTable("wishlist", {
   id: uuid("id").defaultRandom().primaryKey(),
   customerId: uuid("customer_id").references(() => customers.id).notNull(),
   productId: uuid("product_id").references(() => products.id).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  customerIdx: index("wishlist_customer_idx").on(table.customerId),
+}));
 
 export const orders = pgTable("orders", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -101,7 +111,11 @@ export const orders = pgTable("orders", {
   discountAmount: integer("discount_amount").notNull().default(0),
   usedPoints: integer("used_points").notNull().default(0),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  customerIdx: index("orders_customer_idx").on(table.customerId),
+  statusIdx: index("orders_status_idx").on(table.status),
+  trackingCodeIdx: index("orders_tracking_idx").on(table.trackingCode),
+}));
 
 export const orderItems = pgTable("order_items", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -110,7 +124,10 @@ export const orderItems = pgTable("order_items", {
   productName: text("product_name").notNull(),
   price: integer("price").notNull(),
   quantity: integer("quantity").notNull(),
-});
+}, (table) => ({
+  orderIdx: index("order_items_order_idx").on(table.orderId),
+  productIdx: index("order_items_product_idx").on(table.productId),
+}));
 
 export const articles = pgTable("articles", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -129,7 +146,10 @@ export const articles = pgTable("articles", {
   seoDescription: text("seo_description"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  statusIdx: index("articles_status_idx").on(table.status),
+  categoryIdx: index("articles_category_idx").on(table.category),
+}));
 
 export const reviews = pgTable("reviews", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -146,7 +166,11 @@ export const reviews = pgTable("reviews", {
   adminReplyAt: timestamp("admin_reply_at"),
   status: text("status").notNull().default("pending"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  productIdx: index("reviews_product_idx").on(table.productId),
+  statusIdx: index("reviews_status_idx").on(table.status),
+}));
+
 export const supportTickets = pgTable("support_tickets", {
   id: uuid("id").defaultRandom().primaryKey(),
   customerId: uuid("customer_id").references(() => customers.id).notNull(),
@@ -158,7 +182,10 @@ export const supportTickets = pgTable("support_tickets", {
   lastMessageAt: timestamp("last_message_at").defaultNow().notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  customerIdx: index("tickets_customer_idx").on(table.customerId),
+  statusIdx: index("tickets_status_idx").on(table.status),
+}));
 
 export const supportMessages = pgTable("support_messages", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -169,7 +196,10 @@ export const supportMessages = pgTable("support_messages", {
   attachmentUrl: text("attachment_url"),
   isRead: boolean("is_read").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  ticketIdx: index("messages_ticket_idx").on(table.ticketId),
+}));
+
 export const coupons = pgTable("coupons", {
   id: uuid("id").defaultRandom().primaryKey(),
   code: text("code").notNull().unique(),

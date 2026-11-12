@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { orders, orderItems, products, coupons, customers } from '@/db/schema';
+import { orders, coupons, customers } from '@/db/schema';
 import { eq, sql } from 'drizzle-orm';
 
 export async function GET(req: Request) {
@@ -33,15 +33,7 @@ export async function GET(req: Request) {
     if (data.data && (data.data.code === 100 || data.data.code === 101)) {
       // ✅ پرداخت موفق: آپدیت انبار، تخفیف و باشگاه مشتریان
       await db.transaction(async (tx) => {
-        // 1. کسر موجودی
-        const items = await tx.select().from(orderItems).where(eq(orderItems.orderId, orderId));
-        for (const item of items) {
-          await tx.update(products)
-            .set({ stock: sql`${products.stock} - ${item.quantity}` })
-            .where(eq(products.id, item.productId));
-        }
-        
-        // 2. افزایش تعداد استفاده از کد تخفیف
+        // 1. افزایش تعداد استفاده از کد تخفیف
         if (order.couponCode) {
           await tx.update(coupons)
             .set({ usedCount: sql`${coupons.usedCount} + 1` })
