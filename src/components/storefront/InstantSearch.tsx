@@ -11,6 +11,7 @@ export default function InstantSearch() {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   // بستن منو با کلیک بیرون
@@ -37,7 +38,19 @@ export default function InstantSearch() {
       try {
         const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
         const data = await res.json();
-        if (data.success) setResults(data.results);
+        if (data.success) {
+          setResults(data.results);
+          // 📝 ذخیره در تاریخچه
+          const trimmed = query.trim();
+          if (trimmed.length >= 2) {
+            setSearchHistory(prev => {
+              const filtered = prev.filter(h => h !== trimmed);
+              const updated = [trimmed, ...filtered].slice(0, 5);
+              localStorage.setItem('search-history', JSON.stringify(updated));
+              return updated;
+            });
+          }
+        }
       } catch (err) {
         console.error('Search error');
       } finally {

@@ -88,7 +88,7 @@ export default function Header() {
             >
               <ShoppingBag size={18} strokeWidth={1.8} />
               {cartCount > 0 && !isCartPage && (
-                <span className="fl-cart-count animate-in zoom-in">{cartCount.toLocaleString('fa-IR')}</span>
+                <span key={cartCount} className="fl-cart-count animate-cart-badge">{cartCount.toLocaleString('fa-IR')}</span>
               )}
             </button>
             

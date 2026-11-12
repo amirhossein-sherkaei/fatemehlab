@@ -199,6 +199,7 @@ const handleSubmit = async (e: React.FormEvent) => {
 
       toast.success('در حال انتقال به درگاه پرداخت...', { id: toastId });
       clearCart();
+        localStorage.removeItem('checkout-draft');
       window.location.href = payData.redirectUrl;
 
     } catch (err: any) {
