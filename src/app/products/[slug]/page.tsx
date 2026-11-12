@@ -11,6 +11,7 @@ import { getPublicProductDescription, getPublicProductImage } from '@/lib/produc
 import Header from '@/components/storefront/Header';
 import Footer from '@/components/storefront/Footer';
 import AddToCartButton from './add-to-cart';
+import StockNotifyButton from '@/components/product/StockNotifyButton';
 import WishlistButton from '@/components/storefront/WishlistButton';
 import ProductReviews from '@/components/storefront/ProductReviews';
 import FrequentlyBoughtTogether from '@/components/product/FrequentlyBoughtTogether';

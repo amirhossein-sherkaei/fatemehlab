@@ -215,3 +215,14 @@ export const coupons = pgTable("coupons", {
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+export const stockNotifications = pgTable("stock_notifications", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  productId: uuid("product_id").references(() => products.id, { onDelete: 'cascade' }).notNull(),
+  phoneOrEmail: text("phone_or_email").notNull(),
+  status: text("status").notNull().default("pending"), // pending | notified
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  productIdx: index("stock_notify_product_idx").on(table.productId),
+  statusIdx: index("stock_notify_status_idx").on(table.status),
+}));
