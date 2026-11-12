@@ -1700,3 +1700,41 @@ body {
   background: white !important;
   border-radius: 16px !important;
 }
+/* ============================================================ */
+/*  TIME PICKER STYLES                                          */
+/* ============================================================ */
+
+.rmdp-time-picker {
+  border-top: 1px solid #f2d7e5 !important;
+  padding: 10px !important;
+  margin-top: 10px !important;
+  direction: ltr !important;
+}
+
+.rmdp-time-picker div input {
+  background: #f8f7fa !important;
+  border: 1px solid #e9e5eb !important;
+  border-radius: 8px !important;
+  color: #28242b !important;
+  font-weight: bold !important;
+  padding: 4px 8px !important;
+  outline: none !important;
+}
+
+.rmdp-time-picker div input:focus {
+  border-color: #c61d70 !important;
+  box-shadow: 0 0 0 2px rgba(198, 29, 112, 0.1) !important;
+}
+
+.rmdp-time-picker .rmdp-time-picker-icon svg {
+  fill: #c61d70 !important;
+}
+
+.rmdp-time-picker .rmdp-time-picker-am-pm {
+  background: #fff0f7 !important;
+  color: #c61d70 !important;
+  border-radius: 6px !important;
+  padding: 4px 8px !important;
+  font-weight: bold !important;
+  cursor: pointer !important;
+}

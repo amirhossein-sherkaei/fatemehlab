@@ -3,6 +3,7 @@
 import DatePicker from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
+import TimePicker from "react-multi-date-picker/plugins/time_picker";
 import { Calendar as CalendarIcon } from "lucide-react";
 
 interface PersianDatePickerProps {
@@ -28,6 +29,7 @@ export default function PersianDatePicker({
         format={withTime ? "YYYY/MM/DD HH:mm" : "YYYY/MM/DD"}
         placeholder={placeholder}
         calendarPosition="bottom-right"
+        plugins={withTime ? [<TimePicker position="bottom" hideSeconds />] : []}
         inputClass="w-full rounded-xl border border-[#e9e5eb] bg-[#f8f7fa] pr-11 pl-4 py-3 text-sm outline-none transition-colors focus:border-[#c61d70] focus:bg-white"
         containerClassName="w-full"
       />

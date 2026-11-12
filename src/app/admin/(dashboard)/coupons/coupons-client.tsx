@@ -307,7 +307,7 @@ export default function CouponsClient({ initialCoupons }: { initialCoupons: Coup
                 <label className="block text-xs font-bold text-[#28242b] mb-2">تاریخ انقضا - اختیاری</label>
                 <PersianDatePicker
   value={expiresAt ? new Date(expiresAt) : null}
-  onChange={(date) => setExpiresAt(date ? date.toISOString().split('T')[0] : '')}
+  onChange={(date) => setExpiresAt(date ? date.toISOString() : '')}
   placeholder="انتخاب تاریخ انقضا..."
 />
               </div>
