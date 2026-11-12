@@ -1,0 +1,11 @@
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'تسویه‌حساب | فاطمه بیوتی لند',
+  description: 'تسویه‌حساب و پرداخت امن سفارش شما.',
+  robots: { index: false, follow: false },
+};
+
+export default function CheckoutLayout({ children }: { children: React.ReactNode }) {
+  return children;
+}

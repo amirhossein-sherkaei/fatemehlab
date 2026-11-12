@@ -30,7 +30,7 @@ const FAQ_GROUPS = [
 
 export default function FAQPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-transparent">
       <Header />
       <main className="flex-1">
         <section className="fl-page-intro">

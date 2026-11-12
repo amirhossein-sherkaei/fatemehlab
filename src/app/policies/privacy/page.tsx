@@ -10,7 +10,7 @@ export const metadata = {
 
 export default function PolicyPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-[#fafafc]">
+    <div className="min-h-screen flex flex-col bg-transparent">
       <Header />
       <main className="flex-1 container-custom max-w-3xl py-12 px-4 md:px-6">
         <Link href="/" className="inline-flex items-center gap-2 text-xs font-bold text-[#c61d70] bg-white shadow-sm border border-[#f2d7e5] px-4 py-2 rounded-full mb-8 hover:bg-[#fff0f7] transition-colors">

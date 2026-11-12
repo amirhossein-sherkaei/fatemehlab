@@ -1,3 +1,14 @@
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'فاطمه بیوتی لند | فروشگاه لوکس محصولات آرایشی و بهداشتی',
+  description: 'خرید آنلاین محصولات آرایشی و مراقبت پوست با تضمین اصالت، ارسال سریع و پرداخت امن. فاطمه بیوتی لند، همراه زیبایی شما.',
+  openGraph: {
+    title: 'فاطمه بیوتی لند',
+    description: 'فروشگاه لوکس محصولات آرایشی و بهداشتی',
+    type: 'website',
+  },
+};
 import Link from 'next/link';
 import { ArrowLeft, ArrowUpLeft, BadgeCheck, BookOpenText, PackageCheck, Search, Sparkles, Droplets, Flame, Heart, Wind, Star, ShoppingBag } from 'lucide-react';
 import Header from '@/components/storefront/Header';
