@@ -2,13 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
-import { Save, Loader2, Store, ShieldCheck, CreditCard, Info, Sparkles } from 'lucide-react';
+import { Save, Loader2, Store, ShieldCheck, CreditCard, Info, Sparkles, Trash2 } from 'lucide-react';
 import PersianDatePicker from '@/components/shared/PersianDatePicker';
 
 export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [settings, setSettings] = useState<Record<string, any>>({});
+  
+  // استیت‌های مربوط به نوار تبلیغاتی
   const [promoText, setPromoText] = useState('');
   const [promoExpiresAt, setPromoExpiresAt] = useState<Date | null>(null);
   const [promoActive, setPromoActive] = useState(true);
@@ -37,13 +39,34 @@ export default function SettingsPage() {
     setSettings(prev => ({ ...prev, [key]: value }));
   };
 
-    const handleDeletePromo = async () => {
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const res = await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          ...settings, 
+          promoBarText: promoText, 
+          promoBarExpiresAt: promoExpiresAt ? promoExpiresAt.toISOString() : null,
+          promoBarActive: promoActive
+        }),
+      });
+      if (res.ok) toast.success('تنظیمات با موفقیت ذخیره شد');
+      else toast.error('خطا در ذخیره تنظیمات');
+    } catch {
+      toast.error('خطا در ارتباط با سرور');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeletePromo = async () => {
     if (!confirm('آیا از حذف کامل نوار تبلیغاتی مطمئن هستید؟')) return;
     setPromoText('');
     setPromoExpiresAt(null);
     setPromoActive(false);
     
-    // ارسال مستقیم به سرور برای پاک کردن
     const newSettings = { ...settings, promoBarText: '', promoBarExpiresAt: null, promoBarActive: false };
     try {
       const res = await fetch('/api/admin/settings', {
@@ -55,28 +78,6 @@ export default function SettingsPage() {
       else toast.error('خطا در حذف');
     } catch {
       toast.error('خطا در ارتباط با سرور');
-    }
-  };
-
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      const res = await fetch('/api/admin/settings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          ...settings, 
-          promoBarText: promoText, 
-          promoBarExpiresAt: promoExpiresAt ? promoExpiresAt.toISOString() : null,
-          promoBarActive: promoActive 
-        }),
-      });
-      if (res.ok) toast.success('تنظیمات با موفقیت ذخیره شد');
-      else toast.error('خطا در ذخیره تنظیمات');
-    } catch {
-      toast.error('خطا در ارتباط با سرور');
-    } finally {
-      setSaving(false);
     }
   };
 
@@ -153,17 +154,39 @@ export default function SettingsPage() {
 
         {/* Promotion Settings */}
         <div className="rounded-3xl border border-[#e9e5eb] bg-white p-5 shadow-sm md:p-6">
-                    <div className="flex items-center justify-between mb-5 border-b border-[#e9e5eb] pb-4">
+          <div className="flex items-center justify-between mb-5 border-b border-[#e9e5eb] pb-4">
             <h2 className="flex items-center gap-2 text-sm font-black text-[#28242b]">
               <Sparkles size={18} className="text-[#c61d70]"/> نوار تبلیغاتی بالای سایت
             </h2>
             {(promoText || promoExpiresAt) && (
-              <button onClick={handleDeletePromo} className="text-xs font-bold text-rose-500 hover:bg-rose-50 px-3 py-1.5 rounded-lg transition-colors">
+              <button onClick={handleDeletePromo} className="flex items-center gap-1.5 text-xs font-bold text-rose-500 hover:bg-rose-50 px-3 py-1.5 rounded-lg transition-colors">
+                <Trash2 size={14} />
                 حذف نوار
               </button>
             )}
           </div>
+          
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+            {/* سوییچ فعال/غیرفعال */}
+            <div className="space-y-2 md:col-span-2 pb-4 border-b border-[#e9e5eb]">
+              <div className="flex items-center justify-between">
+                <div>
+                  <label className="text-xs font-bold text-[#28242b] block">وضعیت نمایش نوار</label>
+                  <p className="text-[10px] text-[#77717b] mt-1">
+                    {promoActive ? 'نوار در حال حاضر در سایت فعال است' : 'نوار در سایت غیرفعال شده است'}
+                  </p>
+                </div>
+                <button 
+                  type="button"
+                  onClick={() => setPromoActive(!promoActive)}
+                  className={`relative w-14 h-7 rounded-full transition-all duration-300 shrink-0 ${promoActive ? 'bg-[#c61d70] shadow-lg shadow-[#c61d70]/30' : 'bg-[#e9e5eb]'}`}
+                  aria-label="تغییر وضعیت"
+                >
+                  <span className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow-md transition-all duration-300 ${promoActive ? 'right-1' : 'right-8'}`} />
+                </button>
+              </div>
+            </div>
+
             <div className="space-y-2 md:col-span-2">
               <label className="text-xs font-bold text-[#28242b]">متن نوار تبلیغاتی</label>
               <input 
@@ -186,26 +209,7 @@ export default function SettingsPage() {
               <p className="text-[10px] text-[#77717b]">اگر تنظیم شود، یک تایمر شمارش معکوس در نوار نمایش داده می‌شود و پس از آن به طور خودکار حذف می‌شود.</p>
             </div>
           </div>
-        
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-            <div className="space-y-2 md:col-span-2 pb-4 border-b border-[#e9e5eb]">
-              <div className="flex items-center justify-between">
-                <div>
-                  <label className="text-xs font-bold text-[#28242b] block">وضعیت نمایش نوار</label>
-                  <p className="text-[10px] text-[#77717b] mt-1">
-                    {promoActive ? 'نوار در حال حاضر در سایت فعال است' : 'نوار در سایت غیرفعال شده است'}
-                  </p>
-                </div>
-                <button 
-                  type="button"
-                  onClick={() => setPromoActive(!promoActive)}
-                  className={`relative w-14 h-7 rounded-full transition-all duration-300 shrink-0 ${promoActive ? 'bg-[#c61d70] shadow-lg shadow-[#c61d70]/30' : 'bg-[#e9e5eb]'}`}
-                  aria-label="تغییر وضعیت"
-                >
-                  <span className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow-md transition-all duration-300 ${promoActive ? 'right-1' : 'right-8'}`} />
-                </button>
-              </div>
-            </div></div>
+        </div>
       </div>
 
       {/* Sticky Mobile Save Bar */}
