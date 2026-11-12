@@ -13,7 +13,6 @@ export default function CartDrawer() {
 
   useEffect(() => { setIsMounted(true); }, []);
 
-  // قفل کردن اسکرول صفحه وقتی سبد باز است
   useEffect(() => {
     if (isCartOpen) {
       document.body.style.overflow = 'hidden';
@@ -29,16 +28,13 @@ export default function CartDrawer() {
 
   return (
     <div className="fixed inset-0 z-[100] flex justify-end">
-      {/* بک‌دراپ تار */}
       <div 
         className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" 
         onClick={closeCart} 
       />
 
-      {/* بدنه کشو */}
       <div className="relative w-full max-w-md h-full bg-white/95 backdrop-blur-2xl shadow-2xl flex flex-col animate-in slide-in-from-left duration-300">
         
-        {/* هدر کشو */}
         <div className="flex items-center justify-between p-5 border-b border-[#e9e5eb] bg-gradient-to-r from-[#fff0f7] to-white">
           <h2 className="text-lg font-black text-[#28242b] flex items-center gap-2">
             <ShoppingBag className="text-[#c61d70]" size={20} />
@@ -52,7 +48,6 @@ export default function CartDrawer() {
           </button>
         </div>
 
-        {/* لیست محصولات */}
         <div className="flex-1 overflow-y-auto p-5 space-y-4">
           {items.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
@@ -69,11 +64,7 @@ export default function CartDrawer() {
             items.map((item) => (
               <div key={item.id} className="flex gap-3 bg-white p-3 rounded-2xl border border-[#e9e5eb] shadow-sm group">
                 <div className="relative w-20 h-20 shrink-0 bg-[#fafafc] rounded-xl overflow-hidden border border-[#f5f0f2]">
-                  {item.mainImage ? (
-                    <SafeImage src={item.mainImage} alt={item.name} fill className="object-contain p-2" />
-                  ) : (
-                    <Sparkles className="w-6 h-6 m-auto text-[#c61d70]/20" />
-                  )}
+                  <SafeImage src={item.mainImage} alt={item.name} fill className="object-contain p-2" />
                 </div>
                 
                 <div className="flex-1 flex flex-col justify-between min-w-0">
@@ -104,7 +95,6 @@ export default function CartDrawer() {
           )}
         </div>
 
-        {/* فوتر کشو */}
         {items.length > 0 && (
           <div className="p-5 border-t border-[#e9e5eb] bg-white space-y-4">
             <div className="flex justify-between items-center text-sm">

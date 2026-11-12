@@ -6,7 +6,6 @@ import { eq, inArray, and, gte, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { getCurrentCustomer } from '@/lib/customer-auth';
 import { rateLimit } from '@/lib/rate-limit';
-import { calculateVolumeDiscount } from '@/lib/volume-discount';
 
 const orderSchema = z.object({
   customer: z.object({
@@ -75,7 +74,6 @@ export async function POST(req: Request) {
     let validCouponCode = null;
 
     if (couponCode) {
-      // 🛡️ مصرف اتمی کد تخفیف (جلوگیری از Race Condition)
       const now = new Date();
       const [coupon] = await db.select().from(coupons).where(
         and(
@@ -108,23 +106,13 @@ export async function POST(req: Request) {
       }
     }
 
-    // 🎯 تخفیف حجمی
-    const volumeResult = calculateVolumeDiscount(
-      cartItems.map(item => {
-        const dbProduct = dbProducts.find(p => p.id === item.id)!;
-        return { id: item.id, price: dbProduct.price, quantity: item.quantity };
-      })
-    );
-    const volumeDiscount = volumeResult.totalDiscount;
-
     const pointsDiscount = usedPoints * 10000;
-    const finalAmount = Math.max(0, subtotal - discountAmount - volumeDiscount - pointsDiscount);
+    const finalAmount = Math.max(0, subtotal - discountAmount - pointsDiscount);
 
     const orderId = crypto.randomUUID();
     const trackingCode = `FL-${orderId.slice(0, 6).toUpperCase()}`;
 
     const newOrder = await db.transaction(async (tx) => {
-      // 1. کسر اتمی موجودی و جلوگیری از Race Condition
       for (const item of validatedItems) {
         const updateResult = await tx.update(products)
           .set({ stock: sql`${products.stock} - ${item.quantity}` })
@@ -136,7 +124,6 @@ export async function POST(req: Request) {
         }
       }
 
-      // 2. ثبت سفارش
       const [order] = await tx.insert(orders).values({
         id: orderId,
         customerId: currentCustomer.id,
@@ -148,7 +135,7 @@ export async function POST(req: Request) {
         postalCode: customer.postalCode,
         notes: customer.notes || null,
         totalAmount: finalAmount,
-        discountAmount: discountAmount + pointsDiscount + volumeDiscount,
+        discountAmount: discountAmount + pointsDiscount,
         usedPoints: usedPoints,
         couponCode: validCouponCode,
         status: 'pending',
@@ -157,7 +144,6 @@ export async function POST(req: Request) {
 
       await tx.insert(orderItems).values(validatedItems.map((item) => ({ ...item, orderId: orderId })));
 
-      // 🛡️ کسر فوری امتیاز برای جلوگیری از دوبار خرج کردن
       if (usedPoints > 0) {
         await tx.update(customers)
           .set({ loyaltyPoints: sql`${customers.loyaltyPoints} - ${usedPoints}` })
