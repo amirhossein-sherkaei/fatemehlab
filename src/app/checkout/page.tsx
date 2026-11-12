@@ -62,17 +62,28 @@ export default function CheckoutPage() {
     revalidate();
   }, [getTotalPrice(), appliedCoupon?.code]); // فقط وقتی مبلغ یا کد تغییر کند
 
-  useEffect(() => {
+    useEffect(() => {
     fetch('/api/account/me')
       .then(r => r.ok ? r.json() : null)
       .then(data => {
-        if (data?.success && data.customer?.loyaltyPoints) {
-          setLoyaltyPoints(data.customer.loyaltyPoints);
-        }
         if (!data?.success) {
           router.replace('/account/login?redirect=/checkout');
         } else {
           setCheckingAuth(false);
+          
+          // ✅ پر کردن خودکار فرم با اطلاعات ثبت‌نام کاربر
+          if (data.customer) {
+            const nameParts = (data.customer.name || '').trim().split(' ');
+            const firstName = nameParts[0] || '';
+            const lastName = nameParts.slice(1).join(' ') || '';
+            
+            setFormData(prev => ({
+              ...prev,
+              firstName: prev.firstName || firstName,
+              lastName: prev.lastName || lastName,
+              phone: prev.phone || data.customer.phone || '',
+            }));
+          }
         }
       })
       .catch(() => {
