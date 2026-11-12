@@ -45,7 +45,7 @@ export default async function ProductsPage({
   const allPublished = await db.select({ brand: products.brand, skinType: products.skinType, price: products.price }).from(products).where(eq(products.status, 'published'));
   const uniqueBrands = Array.from(new Set(allPublished.map(p => p.brand).filter(Boolean))) as string[];
   const uniqueSkinTypes = Array.from(new Set(allPublished.map(p => p.skinType).filter(Boolean))) as string[];
-  const maxPrice = Math.max(...allPublished.map(p => p.price), 5000000);
+  const highestPrice = Math.max(...allPublished.map(p => p.price), 5000000);
 
   const categoryRows = await db.select().from(categories).orderBy(categories.name);
   const selectedCategory = categoryRows.find((item) => item.slug === category);
@@ -76,7 +76,7 @@ export default async function ProductsPage({
     categories: categoryRows,
     brands: uniqueBrands,
     skinTypes: uniqueSkinTypes,
-    maxPrice,
+    maxPrice: highestPrice,
   };
 
   return (
