@@ -1,6 +1,9 @@
 'use client';
 
-import Barcode from 'react-barcode';
+import dynamic from 'next/dynamic';
+
+// بارگذاری بارکد فقط در سمت کلاینت برای جلوگیری از کرش SSR
+const Barcode = dynamic(() => import('react-barcode'), { ssr: false });
 import { formatToman } from '@/lib/currency';
 import { CheckCircle2 } from 'lucide-react';
 

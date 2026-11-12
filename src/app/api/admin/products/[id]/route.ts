@@ -33,23 +33,27 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       .where(eq(products.id, id))
       .returning();
 
-    // 🚀 ارسال خودکار پیامک در صورت شارژ موجودی
+    // 🚀 ارسال خودکار پیامک در صورت شارژ موجودی (اصلاح شده برای Vercel)
     if (updatedProduct && Number(updatedProduct.stock) > 0) {
       const pendingNotifs = await db.select().from(stockNotifications)
         .where(and(eq(stockNotifications.productId, id), eq(stockNotifications.status, 'pending')));
       
       if (pendingNotifs.length > 0) {
-        // ارسال پیامک (بدون await کردن برای اینکه سرعت پنل ادمین کم نشود)
-        Promise.all(pendingNotifs.map(async (notif) => {
-          if (notif.phoneOrEmail.startsWith('09')) {
-            await sendBackInStockSms(notif.phoneOrEmail, updatedProduct.name);
-          } else {
-            console.log(`[Email Mock] Send email to ${notif.phoneOrEmail} for product ${updatedProduct.name}`);
+        // در اینجا حتماً await می‌کنیم تا Vercel سرور را قبل از ارسال پیامک خاموش نکند
+        try {
+          for (const notif of pendingNotifs) {
+            if (notif.phoneOrEmail.startsWith('09')) {
+              await sendBackInStockSms(notif.phoneOrEmail, updatedProduct.name);
+            } else {
+              console.log(`[Email Mock] Send email to ${notif.phoneOrEmail}`);
+            }
+            
+            // آپدیت وضعیت به notified
+            await db.update(stockNotifications).set({ status: 'notified' }).where(eq(stockNotifications.id, notif.id));
           }
-          
-          // آپدیت وضعیت به notified
-          await db.update(stockNotifications).set({ status: 'notified' }).where(eq(stockNotifications.id, notif.id));
-        })).catch(err => console.error('Stock notify send error:', err));
+        } catch (err) {
+          console.error('Stock notify error:', err);
+        }
       }
     }
 
