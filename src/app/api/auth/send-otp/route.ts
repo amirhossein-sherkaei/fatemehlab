@@ -19,12 +19,6 @@ const IS_BYPASS = process.env.SMS_BYPASS_MODE === 'true';
 
 export async function POST(req: Request) {
   try {
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
-    try {
-      const rl = await rateLimit('otp-send:' + mobile);
-      if (!rl.success) return NextResponse.json({ success: false, message: 'تعداد درخواست‌ها زیاد است. لطفاً صبر کنید.' }, { status: 429 });
-    } catch (e) {}
-
     const body = await req.json().catch(() => ({}));
     const mobile = body?.mobile;
 
@@ -32,20 +26,28 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, message: 'شماره موبایل معتبر نیست.' }, { status: 400 });
     }
 
+    // 🛡️ محدودیت ارسال بر اساس شماره موبایل (جلوگیری از اسپم)
+    try {
+      const rl = await rateLimit('otp-send:' + mobile);
+      if (!rl.success) {
+        return NextResponse.json({ success: false, message: 'لطفاً ۱ دقیقه صبر کنید و دوباره تلاش کنید.' }, { status: 429 });
+      }
+    } catch (e) {}
+
     const existingUsers = await db.select({ id: customers.id, email: customers.email }).from(customers).where(eq(customers.phone, mobile)).limit(1);
     const isExistingUser = existingUsers.length > 0;
     const needsOnboarding = isExistingUser && existingUsers[0].email.endsWith('@temp.fatemehlab.ir');
 
     const code = Math.floor(100000 + Math.random() * 900000).toString();
 
+    // ذخیره در Redis (اگر در دسترس باشد)
     const redis = getRedis();
     if (redis) {
       try { await redis.set(`otp:${mobile}`, code, { ex: 120 }); } catch (e) {}
     }
 
+    // ارسال پیامک
     if (!IS_BYPASS) {
-      // 🚀 منتظر می‌مانیم تا SMS.ir قطعاً جواب بدهد (بدون قطع شدن سرور)
-      // تایم‌اوت ۱۵ ثانیه‌ای برای جلوگیری از هنگ کردن
       try {
         const result = await Promise.race([
           sendOtpCode(mobile, code),
@@ -54,7 +56,6 @@ export async function POST(req: Request) {
         
         if (!result.success) {
           console.error('[SMS ERROR]', result.error);
-          // حتی اگر خطا داد، به کاربر موفقیت نشان می‌دهیم (چون ممکن است SMS.ir در پس‌زمینه بفرستد)
         }
       } catch (err: any) {
         console.error('[SMS TIMEOUT]', err.message);
@@ -81,6 +82,7 @@ export async function POST(req: Request) {
 
     return response;
   } catch (error: any) {
+    console.error('[send-otp fatal]', error);
     return NextResponse.json({ success: false, message: 'خطای سرور' }, { status: 500 });
   }
 }
