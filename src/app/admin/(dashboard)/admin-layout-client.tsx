@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, ShoppingBag, LogOut, Settings, Menu, X, Package, BookOpen, MessageSquare, Bell, HelpCircle, User, BellRing, TicketPercent, Users } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, LogOut, Settings, Menu, X, Package, BookOpen, MessageSquare, Bell, HelpCircle, User, BellRing, TicketPercent, Users, Headphones } from 'lucide-react';
 import { Suspense, useState, useEffect } from 'react';
 import { Toaster } from 'sonner';
 import AdminBottomNav from '@/components/admin/AdminBottomNav';
@@ -45,6 +45,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
     { name: 'نظرات', href: '/admin/reviews', icon: MessageSquare },
         { name: 'مشتریان', href: '/admin/customers', icon: Users },
         { name: 'اعلان موجودی', href: '/admin/stock-notify', icon: BellRing },
+    { name: 'پشتیبانی', href: '/admin/support', icon: Headphones },
     { name: 'کد تخفیف', href: '/admin/coupons', icon: TicketPercent },
     { name: 'تنظیمات', href: '/admin/settings', icon: Settings },
     { name: 'راهنما', href: '/admin/help', icon: HelpCircle },
