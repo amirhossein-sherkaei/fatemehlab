@@ -2001,3 +2001,55 @@ body {
     display: none !important;
   }
 }
+/* ============================================================ */
+/*  ACCESSIBILITY & UX POLISH                                   */
+/* ============================================================ */
+
+/* Focus visible - برای کاربرانی که با کیبورد ناوبری می‌کنند */
+*:focus-visible {
+  outline: 2px solid #c61d70 !important;
+  outline-offset: 3px !important;
+  border-radius: 8px;
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid #c61d70 !important;
+  outline-offset: 3px !important;
+}
+
+/* اسکرول نرم برای همه صفحات */
+html {
+  scroll-behavior: smooth;
+}
+
+/* کاهش حرکت برای کاربران با prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* اسکرول‌بار شیک سفارشی */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #fafafc;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #c61d70, #e84e9e);
+  border-radius: 99px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #a9155d, #c61d70);
+}
