@@ -1801,3 +1801,42 @@ body {
   cursor: pointer !important;
   border: 1px solid #f2d7e5 !important;
 }
+/* ============================================================ */
+/*  MOBILE OPTIMIZATIONS FOR NEW FEATURES                       */
+/* ============================================================ */
+
+/* بهینه‌سازی تقویم شمسی در موبایل */
+@media (max-width: 768px) {
+  .rmdp-wrapper {
+    max-width: 90vw !important;
+    transform: scale(0.9) !important;
+    transform-origin: top right !important;
+  }
+  .rmdp-day, .rmdp-week-day {
+    width: 34px !important;
+    height: 34px !important;
+  }
+  .rmdp-time-picker {
+    padding: 10px 5px !important;
+  }
+  .rmdp-time-picker div input {
+    width: 40px !important;
+    height: 35px !important;
+    font-size: 16px !important;
+  }
+}
+
+/* بهینه‌سازی مودال نمایش سریع (QuickView) در موبایل */
+@media (max-width: 640px) {
+  .quick-view-modal-content {
+    max-height: 85vh !important;
+    overflow-y: auto !important;
+    border-radius: 24px !important;
+  }
+}
+
+/* جلوگیری از اسکرول افقی در همه بخش‌های جدید */
+.aurora-orb, .fl-bottom-nav, .promo-bar {
+  max-width: 100vw;
+  overflow: hidden;
+}

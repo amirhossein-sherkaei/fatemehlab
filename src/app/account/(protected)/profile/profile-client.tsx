@@ -580,7 +580,7 @@ export default function ProfileClient({ customer, stats, recentOrders, isOtpUser
         )}
       </section>
 
-      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#28242b] to-[#3a333f] p-5 text-white md:p-8">
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#28242b] to-[#3a333f] p-4 text-white md:p-8">
         <div className="pointer-events-none absolute -top-16 -right-16 h-48 w-48 rounded-full bg-[#c61d70]/30 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-white/5 blur-3xl" />
 
@@ -618,21 +618,21 @@ export default function ProfileClient({ customer, stats, recentOrders, isOtpUser
             )}
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-2 md:gap-3">
             <div className="rounded-xl border border-white/10 bg-white/10 p-3 backdrop-blur-sm">
               <Clock size={16} className="mb-2 text-[#f4b7d5]" />
               <p className="mb-1 text-[10px] text-white/60">عضویت شما</p>
-              <p className="text-sm font-black">{formatPersianDate(stats.memberSince)}</p>
+              <p className="text-xs md:text-sm font-black truncate">{formatPersianDate(stats.memberSince)}</p>
             </div>
             <div className="rounded-xl border border-white/10 bg-white/10 p-3 backdrop-blur-sm">
               <Award size={16} className="mb-2 text-[#f4b7d5]" />
               <p className="mb-1 text-[10px] text-white/60">سطح فعلی</p>
-              <p className="text-sm font-black">{membership.title}</p>
+              <p className="text-xs md:text-sm font-black truncate">{membership.title}</p>
             </div>
             <div className="rounded-xl border border-white/10 bg-white/10 p-3 backdrop-blur-sm">
               <Calendar size={16} className="mb-2 text-[#f4b7d5]" />
               <p className="mb-1 text-[10px] text-white/60">امتیاز فعلی</p>
-              <p className="text-sm font-black">{membership.points.toLocaleString('fa-IR')}</p>
+              <p className="text-xs md:text-sm font-black truncate">{membership.points.toLocaleString('fa-IR')}</p>
             </div>
           </div>
         </div>
