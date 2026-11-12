@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { orders, orderItems, products, coupons } from '@/db/schema';
+import { orders, orderItems, products, coupons, customers } from '@/db/schema';
 import { eq, sql } from 'drizzle-orm';
 
 export async function GET(req: Request) {
@@ -12,12 +12,11 @@ export async function GET(req: Request) {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatemehbeautyland.ir';
 
     if (!authority || !orderId) return NextResponse.redirect(`${baseUrl}/checkout?error=missing_params`);
-    if (status !== 'OK') return NextResponse.redirect(`${baseUrl}/checkout?error=cancelled`);
+    if (status !== 'OK') return NextResponse.redirect(`${baseUrl}/order/failure?reason=cancelled`);
 
     const [order] = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
-    if (!order) return NextResponse.redirect(`${baseUrl}/checkout?error=order_not_found`);
+    if (!order) return NextResponse.redirect(`${baseUrl}/order/failure?reason=order_not_found`);
 
-    // جلوگیری از تایید مجدد
     if (order.status === 'paid' || order.status === 'processing') {
       return NextResponse.redirect(`${baseUrl}/order/success?id=${orderId}&code=${order.trackingCode}`);
     }
@@ -32,7 +31,7 @@ export async function GET(req: Request) {
     const data = await response.json();
 
     if (data.data && (data.data.code === 100 || data.data.code === 101)) {
-      // ✅ پرداخت موفق: حالا موجودی انبار و کد تخفیف را آپدیت می‌کنیم
+      // ✅ پرداخت موفق: آپدیت انبار، تخفیف و باشگاه مشتریان
       await db.transaction(async (tx) => {
         // 1. کسر موجودی
         const items = await tx.select().from(orderItems).where(eq(orderItems.orderId, orderId));
@@ -53,13 +52,35 @@ export async function GET(req: Request) {
         await tx.update(orders)
           .set({ status: 'paid', paymentRefId: data.data.ref_id.toString() })
           .where(eq(orders.id, orderId));
+
+        // 4. 🏆 اعطای امتیاز باشگاه مشتریان
+        if (order.customerId) {
+          const [customer] = await tx.select().from(customers).where(eq(customers.id, order.customerId)).limit(1);
+          if (customer) {
+            // هر ۱۰,۰۰۰ تومان = ۱ امتیاز (مبلغ در دیتابیس به ریال است، پس تقسیم بر ۱۰۰,۰۰۰ می‌کنیم)
+            const earnedPoints = Math.floor(order.totalAmount / 100000);
+            const newPoints = customer.loyaltyPoints + earnedPoints;
+            
+            // تعیین سطح جدید
+            let newTier = 'bronze';
+            if (newPoints >= 1500) newTier = 'gold';
+            else if (newPoints >= 500) newTier = 'silver';
+
+            await tx.update(customers)
+              .set({ 
+                loyaltyPoints: newPoints,
+                tier: newTier
+              })
+              .where(eq(customers.id, order.customerId));
+          }
+        }
       });
 
       return NextResponse.redirect(`${baseUrl}/order/success?id=${orderId}&code=${order.trackingCode}`);
     } else {
-      return NextResponse.redirect(`${baseUrl}/checkout?error=verify_failed`);
+      return NextResponse.redirect(`${baseUrl}/order/failure?reason=verify_failed`);
     }
   } catch (error) {
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/checkout?error=server_error`);
+    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/order/failure?reason=server_error`);
   }
 }

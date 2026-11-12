@@ -55,6 +55,8 @@ export const customers = pgTable("customers", {
   name: text("name").notNull(),
   phone: text("phone"),
   avatar: text("avatar"),
+  loyaltyPoints: integer("loyalty_points").notNull().default(0),
+  tier: text("tier").notNull().default("bronze"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

@@ -34,6 +34,8 @@ interface ProfileClientProps {
     wishlist: number;
     addresses: number;
     memberSince: Date;
+    loyaltyPoints: number;
+    tier: string;
   };
   recentOrders: Array<{
     id: string;
@@ -107,7 +109,7 @@ export default function ProfileClient({ customer, stats, recentOrders, isOtpUser
   const [changingPassword, setChangingPassword] = useState(false);
   const [showPasswords, setShowPasswords] = useState({ current: false, newPass: false, confirm: false });
 
-  const membership = useMemo(() => computeMembership(stats.memberSince), [stats.memberSince]);
+  const membership = useMemo(() => computeMembership(stats.loyaltyPoints, stats.tier), [stats.loyaltyPoints, stats.tier]);
   const pwdStrength = useMemo(() => evaluatePassword(passwordData.newPass), [passwordData.newPass]);
   const passwordsMatch = passwordData.confirm.length > 0 && passwordData.confirm === passwordData.newPass;
 
@@ -294,7 +296,7 @@ export default function ProfileClient({ customer, stats, recentOrders, isOtpUser
     { label: 'سفارشات', value: stats.orders, icon: Package, gradient: 'from-blue-500 to-blue-600', href: '/account/orders' },
     { label: 'علاقه‌مندی', value: stats.wishlist, icon: Heart, gradient: 'from-rose-500 to-pink-600', href: '/account/wishlist' },
     { label: 'آدرس‌ها', value: stats.addresses, icon: MapPin, gradient: 'from-amber-500 to-orange-600', href: '/account/addresses' },
-    { label: 'روز عضویت', value: membership.days, icon: Calendar, gradient: 'from-emerald-500 to-teal-600', href: null },
+    { label: 'امتیاز من', value: membership.points, icon: Award, gradient: 'from-amber-400 to-orange-500', href: null },
   ];
 
   const passwordFields: Array<{ key: 'current' | 'newPass' | 'confirm'; label: string }> = [
