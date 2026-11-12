@@ -1,6 +1,6 @@
+'use client';
 import { formatNumberInput, parseNumberInput } from '@/lib/format';
 import { formatPersianDate, formatPersianDateTime } from '@/lib/format';
-'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';

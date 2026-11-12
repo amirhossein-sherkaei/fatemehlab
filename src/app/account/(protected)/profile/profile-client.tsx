@@ -1,5 +1,5 @@
-import { formatPersianDate, formatPersianDateTime } from '@/lib/format';
 'use client';
+import { formatPersianDate, formatPersianDateTime } from '@/lib/format';
 
 import { useState, useRef, useMemo } from 'react';
 import Image from 'next/image';

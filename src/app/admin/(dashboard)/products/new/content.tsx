@@ -1,5 +1,5 @@
-import { formatNumberInput, parseNumberInput } from '@/lib/format';
 'use client';
+import { formatNumberInput, parseNumberInput } from '@/lib/format';
 import { useState } from 'react';
 import { ArrowRight, Loader2, UploadCloud, Plus, Trash2 } from 'lucide-react';
 import Link from 'next/link';

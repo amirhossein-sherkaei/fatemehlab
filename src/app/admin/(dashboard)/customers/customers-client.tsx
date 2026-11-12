@@ -1,5 +1,5 @@
-import { formatPersianDate, formatPersianDateTime } from '@/lib/format';
 'use client';
+import { formatPersianDate, formatPersianDateTime } from '@/lib/format';
 
 import { useState, useEffect } from 'react';
 import { Search, Users, ShoppingBag, DollarSign, Loader2, Mail, Phone, Calendar } from 'lucide-react';

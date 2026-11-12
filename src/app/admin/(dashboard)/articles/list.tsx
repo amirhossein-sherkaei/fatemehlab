@@ -1,5 +1,5 @@
-import { formatPersianDate, formatPersianDateTime } from '@/lib/format';
 'use client';
+import { formatPersianDate, formatPersianDateTime } from '@/lib/format';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';

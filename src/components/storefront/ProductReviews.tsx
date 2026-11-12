@@ -1,5 +1,5 @@
-import { formatPersianDate, formatPersianDateTime } from '@/lib/format';
 'use client';
+import { formatPersianDate, formatPersianDateTime } from '@/lib/format';
 
 import { useState, useEffect } from 'react';
 import { Star, Send, Loader2, User, UploadCloud, X, ThumbsUp, ThumbsDown, ShieldCheck, MessageCircle, Camera, ChevronDown } from 'lucide-react';
