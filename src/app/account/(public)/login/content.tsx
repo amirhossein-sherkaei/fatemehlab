@@ -105,7 +105,7 @@ export default function CustomerLoginPage() {
           toast.success(data.message || 'کد تأیید ارسال شد.');
         }
         setStep(2);
-        setTimer(120);
+        setTimer(60);
       } else {
         toast.error(data.message || 'خطا در ارسال پیامک');
       }
