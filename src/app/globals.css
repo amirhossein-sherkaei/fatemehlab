@@ -1738,3 +1738,66 @@ body {
   font-weight: bold !important;
   cursor: pointer !important;
 }
+/* ============================================================ */
+/*  BIG & READABLE TIME PICKER STYLES                           */
+/* ============================================================ */
+
+.rmdp-time-picker {
+  border-top: 1px solid #f2d7e5 !important;
+  padding: 15px 10px !important;
+  margin-top: 10px !important;
+  direction: ltr !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 5px !important;
+}
+
+/* باکس‌های ورودی ساعت و دقیقه */
+.rmdp-time-picker div input {
+  background: #ffffff !important;
+  border: 1px solid #e9e5eb !important;
+  border-radius: 10px !important;
+  color: #28242b !important; /* رنگ تیره برای دیده شدن */
+  font-size: 18px !important; /* فونت بزرگ */
+  font-weight: 900 !important;
+  width: 50px !important; /* عرض بیشتر */
+  height: 40px !important; /* ارتفاع بیشتر */
+  text-align: center !important;
+  padding: 0 !important;
+  outline: none !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05) !important;
+}
+
+/* حالت فوکوس روی باکس‌ها */
+.rmdp-time-picker div input:focus {
+  border-color: #c61d70 !important;
+  box-shadow: 0 0 0 3px rgba(198, 29, 112, 0.15) !important;
+}
+
+/* رنگ فلش‌های بالا و پایین */
+.rmdp-time-picker .rmdp-time-picker-icon svg {
+  fill: #c61d70 !important;
+  width: 18px !important;
+  height: 18px !important;
+}
+
+/* علامت دو نقطه بین ساعت و دقیقه */
+.rmdp-time-picker div div {
+  font-size: 20px !important;
+  color: #28242b !important;
+  font-weight: 900 !important;
+  padding-bottom: 5px !important;
+}
+
+/* متن AM/PM (اگر وجود داشته باشد) */
+.rmdp-time-picker .rmdp-time-picker-am-pm {
+  background: #fff0f7 !important;
+  color: #c61d70 !important;
+  border-radius: 8px !important;
+  padding: 6px 10px !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  cursor: pointer !important;
+  border: 1px solid #f2d7e5 !important;
+}
