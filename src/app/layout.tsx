@@ -6,6 +6,7 @@ import BottomNav from "@/components/storefront/BottomNav";
 import CartDrawer from "@/components/storefront/CartDrawer";
 import AuroraBackground from "@/components/storefront/AuroraBackground";
 import PwaInstallPrompt from "@/components/storefront/PwaInstallPrompt";
+import FloatingSupportButton from "@/components/storefront/FloatingSupportButton";
 import PromoBarWrapper from "@/components/storefront/PromoBarWrapper";
 import WebVitals from "@/components/shared/WebVitals";
 import RouteProgress from "@/components/shared/RouteProgress";
@@ -133,6 +134,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <AuroraBackground />
         <WebVitals />
         <CartDrawer />
+        <FloatingSupportButton />
         <PwaInstallPrompt />
         {children}
         <Suspense fallback={null}><BottomNav /></Suspense>
