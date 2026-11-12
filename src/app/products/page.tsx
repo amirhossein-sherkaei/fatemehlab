@@ -3,7 +3,7 @@ import { db } from '@/lib/db';
 import { categories, products } from '@/db/schema';
 import { and, desc, eq, ilike, SQL, gte, asc } from 'drizzle-orm';
 import Link from 'next/link';
-import Image from 'next/image';
+import SafeImage from '@/components/product/SafeImage';
 import { ArrowLeft, Search, PackageSearch, Eye } from 'lucide-react';
 import { formatToman } from '@/lib/currency';
 import { getPublicProductDescription, getPublicProductImage } from '@/lib/product-content';

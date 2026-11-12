@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
+import SafeImage from '@/components/product/SafeImage';
 import { useCartStore } from '@/store/cart';
 import { formatToman } from '@/lib/currency';
 import { Plus, Check, ShoppingBag, Sparkles } from 'lucide-react';
@@ -87,7 +87,7 @@ export default function FrequentlyBoughtTogether({ currentProduct, fbtProducts }
 
                     <div className="relative w-full h-full">
                       {product.mainImage ? (
-                        <Image src={product.mainImage} alt={product.name} fill className="object-contain p-1" />
+                        <SafeImage src={product.mainImage} alt={product.name} fill className="object-contain p-1" />
                       ) : (
                         <ShoppingBag className="w-6 h-6 m-auto text-[#c61d70]/20" />
                       )}

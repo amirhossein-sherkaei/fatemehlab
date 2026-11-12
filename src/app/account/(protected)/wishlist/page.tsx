@@ -3,7 +3,7 @@ import { wishlist, products } from '@/db/schema';
 import { eq, desc, inArray } from 'drizzle-orm';
 import { getCurrentCustomer } from '@/lib/customer-auth';
 import Link from 'next/link';
-import Image from 'next/image';
+import SafeImage from '@/components/product/SafeImage';
 import { Heart, Package, ArrowLeft, ShoppingBag } from 'lucide-react';
 import { formatToman } from '@/lib/currency';
 import { getPublicProductImage } from '@/lib/product-content';

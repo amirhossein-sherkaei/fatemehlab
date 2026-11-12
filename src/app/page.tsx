@@ -1,9 +1,9 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft, ArrowUpLeft, BadgeCheck, BookOpenText, PackageCheck, Search, Sparkles, Droplets, Flame, Heart, Wind, Star, ShoppingBag } from 'lucide-react';
 import Header from '@/components/storefront/Header';
 import Footer from '@/components/storefront/Footer';
 import RecentlyViewed from '@/components/storefront/RecentlyViewed';
+import SafeImage from '@/components/product/SafeImage';
 import { getCachedPublishedProducts } from '@/lib/products';
 import { formatToman } from '@/lib/currency';
 import { getPublicProductDescription, getPublicProductImage } from '@/lib/product-content';
@@ -13,7 +13,6 @@ import { desc } from 'drizzle-orm';
 
 export const instant = false;
 
-// Map categories to elegant Lucide icons
 const getCategoryIcon = (slug: string) => {
   const s = slug.toLowerCase();
   if (s.includes('skin') || s.includes('care') || s.includes('پوست')) return Droplets;
@@ -28,8 +27,6 @@ export default async function Home() {
   const dbProducts = await getCachedPublishedProducts();
   const newProducts = dbProducts.slice(0, 4);
   const featuredProducts = dbProducts.filter(p => p.isFeatured).slice(0, 4);
-
-  // Fetch top 6 categories
   const dbCategories = await db.select().from(categories).orderBy(desc(categories.createdAt)).limit(6);
 
   return (
@@ -37,7 +34,6 @@ export default async function Home() {
       <Header />
       <main className="flex-1 relative z-10">
         
-        {/* ===== HERO ===== */}
         <section className="fl-home-hero">
           <div className="container-custom fl-hero-grid">
             <div className="fl-hero-copy-wrap">
@@ -58,7 +54,7 @@ export default async function Home() {
               <div className="fl-hero-art-top"><span>FATEMEH BEAUTY LAND</span><span>BEAUTY · CARE</span></div>
               <div className="fl-orbit" aria-hidden="true" />
               <div className="fl-hero-art-mark">
-                <Image src="/logo.png" alt="نشان" width={174} height={174} priority />
+                <SafeImage src="/logo.png" alt="نشان" width={174} height={174} priority />
               </div>
               <div className="fl-hero-art-caption">
                 <div><strong>فاطمه بیوتی لند</strong><br /><span>زیبایی در جزئیات انتخاب</span></div>
@@ -68,7 +64,6 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* ===== FEATURE STRIP ===== */}
         <section className="container-custom">
           <div className="fl-feature-strip">
             <div className="fl-feature"><span className="fl-feature-icon"><BookOpenText size={16} /></span><span>اطلاعات ثبت‌شده محصول</span></div>
@@ -77,7 +72,6 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* ===== CATEGORIES ===== */}
         {dbCategories.length > 0 && (
           <section className="container-custom fl-section">
             <div className="fl-section-head">
@@ -90,11 +84,7 @@ export default async function Home() {
               {dbCategories.map((cat) => {
                 const Icon = getCategoryIcon(cat.slug);
                 return (
-                  <Link
-                    key={cat.id}
-                    href={`/products?category=${cat.slug}`}
-                    className="group flex flex-col items-center justify-center rounded-2xl border border-[#e9e5eb] bg-white/70 backdrop-blur-md p-4 shadow-sm transition-all hover:-translate-y-1 hover:border-[#c61d70]/30 hover:shadow-md hover:bg-white"
-                  >
+                  <Link key={cat.id} href={`/products?category=${cat.slug}`} className="group flex flex-col items-center justify-center rounded-2xl border border-[#e9e5eb] bg-white/70 backdrop-blur-md p-4 shadow-sm transition-all hover:-translate-y-1 hover:border-[#c61d70]/30 hover:shadow-md hover:bg-white">
                     <div className="mb-3 grid h-12 w-12 place-items-center rounded-full bg-[#fff0f7] text-[#c61d70] transition-transform group-hover:scale-110">
                       <Icon size={24} strokeWidth={1.5} />
                     </div>
@@ -106,7 +96,6 @@ export default async function Home() {
           </section>
         )}
 
-        {/* ===== NEW ARRIVALS ===== */}
         <section className="container-custom fl-section">
           <div className="fl-section-head">
             <div>
@@ -126,14 +115,10 @@ export default async function Home() {
                 const productDescription = getPublicProductDescription(product.description);
                 return (
                   <Link href={`/products/${product.slug}`} key={product.id} className="fl-product-card group">
-                    <div className="fl-product-media bg-white/50 backdrop-blur-sm">
-                      {productImage ? (
-                        <Image src={productImage} alt={`تصویر ${product.name}`} fill unoptimized={productImage.startsWith('http')} sizes="(max-width: 680px) 46vw, (max-width: 1024px) 30vw, 280px" />
-                      ) : (
-                        <div className="fl-product-placeholder" aria-hidden="true"><span className="absolute text-[10px] font-bold tracking-[.16em] text-[#b77b9a]">FATEMEHLAB</span></div>
-                      )}
+                    <div className="fl-product-media bg-white/50 backdrop-blur-sm relative overflow-hidden">
+                      <SafeImage src={productImage} alt={`تصویر ${product.name}`} fill sizes="(max-width: 680px) 46vw, (max-width: 1024px) 30vw, 280px" />
                       {!isAvailable && (
-                        <span className="absolute right-3 top-3 rounded-lg border border-white/70 bg-white/90 px-2.5 py-1 text-[9px] font-bold text-[#8a6478]">{hasPrice ? 'ناموجود' : 'قیمت ثبت نشده'}</span>
+                        <span className="absolute right-3 top-3 rounded-lg border border-white/70 bg-white/90 px-2.5 py-1 text-[9px] font-bold text-[#8a6478] z-10">{hasPrice ? 'ناموجود' : 'قیمت ثبت نشده'}</span>
                       )}
                     </div>
                     <div className="fl-product-info">
@@ -158,7 +143,6 @@ export default async function Home() {
           )}
         </section>
 
-        {/* ===== FEATURED PRODUCTS (IF ANY) ===== */}
         {featuredProducts.length > 0 && (
           <section className="container-custom fl-section pt-0">
             <div className="rounded-3xl border border-[#f0d8e5] bg-gradient-to-br from-[#fff8fc]/80 to-[#fff]/80 backdrop-blur-md p-6 md:p-10 relative overflow-hidden shadow-sm">
@@ -177,12 +161,8 @@ export default async function Home() {
                     const productImage = getPublicProductImage(product.mainImage);
                     return (
                       <Link href={`/products/${product.slug}`} key={product.id} className="fl-product-card group">
-                        <div className="fl-product-media !border-[#f2d7e5] bg-white/60">
-                          {productImage ? (
-                            <Image src={productImage} alt={`تصویر ${product.name}`} fill unoptimized={productImage.startsWith('http')} sizes="(max-width: 680px) 46vw, (max-width: 1024px) 30vw, 280px" />
-                          ) : (
-                            <div className="fl-product-placeholder" aria-hidden="true"><span className="absolute text-[10px] font-bold tracking-[.16em] text-[#b77b9a]">FATEMEHLAB</span></div>
-                          )}
+                        <div className="fl-product-media !border-[#f2d7e5] bg-white/60 relative overflow-hidden">
+                          <SafeImage src={productImage} alt={`تصویر ${product.name}`} fill sizes="(max-width: 680px) 46vw, (max-width: 1024px) 30vw, 280px" />
                         </div>
                         <div className="fl-product-info">
                           <h3 className="fl-product-name">{product.name}</h3>
@@ -201,7 +181,6 @@ export default async function Home() {
           </section>
         )}
 
-        {/* ===== EDITORIAL ===== */}
         <section className="container-custom pb-10">
           <div className="fl-editorial-panel bg-white/60 backdrop-blur-md">
             <div className="fl-editorial-visual" aria-hidden="true" />
@@ -214,7 +193,6 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* ===== FAQ ===== */}
         <section className="container-custom fl-section pt-8">
           <div className="max-w-3xl mx-auto">
             <div className="mb-5 text-center">
@@ -230,7 +208,6 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* ===== RECENTLY VIEWED ===== */}
         <RecentlyViewed />
 
       </main>
