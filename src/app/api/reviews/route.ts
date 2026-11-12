@@ -4,6 +4,7 @@ import { rateLimit } from '@/lib/rate-limit';
 import { reviews, orders, orderItems } from '@/db/schema';
 import { and, eq, desc, sql } from 'drizzle-orm';
 import { z } from 'zod';
+import { getCurrentCustomer } from '@/lib/customer-auth';
 
 const reviewSchema = z.object({
   productId: z.string().uuid(),
@@ -41,10 +42,20 @@ export async function POST(req: Request) {
       if (purchased.length > 0) verifiedPurchase = true;
     }
 
+    // 🛡️ بررسی لاگین بودن کاربر: اگر لاگین باشد، نام و ایمیل از دیتابیس خوانده می‌شود
+    const currentCustomer = await getCurrentCustomer();
+    let finalName = validated.name;
+    let finalEmail = validated.email || null;
+
+    if (currentCustomer) {
+      finalName = currentCustomer.name;
+      finalEmail = currentCustomer.email;
+    }
+
     await db.insert(reviews).values({
       productId: validated.productId,
-      name: validated.name,
-      email: validated.email || null,
+      name: finalName,
+      email: finalEmail,
       rating: validated.rating,
       comment: validated.comment,
       images: validated.images || [],

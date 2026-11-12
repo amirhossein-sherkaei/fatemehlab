@@ -24,6 +24,8 @@ export default function ProductReviews({ productId }: { productId: string }) {
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [votedReviews, setVotedReviews] = useState<Set<string>>(new Set());
+  const [currentUser, setCurrentUser] = useState<{ name: string; email: string } | null>(null);
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const [showAllReviews, setShowAllReviews] = useState(false);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
 
@@ -40,7 +42,21 @@ export default function ProductReviews({ productId }: { productId: string }) {
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { fetchReviews(); }, [productId, sort, ratingFilter]);
+  useEffect(() => { 
+    fetchReviews(); 
+    
+    // دریافت اطلاعات کاربر لاگین شده
+    fetch('/api/account/me')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.success && data.customer) {
+          setCurrentUser({ name: data.customer.name, email: data.customer.email });
+          setFormData(prev => ({ ...prev, name: data.customer.name, email: data.customer.email }));
+        }
+      })
+      .catch(() => {})
+      .finally(() => setCheckingAuth(false));
+  }, [productId, sort, ratingFilter]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);

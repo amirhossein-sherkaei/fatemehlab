@@ -12,16 +12,18 @@ import Header from '@/components/storefront/Header';
 import Footer from '@/components/storefront/Footer';
 import AddToCartButton from './add-to-cart';
 import WishlistButton from '@/components/storefront/WishlistButton';
-import ShareButton from '@/components/storefront/ShareButton';
 import ProductReviews from '@/components/storefront/ProductReviews';
 import FrequentlyBoughtTogether from '@/components/product/FrequentlyBoughtTogether';
+import ShareButton from '@/components/storefront/ShareButton';
 import RecentlyViewedTracker from '@/components/storefront/RecentlyViewedTracker';
-
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const [product] = await db.select().from(products).where(eq(products.slug, slug)).limit(1);
-  if (!product || product.status !== 'published') return { title: 'محصول یافت نشد' };
+  
+  if (!product || product.status !== 'published') {
+    return { title: 'محصول یافت نشد' };
+  }
   
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatemehbeautyland.ir';
   const productUrl = `${baseUrl}/products/${product.slug}`;
@@ -31,9 +33,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     title,
     description,
-    alternates: {
-      canonical: productUrl,
-    },
+    alternates: { canonical: productUrl },
     openGraph: {
       title,
       description,
@@ -43,13 +43,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       locale: 'fa_IR',
       type: 'website',
     },
-  };
-} = await params;
-  const [product] = await db.select().from(products).where(eq(products.slug, slug)).limit(1);
-  if (!product || product.status !== 'published') return { title: 'محصول یافت نشد' };
-  return {
-    title: `${product.name} | فاطمه بیوتی لند`,
-    description: product.description || `خرید ${product.name} از فاطمه بیوتی لند با تضمین اصالت.`,
   };
 }
 
@@ -65,15 +58,18 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   const isAvailable = product.stock > 0 && isPriced; 
   const publicDescription = getPublicProductDescription(product.description);
   const publicMainImage = getPublicProductImage(product.mainImage);
-  // ══════════ محاسبه هوشمند محصولات خریداری‌شده با هم ══════════
+  const publicGallery = (product.gallery || []).map((img) => getPublicProductImage(img)).filter((img): img is string => Boolean(img));
+
+  const relatedProducts = await db.select().from(products).where(and(eq(products.status, 'published'), ne(products.id, product.id))).limit(4);
+  const specs = Array.isArray(product.specifications) ? product.specifications : [];
+
+  // محاسبه هوشمند محصولات خریداری‌شده با هم
   let fbtProducts: any[] = [];
   try {
-    // ۱. پیدا کردن سفارشاتی که این محصول در آن‌ها بوده (بهینه‌شده)
     const ordersWithProduct = await db.select({ orderId: orderItems.orderId }).from(orderItems).where(eq(orderItems.productId, product.id)).limit(50);
     const orderIds = ordersWithProduct.map(o => o.orderId);
 
     if (orderIds.length > 0) {
-      // ۲. پیدا کردن سایر محصولات در آن سفارشات با یک کوئری واحد (جلوگیری از N+1)
       const otherItems = await db.select({ productId: orderItems.productId })
         .from(orderItems)
         .where(and(inArray(orderItems.orderId, orderIds), ne(orderItems.productId, product.id)))
@@ -83,60 +79,24 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
       
       const fbtIds = otherItems.map(i => i.productId);
       if (fbtIds.length > 0) {
-        // دریافت محصولات با یک کوئری
         fbtProducts = await db.select().from(products).where(and(inArray(products.id, fbtIds), eq(products.status, 'published')));
       }
     }
 
-    // ۳. اگر داده‌ای نبود، از محصولات مشابه استفاده کن (Fallback)
     if (fbtProducts.length === 0) {
       fbtProducts = await db.select().from(products).where(and(eq(products.status, 'published'), ne(products.id, product.id))).limit(2);
     }
   } catch (e) {
     console.error('FBT Error:', e);
   }
-  const publicGallery = (product.gallery || []).map((img) => getPublicProductImage(img)).filter((img): img is string => Boolean(img));
-
-  const relatedProducts = await db.select().from(products).where(and(eq(products.status, 'published'), ne(products.id, product.id))).limit(4);
-  const specs = Array.isArray(product.specifications) ? product.specifications : [];
 
   return (
     <div className="min-h-screen flex flex-col bg-[#fafafc]">
-      {/* JSON-LD for Product Rich Snippets */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Product",
-            "name": product.name,
-            "image": publicMainImage ? [publicMainImage] : [],
-            "description": publicDescription || product.name,
-            "sku": product.sku || product.id,
-            "brand": {
-              "@type": "Brand",
-              "name": product.brand || "فاطمه بیوتی لند"
-            },
-            "offers": {
-              "@type": "Offer",
-              "url": `https://fatemehbeautyland.ir/products/${product.slug}`,
-              "priceCurrency": "IRR",
-              "price": product.price,
-              "availability": isAvailable ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-              "seller": {
-                "@type": "Organization",
-                "name": "فاطمه بیوتی لند"
-              }
-            }
-          })
-        }}
-      />
       <RecentlyViewedTracker product={product} />
       <Header />
       <main className="flex-1 pb-32 md:pb-12">
         <div className="container-custom px-4 md:px-6 py-6">
           
-          {/* Breadcrumb */}
           <nav className="flex items-center gap-2 text-[11px] text-[#918a95] mb-6 whitespace-nowrap overflow-x-auto">
             <Link href="/" className="hover:text-[#c61d70]">خانه</Link>
             <ChevronLeft size={12} />
@@ -217,10 +177,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             </div>
           </div>
 
-          {/* جزئیات، ترکیبات و هشدارها */}
           <div className="mt-12 md:mt-20 max-w-4xl mx-auto space-y-8">
-            
-            {/* مشخصات فنی */}
             {specs.length > 0 && (
               <div className="bg-white rounded-2xl border border-[#e9e5eb] overflow-hidden shadow-sm">
                 <div className="p-4 border-b border-[#e9e5eb] bg-[#fafafc]">
@@ -237,7 +194,6 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               </div>
             )}
 
-            {/* ترکیبات */}
             {product.ingredients && (
               <div className="bg-white rounded-2xl border border-[#e9e5eb] p-6 shadow-sm">
                 <h3 className="text-sm font-black text-[#28242b] mb-3 flex items-center gap-2"><Droplets size={16} className="text-[#c61d70]" /> ترکیبات</h3>
@@ -245,7 +201,6 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               </div>
             )}
 
-            {/* روش استفاده */}
             {product.usage && (
               <div className="bg-white rounded-2xl border border-[#e9e5eb] p-6 shadow-sm">
                 <h3 className="text-sm font-black text-[#28242b] mb-3 flex items-center gap-2"><Sparkles size={16} className="text-[#c61d70]" /> روش استفاده</h3>
@@ -253,7 +208,6 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               </div>
             )}
 
-            {/* هشدارهای ایمنی */}
             {product.warnings && (
               <div className="bg-amber-50 rounded-2xl border border-amber-200 p-6 shadow-sm">
                 <h3 className="text-sm font-black text-amber-800 mb-3 flex items-center gap-2"><ShieldAlert size={16} /> هشدارهای ایمنی</h3>
@@ -262,9 +216,10 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             )}
           </div>
 
-          <FrequentlyBoughtTogether currentProduct={product} fbtProducts={fbtProducts} />`n`n          <ProductReviews productId={product.id} />
+          <FrequentlyBoughtTogether currentProduct={product} fbtProducts={fbtProducts} />
 
-          {/* محصولات مشابه */}
+          <ProductReviews productId={product.id} />
+
           {relatedProducts.length > 0 && (
             <section className="mt-16 md:mt-24 border-t border-[#e9e5eb] pt-10">
               <h2 className="text-xl font-black text-[#28242b] mb-6 text-center">محصولات مشابه</h2>
@@ -291,7 +246,6 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         </div>
       </main>
 
-      {/* استیکی خرید موبایل */}
       {isPriced && (
         <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-[#e9e5eb] p-4 z-50 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] pb-safe">
           <div className="flex items-center justify-between gap-3">
