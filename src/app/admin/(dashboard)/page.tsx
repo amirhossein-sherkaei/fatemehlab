@@ -6,13 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { formatToman } from '@/lib/currency';
 import { desc, eq, sql } from 'drizzle-orm';
-import dynamic from 'next/dynamic';
-
-// بارگذاری داینامیک نمودارها برای جلوگیری از خطای SSR
-const DashboardCharts = dynamic(() => import('@/components/admin/DashboardCharts'), { 
-  ssr: false,
-  loading: () => <div className="h-[300px] bg-gray-100 animate-pulse rounded-3xl" />
-});
+import ChartsClientWrapper from '@/components/admin/ChartsClientWrapper';
 
 export const instant = false;
 
@@ -110,7 +104,7 @@ async function DashboardContent() {
       </div>
 
       {/* نمودارها */}
-      <DashboardCharts data={last7Days} />
+      <ChartsClientWrapper data={last7Days} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* پرفروش‌ترین محصولات */}
