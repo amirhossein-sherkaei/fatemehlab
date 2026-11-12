@@ -63,7 +63,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="min-h-[100dvh] bg-background font-sans text-foreground overflow-x-hidden">
+      <body className="min-h-[100dvh] font-sans text-foreground overflow-x-hidden">
         <Toaster position="top-center" richColors theme="light" closeButton />
         <CartDrawer />
         <QuickViewModal />

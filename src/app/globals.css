@@ -1552,3 +1552,35 @@ body::before {
 .animate-float-slower {
   animation: floatSlow 20s ease-in-out infinite reverse;
 }
+/* ============================================================ */
+/*  PREMIUM MESH GRADIENT (Optimized for Speed & Mobile)        */
+/* ============================================================ */
+
+/* استفاده از پس‌زمینه ثابت و بهینه روی body */
+body {
+  background-color: #fcfbfe !important; /* رنگ پایه بسیار روشن */
+  background-image: 
+    radial-gradient(circle at 15% 0%, rgba(255, 240, 247, 0.8), transparent 45%),
+    radial-gradient(circle at 85% 0%, rgba(240, 235, 255, 0.7), transparent 45%),
+    radial-gradient(circle at 100% 100%, rgba(255, 235, 245, 0.6), transparent 50%),
+    radial-gradient(circle at 0% 100%, rgba(255, 248, 240, 0.7), transparent 50%) !important;
+  background-attachment: fixed !important;
+  background-size: cover !important;
+}
+
+/* پوشش برای هدر شیشه‌ای */
+.fl-header {
+  background: rgba(255, 255, 255, 0.65) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5) !important;
+  box-shadow: 0 4px 20px rgba(198, 29, 112, 0.03) !important;
+}
+
+/* کارت‌های شیشه‌ای برای خوانایی بهتر */
+.glass-panel, .glass-card {
+  background: rgba(255, 255, 255, 0.75) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.8) !important;
+}

@@ -33,33 +33,8 @@ export default async function Home() {
   const dbCategories = await db.select().from(categories).orderBy(desc(categories.createdAt)).limit(6);
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      {/* ✨ افکت‌های نوری پس‌زمینه (Aurora Glow) */}
-      <div className="pointer-events-none fixed inset-0 overflow-hidden -z-10">
-        <div className="absolute -top-[20%] -left-[10%] w-[50vw] h-[50vw] rounded-full bg-[#fff0f7]/60 blur-[120px] animate-float-slow" />
-        <div className="absolute top-[20%] -right-[10%] w-[40vw] h-[40vw] rounded-full bg-[#fce5f0]/50 blur-[100px] animate-float-slower" />
-        <div className="absolute -bottom-[10%] left-[20%] w-[60vw] h-[60vw] rounded-full bg-[#f8f7fa]/80 blur-[150px]" />
-      </div>
-
-      <Header />
-      <main className="flex-1">
-        {/* ===== HERO ===== */}
-        <section className="fl-home-hero">
-          <div className="container-custom fl-hero-grid">
-            <div className="fl-hero-copy-wrap">
-              <span className="fl-eyebrow"><span className="fl-eyebrow-dot" />FATEMEH BEAUTY LAND / BEAUTY & CARE</span>
-              <h1 className="fl-hero-title">زیبایی، با <span>انتخابی آگاهانه.</span></h1>
-              <p className="fl-hero-copy">محصولات آرایشی و مراقبتی را با آرامش بررسی کنید؛ مشخصات، تصاویر، قیمت و وضعیت موجودی هر محصول در صفحه اختصاصی آن قرار می‌گیرد.</p>
-              <div className="fl-hero-actions">
-                <Link href="/products" className="btn-primary">مشاهده محصولات <ArrowLeft size={16} /></Link>
-                <Link href="/about" className="btn-secondary">آشنایی با ما</Link>
-              </div>
-              <div className="fl-hero-meta">
-                <span><BadgeCheck size={14} /> مشخصات محصول</span>
-                <span><Search size={14} /> جست‌وجوی آسان</span>
-                <span><PackageCheck size={14} /> رهگیری سفارش</span>
-              </div>
-            </div>
+    <div className="min-h-screen flex flex-col relative">
+      
             <div className="fl-hero-art" aria-label="هویت بصری">
               <div className="fl-hero-art-top"><span>FATEMEH BEAUTY LAND</span><span>BEAUTY · CARE</span></div>
               <div className="fl-orbit" aria-hidden="true" />
