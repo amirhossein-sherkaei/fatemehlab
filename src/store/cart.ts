@@ -17,6 +17,7 @@ interface CartStore {
   quickViewProduct: Omit<CartItem, 'quantity'> | null;
   
   addItem: (item: Omit<CartItem, 'quantity'>) => void;
+  addBundle: (items: Omit<CartItem, 'quantity'>[]) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
@@ -51,6 +52,18 @@ export const useCartStore = create<CartStore>()(
         } else {
           set({ items: [...currentItems, { ...item, quantity: 1 }] });
         }
+      },
+            addBundle: (itemsToAdd) => {
+        const currentItems = [...get().items];
+        itemsToAdd.forEach(item => {
+          const existingIndex = currentItems.findIndex(i => i.id === item.id);
+          if (existingIndex > -1) {
+            currentItems[existingIndex].quantity += 1;
+          } else {
+            currentItems.push({ ...item, quantity: 1 });
+          }
+        });
+        set({ items: currentItems });
       },
       removeItem: (id) => set({ items: get().items.filter((i) => i.id !== id) }),
       updateQuantity: (id, quantity) => {

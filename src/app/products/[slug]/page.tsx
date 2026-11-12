@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { and, eq, ne } from 'drizzle-orm';
+import { and, eq, ne, inArray, sql, desc } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import { ChevronLeft, ShieldAlert, Sparkles, Droplets, Package, CheckCircle2 } from 'lucide-react';
 import { db } from '@/lib/db';
-import { products } from '@/db/schema';
+import { products, orderItems } from '@/db/schema';
 import { formatToman } from '@/lib/currency';
 import { getPublicProductDescription, getPublicProductImage } from '@/lib/product-content';
 import Header from '@/components/storefront/Header';
@@ -13,6 +13,7 @@ import Footer from '@/components/storefront/Footer';
 import AddToCartButton from './add-to-cart';
 import WishlistButton from '@/components/storefront/WishlistButton';
 import ProductReviews from '@/components/storefront/ProductReviews';
+import FrequentlyBoughtTogether from '@/components/product/FrequentlyBoughtTogether';
 import RecentlyViewedTracker from '@/components/storefront/RecentlyViewedTracker';
 
 
@@ -38,6 +39,35 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   const isAvailable = product.stock > 0 && isPriced; 
   const publicDescription = getPublicProductDescription(product.description);
   const publicMainImage = getPublicProductImage(product.mainImage);
+  // ══════════ محاسبه هوشمند محصولات خریداری‌شده با هم ══════════
+  let fbtProducts: any[] = [];
+  try {
+    // ۱. پیدا کردن سفارشاتی که این محصول در آن‌ها بوده
+    const ordersWithProduct = await db.select({ orderId: orderItems.orderId }).from(orderItems).where(eq(orderItems.productId, product.id)).limit(50);
+    const orderIds = ordersWithProduct.map(o => o.orderId);
+
+    if (orderIds.length > 0) {
+      // ۲. پیدا کردن سایر محصولات در آن سفارشات
+      const otherItems = await db.select({ productId: orderItems.productId })
+        .from(orderItems)
+        .where(and(inArray(orderItems.orderId, orderIds), ne(orderItems.productId, product.id)))
+        .groupBy(orderItems.productId)
+        .orderBy(desc(sql`count(*)`))
+        .limit(2);
+      
+      const fbtIds = otherItems.map(i => i.productId);
+      if (fbtIds.length > 0) {
+        fbtProducts = await db.select().from(products).where(and(inArray(products.id, fbtIds), eq(products.status, 'published')));
+      }
+    }
+
+    // ۳. اگر داده‌ای نبود، از محصولات مشابه استفاده کن (Fallback)
+    if (fbtProducts.length === 0) {
+      fbtProducts = await db.select().from(products).where(and(eq(products.status, 'published'), ne(products.id, product.id))).limit(2);
+    }
+  } catch (e) {
+    console.error('FBT Error:', e);
+  }
   const publicGallery = (product.gallery || []).map((img) => getPublicProductImage(img)).filter((img): img is string => Boolean(img));
 
   const relatedProducts = await db.select().from(products).where(and(eq(products.status, 'published'), ne(products.id, product.id))).limit(4);
@@ -204,7 +234,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             )}
           </div>
 
-          <ProductReviews productId={product.id} />
+          <FrequentlyBoughtTogether currentProduct={product} fbtProducts={fbtProducts} />`n`n          <ProductReviews productId={product.id} />
 
           {/* محصولات مشابه */}
           {relatedProducts.length > 0 && (
