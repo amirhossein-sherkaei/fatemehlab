@@ -84,8 +84,20 @@ export async function POST(req: Request) {
       });
     }
 
-    // ===== NORMAL MODE =====
-    const result = await sendOtpCode(mobile, code);
+        // ===== NORMAL MODE (Optimized) =====
+    // 🚀 با استفاده از Promise.race، اگر ارسال پیامک بیشتر از ۱.۵ ثانیه طول بکشد،
+    // به کاربر پیام موفقیت می‌دهیم و ارسال در پس‌زمینه ادامه پیدا می‌کند.
+    const smsPromise = sendOtpCode(mobile, code);
+    
+    const timeoutPromise = new Promise((resolve) => {
+      setTimeout(() => {
+        console.log('[OTP] SMS API took too long. Returning success to user in background.');
+        resolve({ success: true, timeout: true });
+      }, 1500); // ۱.۵ ثانیه مکث
+    });
+
+    const result = await Promise.race([smsPromise, timeoutPromise]) as any;
+
     if (result.success) {
       return NextResponse.json({
         success: true,
