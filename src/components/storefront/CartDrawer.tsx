@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useCartStore } from '@/store/cart';
@@ -9,6 +9,9 @@ import { X, Trash2, Plus, Minus, ShoppingBag, ArrowLeft, ShieldCheck, Sparkles }
 
 export default function CartDrawer() {
   const { items, isCartOpen, closeCart, removeItem, updateQuantity, getTotalPrice } = useCartStore();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => { setIsMounted(true); }, []);
 
   // قفل کردن اسکرول صفحه وقتی سبد باز است
   useEffect(() => {
@@ -20,7 +23,7 @@ export default function CartDrawer() {
     return () => { document.body.style.overflow = 'unset'; };
   }, [isCartOpen]);
 
-  if (!isCartOpen) return null;
+  if (!isMounted || !isCartOpen) return null;
 
   const totalPrice = getTotalPrice();
 

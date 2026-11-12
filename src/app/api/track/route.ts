@@ -8,7 +8,7 @@ export async function POST(req: Request) {
   try {
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
     const rl = await rateLimit('track-order:' + ip);
-    if (!rl.success) return NextResponse.json({ message: 'تعداد درخواست‌ها زیاد است. لطفاً یک دقیقه صبر کنید.' }, { status: 429 });
+    if (!rl.success) return NextResponse.json({ message: 'تعداد تلاش‌های شما برای رهگیری زیاد بوده است. لطفاً یک دقیقه دیگر تلاش کنید.' }, { status: 429 });
     const { trackingCode, phone } = await req.json();
     
     // تلاش اول: جستجو با کد دقیق
