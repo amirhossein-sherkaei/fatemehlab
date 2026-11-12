@@ -79,8 +79,27 @@ export default async function ProductsPage({
     maxPrice: highestPrice,
   };
 
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatemehbeautyland.ir';
+  const jsonLdCollection = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "محصولات فاطمه بیوتی لند",
+    description: "لیست کامل محصولات آرایشی و بهداشتی",
+    url: `${baseUrl}/products`,
+    mainEntity: {
+      "@type": "ItemList",
+      itemListElement: dbProducts.map((p, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        url: `${baseUrl}/products/${p.slug}`,
+        name: p.name,
+      })),
+    },
+  };
+
   return (
     <div className="min-h-screen flex flex-col relative">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdCollection) }} />
       <Header />
       <main className="flex-1 pb-32 md:pb-12 relative z-10">
         <section className="bg-white/70 backdrop-blur-md border-b border-[#e9e5eb] pt-10 pb-8 px-4 md:px-6">

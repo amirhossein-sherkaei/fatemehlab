@@ -13,7 +13,7 @@ import "./globals.css";
 const vazirmatn = Vazirmatn({
   subsets: ["arabic", "latin"],
   variable: "--font-vazirmatn",
-  display: "swap",
+  display: "swap",`n  adjustFontFallback: true,
   preload: true,
 });
 
@@ -158,7 +158,7 @@ const jsonLdLocalBusiness = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="fa" dir="rtl" className={vazirmatn.variable}>
+    <html lang="fa-IR" dir="rtl" className={vazirmatn.variable}>
       <head>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdGraph) }} />
         

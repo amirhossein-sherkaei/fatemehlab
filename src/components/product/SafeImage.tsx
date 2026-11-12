@@ -12,10 +12,10 @@ interface SafeImageProps {
   height?: number;
   className?: string;
   sizes?: string;
-  priority?: boolean;
+  priority?: boolean;`n  title?: string;
 }
 
-export default function SafeImage({ src, alt, fill, width, height, className, sizes, priority }: SafeImageProps) {
+export default function SafeImage({ src, alt, fill, width, height, className, sizes, priority, title }: SafeImageProps) {
   const [error, setError] = useState(false);
 
   // طرح جایگزین لوکس در صورت نبود عکس
@@ -48,7 +48,7 @@ export default function SafeImage({ src, alt, fill, width, height, className, si
       sizes={sizes} 
       priority={priority}
       className={className}
-      onError={() => setError(true)}
+      onError={() => setError(true)}`n      title={title || alt}`n      itemProp="image"
     />
   );
 }

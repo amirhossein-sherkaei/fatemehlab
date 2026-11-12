@@ -52,6 +52,16 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
     .limit(3);
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatemehbeautyland.ir';
+    const jsonLdBreadcrumb = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "خانه", item: baseUrl },
+      { "@type": "ListItem", position: 2, name: "مجله", item: `${baseUrl}/journal` },
+      { "@type": "ListItem", position: 3, name: article.title, item: `${baseUrl}/journal/${article.slug}` },
+    ],
+  };
+
   const jsonLdArticle = {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -73,6 +83,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
     <div className="min-h-screen flex flex-col bg-white overflow-x-hidden">
       <ReadingProgress />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdArticle) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdBreadcrumb) }} />
       <Header />
       
       <main className="flex-1 w-full max-w-[100vw]">

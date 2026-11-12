@@ -56,8 +56,27 @@ export default async function JournalPage({
   const featured = !activeCategory ? (allArticles.find(a => a.featured) || allArticles[0]) : null;
   const rest = featured ? allArticles.filter(a => a.id !== featured.id) : allArticles;
 
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatemehbeautyland.ir';
+  const jsonLdJournal = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "مجله فاطمه بیوتی لند",
+    description: "مقالات آموزشی و راهنمای خرید",
+    url: `${baseUrl}/journal`,
+    mainEntity: {
+      "@type": "ItemList",
+      itemListElement: allArticles.map((a, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        url: `${baseUrl}/journal/${a.slug}`,
+        name: a.title,
+      })),
+    },
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-[#fafafc]">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdJournal) }} />
       <Header />
       
       {/* pb-32 برای جلوگیری از تداخل با نوار پایین (BottomNav) */}
