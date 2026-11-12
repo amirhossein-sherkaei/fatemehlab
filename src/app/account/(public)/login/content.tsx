@@ -33,6 +33,17 @@ export default function CustomerLoginPage() {
 
   // OTP Timer
   useEffect(() => {
+    const storedTime = localStorage.getItem('otp_timer_login');
+    if (storedTime) {
+      const remaining = Math.floor((parseInt(storedTime) - Date.now()) / 1000);
+      if (remaining > 0) {
+        setTimer(remaining);
+        if (step === 1) setStep(2);
+      } else {
+        localStorage.removeItem('otp_timer_login');
+      }
+    }
+
     if (timer > 0) {
       const interval = setInterval(() => setTimer((t) => t - 1), 1000);
       return () => clearInterval(interval);

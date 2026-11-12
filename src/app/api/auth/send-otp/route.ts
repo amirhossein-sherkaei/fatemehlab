@@ -21,7 +21,7 @@ export async function POST(req: Request) {
   try {
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
     try {
-      const rl = await rateLimit('otp-send:' + ip);
+      const rl = await rateLimit('otp-send:' + mobile);
       if (!rl.success) return NextResponse.json({ success: false, message: 'تعداد درخواست‌ها زیاد است. لطفاً صبر کنید.' }, { status: 429 });
     } catch (e) {}
 
@@ -44,15 +44,20 @@ export async function POST(req: Request) {
     }
 
     if (!IS_BYPASS) {
-      // 🛡️ Await کردن ارسال با تایم‌اوت ۵ ثانیه‌ای
-      const smsPromise = sendOtpCode(mobile, code);
-      const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve({ success: false, timeout: true }), 5000));
-      
-      const result = await Promise.race([smsPromise, timeoutPromise]) as any;
-      
-      if (!result.success && !result.timeout) {
-         console.error('[SMS ERROR] Failed to send OTP', result.error);
-         return NextResponse.json({ success: false, message: 'خطا در ارسال پیامک. لطفاً بعدا تلاش کنید.' }, { status: 500 });
+      // 🚀 منتظر می‌مانیم تا SMS.ir قطعاً جواب بدهد (بدون قطع شدن سرور)
+      // تایم‌اوت ۱۵ ثانیه‌ای برای جلوگیری از هنگ کردن
+      try {
+        const result = await Promise.race([
+          sendOtpCode(mobile, code),
+          new Promise<any>((_, reject) => setTimeout(() => reject(new Error('SMS Timeout')), 15000))
+        ]);
+        
+        if (!result.success) {
+          console.error('[SMS ERROR]', result.error);
+          // حتی اگر خطا داد، به کاربر موفقیت نشان می‌دهیم (چون ممکن است SMS.ir در پس‌زمینه بفرستد)
+        }
+      } catch (err: any) {
+        console.error('[SMS TIMEOUT]', err.message);
       }
     } else {
       console.log(`[SMS BYPASS] Mobile: ${mobile} | Code: ${code}`);

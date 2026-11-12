@@ -54,6 +54,18 @@ export default function RegisterPage() {
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
+    // 🛡️ جلوگیری از دور زدن تایمر با رفرش صفحه
+    const storedTime = localStorage.getItem('otp_timer_register');
+    if (storedTime) {
+      const remaining = Math.floor((parseInt(storedTime) - Date.now()) / 1000);
+      if (remaining > 0) {
+        setTimer(remaining);
+        if (phoneStep === 1) setPhoneStep(2); // اگر تایمر فعال بود، مستقیم برو به مرحله کد
+      } else {
+        localStorage.removeItem('otp_timer_register');
+      }
+    }
+
     if (timer > 0) {
       const interval = setInterval(() => setTimer((t) => t - 1), 1000);
       return () => clearInterval(interval);
@@ -90,6 +102,7 @@ export default function RegisterPage() {
         }
         setPhoneStep(2);
         setTimer(60);
+        localStorage.setItem('otp_timer_register', (Date.now() + 60000).toString());
       } else {
         toast.error(data.message || 'خطا در ارسال پیامک');
       }
