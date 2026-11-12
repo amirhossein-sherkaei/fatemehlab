@@ -11,6 +11,7 @@ import Header from '@/components/storefront/Header';
 import Footer from '@/components/storefront/Footer';
 import ProductFilters from '@/components/storefront/ProductFilters';
 import WishlistButton from '@/components/storefront/WishlistButton';
+import QuickViewButton from '@/components/storefront/QuickViewButton';
 
 export const metadata: Metadata = {
   title: 'محصولات',
@@ -147,18 +148,11 @@ export default async function ProductsPage({
                               {hasPrice ? 'ناموجود' : 'در انتظار قیمت'}
                             </span>
                           )}
-                          <div className="absolute top-2 left-2 z-10">
+                          <div className="absolute top-2 left-2 z-10 flex flex-col gap-2">
                             <WishlistButton productId={product.id} />
+                            <QuickViewButton product={product} />
                           </div>
-<div className="absolute top-10 left-2 z-10">
-  <button 
-    onClick={(e) => { e.preventDefault(); openQuickView({ id: product.id, name: product.name, slug: product.slug, price: product.price, mainImage: product.mainImage }); }}
-    className="w-9 h-9 flex items-center justify-center bg-white/90 backdrop-blur rounded-full text-[#77717b] hover:text-[#c61d70] hover:scale-110 shadow-md border border-[#e9e5eb] transition-all"
-    aria-label="نمایش سریع"
-  >
-    <Eye size={16} />
-  </button>
-</div>
+
                         </div>
                         <div className="p-4 flex-1 flex flex-col">
                           {product.brand && <span className="text-[10px] font-bold text-[#c61d70] mb-1">{product.brand}</span>}

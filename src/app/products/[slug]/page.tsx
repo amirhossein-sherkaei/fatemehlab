@@ -13,6 +13,7 @@ import Footer from '@/components/storefront/Footer';
 import AddToCartButton from './add-to-cart';
 import WishlistButton from '@/components/storefront/WishlistButton';
 import ProductReviews from '@/components/storefront/ProductReviews';
+import RecentlyViewedTracker from '@/components/storefront/RecentlyViewedTracker';
 
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -73,6 +74,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           })
         }}
       />
+      <RecentlyViewedTracker product={product} />
       <Header />
       <main className="flex-1 pb-32 md:pb-12">
         <div className="container-custom px-4 md:px-6 py-6">

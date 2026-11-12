@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { ArrowLeft, ArrowUpLeft, BadgeCheck, BookOpenText, PackageCheck, Search, Sparkles, Droplets, Flame, Heart, Wind, Star, ShoppingBag } from 'lucide-react';
 import Header from '@/components/storefront/Header';
 import Footer from '@/components/storefront/Footer';
+import RecentlyViewed from '@/components/storefront/RecentlyViewed';
 import { getCachedPublishedProducts } from '@/lib/products';
 import { formatToman } from '@/lib/currency';
 import { getPublicProductDescription, getPublicProductImage } from '@/lib/product-content';
@@ -228,6 +229,7 @@ export default async function Home() {
           </div>
         </section>
       </main>
+      <RecentlyViewed />
       <Footer />
     </div>
   );
