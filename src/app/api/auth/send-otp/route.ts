@@ -44,7 +44,16 @@ export async function POST(req: Request) {
     }
 
     if (!IS_BYPASS) {
-      sendOtpCode(mobile, code).catch(err => console.error('[OTP Error]', err));
+      // 🛡️ Await کردن ارسال با تایم‌اوت ۵ ثانیه‌ای
+      const smsPromise = sendOtpCode(mobile, code);
+      const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve({ success: false, timeout: true }), 5000));
+      
+      const result = await Promise.race([smsPromise, timeoutPromise]) as any;
+      
+      if (!result.success && !result.timeout) {
+         console.error('[SMS ERROR] Failed to send OTP', result.error);
+         return NextResponse.json({ success: false, message: 'خطا در ارسال پیامک. لطفاً بعدا تلاش کنید.' }, { status: 500 });
+      }
     } else {
       console.log(`[SMS BYPASS] Mobile: ${mobile} | Code: ${code}`);
     }
