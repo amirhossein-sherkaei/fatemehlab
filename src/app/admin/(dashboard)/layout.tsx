@@ -1,7 +1,21 @@
 import { Suspense } from 'react';
+import { cookies } from 'next/headers';
+import { jwtVerify } from 'jose';
+import { redirect } from 'next/navigation';
 import AdminLayoutClient from './admin-layout-client';
 
 export const instant = false;
+
+const secretRaw = process.env.JWT_SECRET;
+if (!secretRaw) throw new Error('FATAL: JWT_SECRET is missing in environment variables.');
+const secret = new TextEncoder().encode(secretRaw);
+
+async function requireAdmin() {
+  const token = (await cookies()).get('admin_token')?.value;
+  if (!token) redirect('/admin/login');
+  try { await jwtVerify(token, secret); }
+  catch { redirect('/admin/login'); }
+}
 
 function LayoutSkeleton() {
   return (
@@ -22,7 +36,8 @@ function PageSkeleton() {
   );
 }
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  await requireAdmin();
   return (
     <Suspense fallback={<LayoutSkeleton />}>
       <AdminLayoutClient>

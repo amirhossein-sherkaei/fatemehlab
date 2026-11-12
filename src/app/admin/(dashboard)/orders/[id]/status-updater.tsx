@@ -6,6 +6,7 @@ import { Loader2, CheckCircle2, Trash2 } from 'lucide-react';
 
 
 const statusOptions = [
+  { value: 'paid', label: 'پرداخت شده', color: 'bg-sky-500' },
   { value: 'processing', label: 'در حال پردازش', color: 'bg-blue-500' },
   { value: 'shipped', label: 'ارسال شده', color: 'bg-purple-500' },
   { value: 'delivered', label: 'تحویل داده شده', color: 'bg-emerald-500' },

@@ -167,10 +167,14 @@ async function DashboardContent() {
   );
 }
 
+import AdminGuard from '@/components/admin/AdminGuard';
+
 export default function AdminDashboard() {
   return (
-    <Suspense fallback={<DashboardSkeleton />}>
+    <AdminGuard>
+      <Suspense fallback={<DashboardSkeleton />}>
       <DashboardContent />
     </Suspense>
+    </AdminGuard>
   );
 }
