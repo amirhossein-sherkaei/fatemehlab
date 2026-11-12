@@ -6,8 +6,7 @@ import { eq } from 'drizzle-orm';
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatemehbeautyland.ir';
 
-  // Static pages
-  const staticRoutes = [
+  const staticRoutes: MetadataRoute.Sitemap = [
     '', '/about', '/products', '/journal', '/contact', '/faq', '/track',
     '/policies/privacy', '/policies/returns', '/policies/shipping',
   ].map((route) => ({
@@ -17,7 +16,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: route === '' ? 1 : 0.8,
   }));
 
-  // Dynamic products
   let productRoutes: MetadataRoute.Sitemap = [];
   try {
     const allProducts = await db
@@ -30,17 +28,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: p.updatedAt || new Date(),
       changeFrequency: 'daily' as const,
       priority: 0.9,
+      // 🖼️ Image Sitemap
       images: p.mainImage ? [p.mainImage] : [],
     }));
   } catch (e) {
     console.error('Sitemap products error:', e);
   }
 
-  // Dynamic articles
   let articleRoutes: MetadataRoute.Sitemap = [];
   try {
     const allArticles = await db
-      .select({ slug: articles.slug, updatedAt: articles.updatedAt })
+      .select({ slug: articles.slug, updatedAt: articles.updatedAt, coverImage: articles.coverImage })
       .from(articles)
       .where(eq(articles.status, 'published'));
 
@@ -49,12 +47,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: a.updatedAt || new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.7,
+      images: a.coverImage ? [a.coverImage] : [],
     }));
   } catch (e) {
     console.error('Sitemap articles error:', e);
   }
 
-  // Dynamic categories
   let categoryRoutes: MetadataRoute.Sitemap = [];
   try {
     const allCategories = await db.select({ slug: categories.slug }).from(categories);

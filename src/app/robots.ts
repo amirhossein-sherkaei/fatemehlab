@@ -10,6 +10,11 @@ export default function robots(): MetadataRoute.Robots {
         allow: '/',
         disallow: ['/admin/', '/account/', '/api/', '/cart', '/checkout', '/_next/'],
       },
+      // 🤖 اجازه به ربات‌های AI برای درک بهتر محتوا
+      {
+        userAgent: ['GPTBot', 'Claude-Web', 'ClaudeBot', 'anthropic-ai', 'OAI-SearchBot', 'PerplexityBot'],
+        allow: '/',
+      },
     ],
     sitemap: `${baseUrl}/sitemap.xml`,
     host: baseUrl,

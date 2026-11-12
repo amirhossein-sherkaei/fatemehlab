@@ -6,6 +6,7 @@ import BottomNav from "@/components/storefront/BottomNav";
 import CartDrawer from "@/components/storefront/CartDrawer";
 import AuroraBackground from "@/components/storefront/AuroraBackground";
 import PwaInstallPrompt from "@/components/storefront/PwaInstallPrompt";
+import WebVitals from "@/components/shared/WebVitals";
 import PromoBarWrapper from "@/components/storefront/PromoBarWrapper";
 import "./globals.css";
 
@@ -65,6 +66,53 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
+const jsonLdGraph = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${baseUrl}/#organization`,
+      name: "فاطمه بیوتی لند",
+      url: baseUrl,
+      logo: `${baseUrl}/logo.png`,
+      contactPoint: {
+        "@type": "ContactPoint",
+        telephone: "+989905316327",
+        contactType: "customer service",
+        areaServed: "IR",
+        availableLanguage: "Persian",
+      },
+      sameAs: ["https://instagram.com/fatemehlab.ir"],
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${baseUrl}/#website`,
+      url: baseUrl,
+      name: "فاطمه بیوتی لند",
+      publisher: { "@id": `${baseUrl}/#organization` },
+      potentialAction: {
+        "@type": "SearchAction",
+        target: `${baseUrl}/products?q={search_term_string}`,
+        "query-input": "required name=search_term_string",
+      },
+    },
+    {
+      "@type": "Store",
+      "@id": `${baseUrl}/#store`,
+      name: "فاطمه بیوتی لند",
+      image: `${baseUrl}/logo.png`,
+      url: baseUrl,
+      telephone: "+989905316327",
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: "تهران",
+        addressCountry: "IR",
+      },
+      priceRange: "$",
+    },
+  ],
+};
+
 const jsonLdOrganization = {
   "@context": "https://schema.org",
   "@type": "Organization",
@@ -112,14 +160,15 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="fa" dir="rtl" className={vazirmatn.variable}>
       <head>
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdOrganization) }} />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdWebSite) }} />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdLocalBusiness) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdGraph) }} />
+        
+        
       </head>
       <body className="min-h-[100dvh] font-sans text-foreground overflow-x-hidden">
         <Suspense fallback={null}><PromoBarWrapper /></Suspense>
         <Toaster position="top-center" richColors theme="light" closeButton />
         <AuroraBackground />
+        <WebVitals />
         <CartDrawer />
         <PwaInstallPrompt />
         {children}
