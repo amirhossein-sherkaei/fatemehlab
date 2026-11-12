@@ -17,9 +17,21 @@ export async function GET(req: Request) {
 
     const allReviews = await db
       .select({
-        review: reviews,
+        id: reviews.id,
+        productId: reviews.productId,
+        name: reviews.name,
+        email: reviews.email,
+        rating: reviews.rating,
+        comment: reviews.comment,
+        images: reviews.images,
+        verifiedPurchase: reviews.verifiedPurchase,
+        helpfulCount: reviews.helpfulCount,
+        notHelpfulCount: reviews.notHelpfulCount,
+        adminReply: reviews.adminReply,
+        adminReplyAt: reviews.adminReplyAt,
+        status: reviews.status,
+        createdAt: reviews.createdAt,
         productName: products.name,
-        productSlug: products.slug,
         productImage: products.mainImage,
       })
       .from(reviews)
