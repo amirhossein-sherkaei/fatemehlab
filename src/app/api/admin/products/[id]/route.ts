@@ -2,12 +2,11 @@ import { NextResponse } from 'next/server';
 import { validateOrigin, rejectCsrf } from '@/lib/security';
 import { db } from '@/lib/db';
 import { products } from '@/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { verifyAdmin } from '@/lib/auth';
 import { stockNotifications } from '@/db/schema';
 import { sendBackInStockSms } from '@/lib/sms';
-import { and, eq } from 'drizzle-orm';
 import { tomanToRial } from '@/lib/currency';
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
