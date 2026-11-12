@@ -2,7 +2,7 @@ import { cookies } from 'next/headers';
 import { SignJWT, jwtVerify } from 'jose';
 
 const CUSTOMER_SECRET = new TextEncoder().encode(
-  process.env.CUSTOMER_JWT_SECRET || process.env.JWT_SECRET || 'customer-fallback-secret-change-me'
+  process.env.CUSTOMER_JWT_SECRET || process.env.JWT_SECRET
 );
 
 const COOKIE_NAME = 'customer_token';
