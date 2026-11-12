@@ -7,7 +7,6 @@ import { LayoutDashboard, ShoppingBag, LogOut, Settings, Menu, X, Package, BookO
 import { Suspense, useState, useEffect } from 'react';
 import { Toaster } from 'sonner';
 import AdminBottomNav from '@/components/admin/AdminBottomNav';
-import ThemeToggle from '@/components/shared/ThemeToggle';
 import { useAdminNotifications } from '@/hooks/useAdminNotifications';
 
 export default function AdminLayoutClient({ children }: { children: React.ReactNode }) {
@@ -89,10 +88,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
         })}
       </nav>
       <div className="shrink-0 p-4 space-y-4">
-        <div className="flex items-center justify-between rounded-2xl border border-[#e9e5eb] bg-white dark:bg-[#1a161c] p-3">
-          <span className="text-xs font-bold text-[#77717b]">حالت نمایش</span>
-          <ThemeToggle />
-        </div>
+
         {permission !== 'granted' && (
           <button onClick={requestPermission} className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#c61d70] to-[#e84e9e] p-3 text-white shadow-lg shadow-[#c61d70]/20 animate-pulse">
             <BellRing size={18} />

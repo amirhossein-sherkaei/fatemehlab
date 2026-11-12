@@ -3,13 +3,9 @@ import CustomersClient from './customers-client';
 
 export const instant = false;
 
-function Skeleton() {
-  return <div className="p-8 text-center text-[#77717b] text-sm">در حال بارگذاری لیست مشتریان...</div>;
-}
-
-export default function AdminCustomersPage() {
+export default function Page() {
   return (
-    <Suspense fallback={<Skeleton />}>
+    <Suspense fallback={<div className="p-12 text-center text-[#c61d70]">در حال بارگذاری مشتریان...</div>}>
       <CustomersClient />
     </Suspense>
   );

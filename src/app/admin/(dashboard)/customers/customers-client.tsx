@@ -1,35 +1,49 @@
 'use client';
-import { formatPersianDate, formatPersianDateTime } from '@/lib/format';
 
 import { useState, useEffect } from 'react';
-import { Search, Users, ShoppingBag, DollarSign, Loader2, Mail, Phone, Calendar } from 'lucide-react';
+import { Search, Users, ShoppingBag, DollarSign, Loader2, Mail, Phone, Calendar, AlertCircle } from 'lucide-react';
 import { formatToman } from '@/lib/currency';
 import Image from 'next/image';
+import { formatPersianDate } from '@/lib/format';
 
 export default function CustomersClient() {
   const [customers, setCustomers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [search, setSearch] = useState('');
 
   useEffect(() => {
     fetch('/api/admin/customers')
-      .then(res => res.json())
-      .then(data => { if (data.success) setCustomers(data.customers); })
+      .then(res => {
+        if (!res.ok) throw new Error('Unauthorized');
+        return res.json();
+      })
+      .then(data => { 
+        if (data.success) setCustomers(data.customers); 
+        else setError('خطا در بارگذاری');
+      })
+      .catch(() => setError('دسترسی غیرمجاز'))
       .finally(() => setLoading(false));
   }, []);
 
   const filtered = customers.filter(c => 
-    c.name.toLowerCase().includes(search.toLowerCase()) || 
-    c.email.toLowerCase().includes(search.toLowerCase()) ||
+    c.name?.toLowerCase().includes(search.toLowerCase()) || 
+    c.email?.toLowerCase().includes(search.toLowerCase()) ||
     (c.phone && c.phone.includes(search))
   );
 
-  // محاسبه آمار کلی
   const totalCustomers = customers.length;
   const activeCustomers = customers.filter(c => c.totalOrders > 0).length;
   const totalRevenue = customers.reduce((sum, c) => sum + c.totalSpent, 0);
 
-  if (loading) return <div className="p-12 text-center text-[#c61d70]"><Loader2 className="w-8 h-8 animate-spin mx-auto" /></div>;
+  if (loading) return <div className="p-12 text-center text-[#c61d70]"><Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" /><p className="text-sm">در حال بارگذاری...</p></div>;
+
+  if (error) return (
+    <div className="p-12 text-center">
+      <AlertCircle className="w-12 h-12 text-rose-500 mx-auto mb-4" />
+      <p className="text-sm text-rose-600">{error}</p>
+    </div>
+  );
 
   return (
     <div className="space-y-6 pb-20 md:pb-6">
@@ -42,7 +56,6 @@ export default function CustomersClient() {
         </div>
       </div>
 
-      {/* کارت‌های آماری بالا */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white rounded-3xl border border-[#e9e5eb] p-5 shadow-sm flex items-center gap-4">
           <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0"><Users size={24} /></div>
@@ -54,7 +67,7 @@ export default function CustomersClient() {
         <div className="bg-white rounded-3xl border border-[#e9e5eb] p-5 shadow-sm flex items-center gap-4">
           <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0"><ShoppingBag size={24} /></div>
           <div>
-            <p className="text-xs font-bold text-[#77717b]">مشتریان فعال (خریدار)</p>
+            <p className="text-xs font-bold text-[#77717b]">مشتریان فعال</p>
             <p className="text-2xl font-black text-[#28242b]">{activeCustomers.toLocaleString('fa-IR')}</p>
           </div>
         </div>
@@ -67,7 +80,6 @@ export default function CustomersClient() {
         </div>
       </div>
 
-      {/* نوار جستجو */}
       <div className="bg-white rounded-2xl border border-[#e9e5eb] p-4 shadow-sm">
         <div className="relative max-w-md">
           <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#918a95]" />
@@ -81,7 +93,6 @@ export default function CustomersClient() {
         </div>
       </div>
 
-      {/* لیست مشتریان */}
       <div className="bg-white rounded-3xl border border-[#e9e5eb] shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-right text-sm">
@@ -102,23 +113,23 @@ export default function CustomersClient() {
                   <tr key={customer.id} className="hover:bg-[#fafafc] transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#fff0f7] to-[#fce5f0] text-[#c61d70] flex items-center justify-center font-black shrink-0 overflow-hidden">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#fff0f7] to-[#fce5f0] text-[#c61d70] flex items-center justify-center font-black shrink-0 overflow-hidden relative">
                           {customer.avatar ? (
-                            <Image src={customer.avatar} alt={customer.name} width={40} height={40} className="w-full h-full object-cover" />
+                            <Image src={customer.avatar} alt={customer.name} fill className="object-cover" />
                           ) : (
-                            customer.name.charAt(0)
+                            customer.name?.charAt(0) || '?'
                           )}
                         </div>
                         <div>
                           <span className="font-bold text-[#28242b] block">{customer.name}</span>
-                          {customer.email.endsWith('@temp.fatemehlab.ir') && (
+                          {customer.email?.endsWith('@temp.fatemehlab.ir') && (
                             <span className="text-[9px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded">OTP User</span>
                           )}
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-xs text-[#77717b] space-y-1">
-                      <div className="flex items-center gap-1.5"><Mail size={12}/> <span dir="ltr">{customer.email}</span></div>
+                      <div className="flex items-center gap-1.5"><Mail size={12}/> <span dir="ltr" className="truncate">{customer.email}</span></div>
                       {customer.phone && <div className="flex items-center gap-1.5"><Phone size={12}/> <span dir="ltr">{customer.phone}</span></div>}
                     </td>
                     <td className="px-6 py-4 text-center">

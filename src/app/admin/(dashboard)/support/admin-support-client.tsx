@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { MessageCircle, Search, Clock, CheckCircle2, ChevronLeft, AlertCircle, Loader2 } from 'lucide-react';
+import { formatPersianDate } from '@/lib/format';
 
 const CATEGORIES: Record<string, string> = { order: 'سفارش', product: 'محصول', payment: 'پرداخت', other: 'سایر' };
 const STATUS: Record<string, { label: string; cls: string }> = {
@@ -14,13 +15,21 @@ const STATUS: Record<string, { label: string; cls: string }> = {
 export default function AdminSupportClient() {
   const [tickets, setTickets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<'all' | 'open' | 'answered' | 'closed'>('all');
 
   useEffect(() => {
     fetch('/api/admin/support')
-      .then(res => res.json())
-      .then(data => { if (data.success) setTickets(data.tickets); })
+      .then(res => {
+        if (!res.ok) throw new Error('Unauthorized');
+        return res.json();
+      })
+      .then(data => { 
+        if (data.success) setTickets(data.tickets); 
+        else setError(data.message || 'خطا');
+      })
+      .catch((err) => setError(err.message || 'دسترسی غیرمجاز'))
       .finally(() => setLoading(false));
   }, []);
 
@@ -37,7 +46,14 @@ export default function AdminSupportClient() {
     unread: tickets.filter((t) => t.ticket.unreadByAdmin > 0).length,
   };
 
-  if (loading) return <div className="p-12 text-center text-[#c61d70]"><Loader2 className="w-8 h-8 animate-spin mx-auto" /></div>;
+  if (loading) return <div className="p-12 text-center text-[#c61d70]"><Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" /><p className="text-sm">در حال بارگذاری تیکت‌ها...</p></div>;
+
+  if (error) return (
+    <div className="p-12 text-center">
+      <AlertCircle className="w-12 h-12 text-rose-500 mx-auto mb-4" />
+      <p className="text-sm text-rose-600">{error}</p>
+    </div>
+  );
 
   return (
     <div className="space-y-6 pb-8">
@@ -83,6 +99,7 @@ export default function AdminSupportClient() {
         <div className="rounded-3xl border border-dashed border-[#e9e5eb] bg-white p-12 text-center">
           <MessageCircle size={48} className="mx-auto mb-4 text-[#c61d70]/30" />
           <h3 className="text-lg font-black text-[#28242b] mb-2">تیکتی یافت نشد</h3>
+          <p className="text-sm text-[#77717b]">هنوز هیچ تیکتی ثبت نشده است.</p>
         </div>
       ) : (
         <div className="grid gap-2">
@@ -108,6 +125,7 @@ export default function AdminSupportClient() {
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[9px] font-bold ${status.cls}`}>{status.label}</span>
                   <span className="inline-flex items-center rounded-full bg-[#f8f7fa] border border-[#e9e5eb] px-2 py-0.5 text-[9px] font-bold text-[#77717b]">{CATEGORIES[ticket.category] || ticket.category}</span>
+                  <span className="text-[9px] text-[#918a95]">{formatPersianDate(ticket.lastMessageAt)}</span>
                 </div>
               </Link>
             );

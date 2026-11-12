@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { supportTickets, supportMessages, customers } from '@/db/schema';
+import { supportTickets, customers } from '@/db/schema';
 import { eq, desc } from 'drizzle-orm';
 import { verifyAdmin } from '@/lib/auth';
 
@@ -13,7 +13,10 @@ export async function GET() {
       customerEmail: customers.email,
     }).from(supportTickets).leftJoin(customers, eq(supportTickets.customerId, customers.id)).orderBy(desc(supportTickets.lastMessageAt));
     return NextResponse.json({ success: true, tickets });
-  } catch { return NextResponse.json({ message: 'Unauthorized' }, { status: 401 }); }
+  } catch (error) {
+    console.error('Admin support GET error:', error);
+    return NextResponse.json({ message: 'Unauthorized', tickets: [] }, { status: 401 });
+  }
 }
 
 export async function POST(req: Request) {
@@ -21,7 +24,6 @@ export async function POST(req: Request) {
     await verifyAdmin();
     const { ticketId } = await req.json();
     await db.update(supportTickets).set({ unreadByAdmin: 0 }).where(eq(supportTickets.id, ticketId));
-    await db.update(supportMessages).set({ isRead: true }).where(eq(supportMessages.ticketId, ticketId));
     return NextResponse.json({ success: true });
   } catch { return NextResponse.json({ message: 'خطا' }, { status: 500 }); }
 }
