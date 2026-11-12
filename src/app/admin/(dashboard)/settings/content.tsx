@@ -33,6 +33,26 @@ export default function SettingsPage() {
     setSettings(prev => ({ ...prev, [key]: value }));
   };
 
+    const handleDeletePromo = async () => {
+    if (!confirm('آیا از حذف کامل نوار تبلیغاتی مطمئن هستید؟')) return;
+    setPromoText('');
+    setPromoExpiresAt(null);
+    
+    // ارسال مستقیم به سرور برای پاک کردن
+    const newSettings = { ...settings, promoBarText: '', promoBarExpiresAt: null };
+    try {
+      const res = await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newSettings),
+      });
+      if (res.ok) toast.success('نوار تبلیغاتی با موفقیت حذف شد');
+      else toast.error('خطا در حذف');
+    } catch {
+      toast.error('خطا در ارتباط با سرور');
+    }
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -127,9 +147,16 @@ export default function SettingsPage() {
 
         {/* Promotion Settings */}
         <div className="rounded-3xl border border-[#e9e5eb] bg-white p-5 shadow-sm md:p-6">
-          <h2 className="mb-5 flex items-center gap-2 border-b border-[#e9e5eb] pb-4 text-sm font-black text-[#28242b]">
-            <Sparkles size={18} className="text-[#c61d70]"/> نوار تبلیغاتی بالای سایت
-          </h2>
+                    <div className="flex items-center justify-between mb-5 border-b border-[#e9e5eb] pb-4">
+            <h2 className="flex items-center gap-2 text-sm font-black text-[#28242b]">
+              <Sparkles size={18} className="text-[#c61d70]"/> نوار تبلیغاتی بالای سایت
+            </h2>
+            {(promoText || promoExpiresAt) && (
+              <button onClick={handleDeletePromo} className="text-xs font-bold text-rose-500 hover:bg-rose-50 px-3 py-1.5 rounded-lg transition-colors">
+                حذف نوار
+              </button>
+            )}
+          </div>
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             <div className="space-y-2 md:col-span-2">
               <label className="text-xs font-bold text-[#28242b]">متن نوار تبلیغاتی</label>
