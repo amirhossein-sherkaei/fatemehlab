@@ -27,7 +27,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
     const readOrders = JSON.parse(localStorage.getItem('readOrders') || '[]');
     fetch('/api/admin/orders').then(res => res.json()).then(data => {
       if (data.success) {
-        setPendingCount(data.orders.filter((o: any) => o.status === 'processing' && !readOrders.includes(o.id)).length);
+        setPendingCount(data.orders.filter((o: any) => ['pending', 'paid', 'processing'].includes(o.status) && !readOrders.includes(o.id)).length);
       }
     }).catch(() => {});
   }, [pathname]);

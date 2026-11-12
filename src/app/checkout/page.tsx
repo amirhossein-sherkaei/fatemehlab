@@ -32,7 +32,14 @@ export default function CheckoutPage() {
     firstName: '', lastName: '', phone: '', address: '', city: '', postalCode: '', notes: '',
   });
 
-  useEffect(() => { setIsMounted(true); }, []);
+  useEffect(() => { 
+    setIsMounted(true); 
+    // 🛡️ پاکسازی state در صورت بازگشت به صفحه
+    setAppliedCoupon(null);
+    setCouponCode('');
+    setUsePoints(false);
+    setPointsToUse(0);
+  }, []);
   // 🛡️ اعتبارسنجی مجدد کد تخفیف وقتی سبد خرید تغییر می‌کند
   useEffect(() => {
     if (!appliedCoupon) return;

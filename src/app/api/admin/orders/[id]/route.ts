@@ -62,7 +62,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
         await tx.update(orders).set({ status }).where(eq(orders.id, id));
       });
     } else if (status === 'cancelled' && (existingOrder.status === 'paid' || existingOrder.status === 'processing')) {
-      // اگر سفارش پرداخت شده لغو شود: موجودی برگردد، اما امتیاز و کد تخفیف مصرف‌شده باقی می‌مانند
+      // 🛡️ لغو سفارش پرداخت‌شده: برگرداندن موجودی + امتیاز + کد تخفیف
       await db.transaction(async (tx) => {
         const items = await tx.select().from(orderItems).where(eq(orderItems.orderId, id));
         for (const item of items) {
@@ -70,6 +70,31 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
             .set({ stock: sql`${products.stock} + ${item.quantity}` })
             .where(eq(products.id, item.productId));
         }
+        
+        // برگرداندن امتیازاتی که کاربر خرج کرده بود
+        if (existingOrder.usedPoints > 0 && existingOrder.customerId) {
+          await tx.update(customers)
+            .set({ loyaltyPoints: sql`${customers.loyaltyPoints} + ${existingOrder.usedPoints}` })
+            .where(eq(customers.id, existingOrder.customerId));
+        }
+
+        // برگرداندن امتیازاتی که به کاربر داده شده بود
+        if (existingOrder.customerId && existingOrder.totalAmount > 0) {
+          const earnedPoints = Math.floor(existingOrder.totalAmount / 100000);
+          if (earnedPoints > 0) {
+            await tx.update(customers)
+              .set({ loyaltyPoints: sql`GREATEST(0, ${customers.loyaltyPoints} - ${earnedPoints})` })
+              .where(eq(customers.id, existingOrder.customerId));
+          }
+        }
+
+        // برگرداندن کد تخفیف
+        if (existingOrder.couponCode) {
+          await tx.update(coupons)
+            .set({ usedCount: sql`GREATEST(0, ${coupons.usedCount} - 1)` })
+            .where(eq(coupons.code, existingOrder.couponCode));
+        }
+
         await tx.update(orders).set({ status }).where(eq(orders.id, id));
       });
     } else {

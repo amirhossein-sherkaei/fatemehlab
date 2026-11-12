@@ -145,9 +145,14 @@ export async function POST(req: Request) {
       await tx.insert(orderItems).values(validatedItems.map((item) => ({ ...item, orderId: orderId })));
 
       if (usedPoints > 0) {
-        await tx.update(customers)
+        const pointsUpdateResult = await tx.update(customers)
           .set({ loyaltyPoints: sql`${customers.loyaltyPoints} - ${usedPoints}` })
-          .where(eq(customers.id, currentCustomer.id));
+          .where(and(eq(customers.id, currentCustomer.id), gte(customers.loyaltyPoints, usedPoints)))
+          .returning({ id: customers.id });
+
+        if (pointsUpdateResult.length === 0) {
+          throw new Error('موجودی امتیاز شما کافی نیست.');
+        }
       }
 
       return order;
