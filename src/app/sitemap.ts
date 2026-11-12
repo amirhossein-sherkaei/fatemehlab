@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next';
 import { db } from '@/lib/db';
-import { products, articles } from '@/db/schema';
+import { products, articles, categories } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -8,21 +8,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Static pages
   const staticRoutes = [
-    '',
-    '/about',
-    '/products',
-    '/journal',
-    '/contact',
-    '/faq',
-    '/track',
-    '/policies/privacy',
-    '/track',
-    '/about',
-    '/contact',
-    '/faq',
-    '/journal',
-    '/policies/returns',
-    '/policies/shipping',
+    '', '/about', '/products', '/journal', '/contact', '/faq', '/track',
+    '/policies/privacy', '/policies/returns', '/policies/shipping',
   ].map((route) => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date(),
@@ -34,7 +21,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let productRoutes: MetadataRoute.Sitemap = [];
   try {
     const allProducts = await db
-      .select({ slug: products.slug, updatedAt: products.updatedAt })
+      .select({ slug: products.slug, updatedAt: products.updatedAt, mainImage: products.mainImage })
       .from(products)
       .where(eq(products.status, 'published'));
 
@@ -43,9 +30,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: p.updatedAt || new Date(),
       changeFrequency: 'daily' as const,
       priority: 0.9,
+      images: p.mainImage ? [p.mainImage] : [],
     }));
   } catch (e) {
-    console.error('Sitemap: Failed to fetch products', e);
+    console.error('Sitemap products error:', e);
   }
 
   // Dynamic articles
@@ -63,8 +51,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     }));
   } catch (e) {
-    console.error('Sitemap: Failed to fetch articles', e);
+    console.error('Sitemap articles error:', e);
   }
 
-  return [...staticRoutes, ...productRoutes, ...articleRoutes];
+  // Dynamic categories
+  let categoryRoutes: MetadataRoute.Sitemap = [];
+  try {
+    const allCategories = await db.select({ slug: categories.slug }).from(categories);
+    categoryRoutes = allCategories.map((c) => ({
+      url: `${baseUrl}/products?category=${c.slug}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.6,
+    }));
+  } catch (e) {
+    console.error('Sitemap categories error:', e);
+  }
+
+  return [...staticRoutes, ...productRoutes, ...articleRoutes, ...categoryRoutes];
 }

@@ -21,15 +21,12 @@ import RecentlyViewedTracker from '@/components/storefront/RecentlyViewedTracker
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const [product] = await db.select().from(products).where(eq(products.slug, slug)).limit(1);
-  
-  if (!product || product.status !== 'published') {
-    return { title: 'محصول یافت نشد' };
-  }
-  
+  if (!product || product.status !== 'published') return { title: 'محصول یافت نشد' };
+
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatemehbeautyland.ir';
   const productUrl = `${baseUrl}/products/${product.slug}`;
   const title = `${product.name} | فاطمه بیوتی لند`;
-  const description = product.description || `خرید ${product.name} از فاطمه بیوتی لند با تضمین اصالت و ارسال سریع.`;
+  const description = product.description || `خرید ${product.name} از فاطمه بیوتی لند با تضمین اصالت.`;
 
   return {
     title,
@@ -40,9 +37,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       description,
       url: productUrl,
       siteName: 'فاطمه بیوتی لند',
-      images: product.mainImage ? [{ url: product.mainImage }] : [],
       locale: 'fa_IR',
       type: 'website',
+      images: product.mainImage ? [{ url: product.mainImage, width: 800, height: 800, alt: product.name }] : [],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: product.mainImage ? [product.mainImage] : [],
     },
   };
 }
@@ -60,6 +63,35 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   const publicDescription = getPublicProductDescription(product.description);
   const publicMainImage = getPublicProductImage(product.mainImage);
   const publicGallery = (product.gallery || []).map((img) => getPublicProductImage(img)).filter((img): img is string => Boolean(img));
+
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatemehbeautyland.ir';
+  const jsonLdProduct = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    image: publicMainImage ? [publicMainImage] : [],
+    description: publicDescription || product.name,
+    sku: product.sku || product.id,
+    brand: { "@type": "Brand", name: product.brand || "فاطمه بیوتی لند" },
+    offers: {
+      "@type": "Offer",
+      url: `${baseUrl}/products/${product.slug}`,
+      priceCurrency: "IRR",
+      price: product.price,
+      availability: isAvailable ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      seller: { "@type": "Organization", name: "فاطمه بیوتی لند" },
+    },
+  };
+
+  const jsonLdBreadcrumb = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "خانه", item: baseUrl },
+      { "@type": "ListItem", position: 2, name: "محصولات", item: `${baseUrl}/products` },
+      { "@type": "ListItem", position: 3, name: product.name, item: `${baseUrl}/products/${product.slug}` },
+    ],
+  };
 
   const relatedProducts = await db.select().from(products).where(and(eq(products.status, 'published'), ne(products.id, product.id))).limit(4);
   const specs = Array.isArray(product.specifications) ? product.specifications : [];
@@ -94,6 +126,8 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   return (
     <div className="min-h-screen flex flex-col bg-[#fafafc]">
       <RecentlyViewedTracker product={product} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdProduct) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdBreadcrumb) }} />
       <Header />
       <main className="flex-1 pb-32 md:pb-12">
         <div className="container-custom px-4 md:px-6 py-6">
