@@ -12,6 +12,7 @@ import Footer from '@/components/storefront/Footer';
 import ProductFilters from '@/components/storefront/ProductFilters';
 import WishlistButton from '@/components/storefront/WishlistButton';
 import QuickViewButton from '@/components/storefront/QuickViewButton';
+import LoadMoreProducts from '@/components/storefront/LoadMoreProducts';
 
 export const metadata: Metadata = {
   title: 'محصولات',
@@ -49,7 +50,7 @@ export default async function ProductsPage({
   if (sort === 'cheapest') orderBy = asc(products.price);
   if (sort === 'expensive') orderBy = desc(products.price);
 
-  const dbProducts = invalidCategory ? [] : await db.select().from(products).where(and(...conditions)).orderBy(orderBy);
+  const dbProducts = invalidCategory ? [] : await db.select().from(products).where(and(...conditions)).orderBy(orderBy).limit(12);
 
   const buildCategoryHref = (slug?: string) => {
     const p = new URLSearchParams();
