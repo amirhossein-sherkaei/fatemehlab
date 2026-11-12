@@ -126,7 +126,7 @@ export default async function Home() {
                   <Link href={`/products/${product.slug}`} key={product.id} className="fl-product-card group">
                     <div className="fl-product-media">
                       {productImage ? (
-                        <Image src={productImage} alt={`تصویر ${product.name}`} fill unoptimized={productImage.startsWith('http')} sizes="(max-width: 680px) 46vw, (max-width: 1024px) 30vw, 280px" />
+                        <Image src={productImage} alt={`تصویر ${product.name}`} fill sizes="(max-width: 680px) 46vw, (max-width: 1024px) 30vw, 280px" />
                       ) : (
                         <div className="fl-product-placeholder" aria-hidden="true"><span className="absolute text-[10px] font-bold tracking-[.16em] text-[#b77b9a]">FATEMEHLAB</span></div>
                       )}
@@ -177,7 +177,7 @@ export default async function Home() {
                       <Link href={`/products/${product.slug}`} key={product.id} className="fl-product-card group">
                         <div className="fl-product-media !border-[#f2d7e5]">
                           {productImage ? (
-                            <Image src={productImage} alt={`تصویر ${product.name}`} fill unoptimized={productImage.startsWith('http')} sizes="(max-width: 680px) 46vw, (max-width: 1024px) 30vw, 280px" />
+                            <Image src={productImage} alt={`تصویر ${product.name}`} fill sizes="(max-width: 680px) 46vw, (max-width: 1024px) 30vw, 280px" />
                           ) : (
                             <div className="fl-product-placeholder" aria-hidden="true"><span className="absolute text-[10px] font-bold tracking-[.16em] text-[#b77b9a]">FATEMEHLAB</span></div>
                           )}

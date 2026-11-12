@@ -82,7 +82,7 @@ export default async function WishlistPage() {
                 <Link href={`/products/${product.slug}`} className="block">
                   <div className="relative aspect-square bg-[#fafafc] p-4">
                     {productImage ? (
-                      <Image src={productImage} alt={product.name} fill unoptimized={productImage.startsWith('http')} className="object-contain transition-transform duration-500 group-hover:scale-105" />
+                      <Image src={productImage} alt={product.name} fill className="object-contain transition-transform duration-500 group-hover:scale-105" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-[#c61d70]/20"><Package size={32} /></div>
                     )}

@@ -138,7 +138,7 @@ export default async function ProductsPage({
                       <Link key={product.id} href={`/products/${product.slug}`} className="group flex flex-col bg-white rounded-2xl border border-[#e9e5eb] overflow-hidden hover:shadow-xl hover:shadow-[#c61d70]/5 hover:-translate-y-1 transition-all duration-300">
                         <div className="relative aspect-square bg-[#fafafc] p-4">
                           {productImage ? (
-                            <Image src={productImage} alt={product.name} fill unoptimized={productImage.startsWith('http')} className="object-contain transition-transform duration-500 group-hover:scale-105" />
+                            <Image src={productImage} alt={product.name} fill className="object-contain transition-transform duration-500 group-hover:scale-105" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-[#c61d70]/20"><PackageSearch size={32} /></div>
                           )}

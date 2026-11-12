@@ -1,10 +1,14 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { orders, orderItems } from '@/db/schema';
 import { eq, and } from 'drizzle-orm';
+import { rateLimit } from '@/lib/rate-limit';
 
 export async function POST(req: Request) {
   try {
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
+    const rl = await rateLimit('track-order:' + ip);
+    if (!rl.success) return NextResponse.json({ message: 'تعداد درخواست‌ها زیاد است. لطفاً یک دقیقه صبر کنید.' }, { status: 429 });
     const { trackingCode, phone } = await req.json();
     
     // تلاش اول: جستجو با کد دقیق

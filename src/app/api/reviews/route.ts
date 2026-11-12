@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { rateLimit } from '@/lib/rate-limit';
 import { reviews, orders, orderItems } from '@/db/schema';
 import { and, eq, desc, sql } from 'drizzle-orm';
 import { z } from 'zod';
@@ -15,6 +16,9 @@ const reviewSchema = z.object({
 
 export async function POST(req: Request) {
   try {
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
+    const rl = await rateLimit('review-submit:' + ip);
+    if (!rl.success) return NextResponse.json({ message: 'تعداد درخواست‌ها زیاد است. لطفاً بعداً تلاش کنید.' }, { status: 429 });
     const body = await req.json();
     const validated = reviewSchema.parse(body);
 
