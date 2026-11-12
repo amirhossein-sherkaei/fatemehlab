@@ -42,7 +42,13 @@ export default function AddToCartButton({ product }: { product: CartProduct }) {
       
       setLoading(false);
       setAdded(true);
-      toast.success(`${quantity} عدد به سبد خرید اضافه شد`);
+      toast.success(`${quantity} عدد به سبد خرید اضافه شد`, {
+        action: {
+          label: 'مشاهده سبد',
+          onClick: () => openCart(),
+        },
+        duration: 3000,
+      });
       openCart();
       
       setTimeout(() => setAdded(false), 2000);

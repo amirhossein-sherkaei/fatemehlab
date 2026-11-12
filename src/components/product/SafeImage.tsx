@@ -50,6 +50,10 @@ export default function SafeImage({ src, alt, fill, width, height, className, si
       onError={() => setError(true)}
       title={title || alt}
       itemProp="image"
+      {...(src.startsWith('/') ? {
+        placeholder: "blur" as const,
+        blurDataURL: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MDAgNDAwIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0iI2Y3ZjJmNyIvPjwvc3ZnPg==",
+      } : {})}
     />
   );
 }

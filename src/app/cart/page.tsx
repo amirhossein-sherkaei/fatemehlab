@@ -1,8 +1,9 @@
-﻿'use client';
+'use client';
 
 import { useCartStore } from '@/store/cart';
 import { formatToman } from '@/lib/currency';
 import { Trash2, Plus, Minus, ArrowRight, ShieldCheck, ShoppingBag, Sparkles } from 'lucide-react';
+import EmptyState from '@/components/shared/EmptyState';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
