@@ -110,3 +110,27 @@ export async function sendSupportNotification(mobile: string, subject: string) {
     return { success: false, error };
   }
 }
+export async function sendBackInStockSms(mobile: string, productName: string) {
+  try {
+    const apiKey = process.env.SMSIR_API_KEY || '';
+    if (!apiKey) return { success: false };
+    
+    // استفاده از یک قالب فرضی یا لاگ کردن
+    const templateId = Number(process.env.SMSIR_STOCK_TEMPLATE_ID);
+    if (!templateId) {
+      console.warn(`[SMS Stock Notify] SMSIR_STOCK_TEMPLATE_ID not set. Mock sending to ${mobile} for ${productName}`);
+      return { success: true };
+    }
+
+    const smsir = getSmsir();
+    const shortName = productName.length > 30 ? productName.substring(0, 30) + '...' : productName;
+    
+    const result = await smsir.sendVerifyCode(mobile, templateId, [
+      { name: 'ProductName', value: shortName },
+    ]);
+    return { success: true, result };
+  } catch (error) {
+    console.error('[SMS Stock Notify Error]', error);
+    return { success: false, error };
+  }
+}

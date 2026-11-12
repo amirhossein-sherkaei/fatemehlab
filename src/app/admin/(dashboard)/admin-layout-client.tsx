@@ -44,6 +44,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
     { name: 'مجله', href: '/admin/articles', icon: BookOpen },
     { name: 'نظرات', href: '/admin/reviews', icon: MessageSquare },
         { name: 'مشتریان', href: '/admin/customers', icon: Users },
+        { name: 'اعلان موجودی', href: '/admin/stock-notify', icon: BellRing },
     { name: 'کد تخفیف', href: '/admin/coupons', icon: TicketPercent },
     { name: 'تنظیمات', href: '/admin/settings', icon: Settings },
     { name: 'راهنما', href: '/admin/help', icon: HelpCircle },
