@@ -1,15 +1,18 @@
 'use client';
+
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { Save, Loader2, Store, ShieldCheck, CreditCard, Info, Sparkles } from 'lucide-react';
-
+import DatePicker from "react-multi-date-picker";
+import persian from "react-date-object/calendars/persian";
+import persian_fa from "react-date-object/locales/persian_fa";
 
 export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [settings, setSettings] = useState<Record<string, any>>({});
   const [promoText, setPromoText] = useState('');
-  const [promoExpiresAt, setPromoExpiresAt] = useState('');
+  const [promoExpiresAt, setPromoExpiresAt] = useState<Date | null>(null);
 
   useEffect(() => {
     fetch('/api/admin/settings')
@@ -20,8 +23,9 @@ export default function SettingsPage() {
           data.settings.forEach((s: any) => { map[s.key] = s.value; });
           setSettings(map);
           setPromoText(map.promoBarText || '');
-          setPromoExpiresAt(map.promoBarExpiresAt ? new Date(map.promoBarExpiresAt).toISOString().slice(0, 16) : '');
-          setSettings(map);
+          if (map.promoBarExpiresAt) {
+            setPromoExpiresAt(new Date(map.promoBarExpiresAt));
+          }
         }
       })
       .finally(() => setLoading(false));
@@ -37,7 +41,12 @@ export default function SettingsPage() {
       const res = await fetch('/api/admin/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...settings, promoBarText: promoText, promoBarExpiresAt: promoExpiresAt }),
+        body: JSON.stringify({ 
+          ...settings, 
+          promoBarText: promoText, 
+          // ارسال به صورت ISO به دیتابیس
+          promoBarExpiresAt: promoExpiresAt ? promoExpiresAt.toISOString() : null 
+        }),
       });
       if (res.ok) toast.success('تنظیمات با موفقیت ذخیره شد');
       else toast.error('خطا در ذخیره تنظیمات');
@@ -55,7 +64,7 @@ export default function SettingsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-black text-[#28242b] md:text-2xl">تنظیمات فروشگاه</h1>
-          <p className="mt-1 text-xs text-[#77717b] md:text-sm">اطلاعات پایه، تجارت و امنیت فروشگاه را اینجا مدیریت کنید.</p>
+          <p className="mt-1 text-xs text-[#77717b] md:text-sm">اطلاعات پایه، تجارت، امنیت و بازاریابی را اینجا مدیریت کنید.</p>
         </div>
         <button onClick={handleSave} disabled={saving} className="hidden items-center gap-2 rounded-xl bg-[#28242b] px-6 py-2.5 text-sm font-bold text-white shadow-lg transition-transform hover:-translate-y-0.5 disabled:opacity-50 md:flex">
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
@@ -118,9 +127,8 @@ export default function SettingsPage() {
             </div>
           </div>
         </div>
-      </div>
 
-              {/* Promotion Settings */}
+        {/* Promotion Settings */}
         <div className="rounded-3xl border border-[#e9e5eb] bg-white p-5 shadow-sm md:p-6">
           <h2 className="mb-5 flex items-center gap-2 border-b border-[#e9e5eb] pb-4 text-sm font-black text-[#28242b]">
             <Sparkles size={18} className="text-[#c61d70]"/> نوار تبلیغاتی بالای سایت
@@ -139,17 +147,26 @@ export default function SettingsPage() {
             </div>
             <div className="space-y-2 md:col-span-2">
               <label className="text-xs font-bold text-[#28242b]">تاریخ و ساعت پایان کمپین (اختیاری)</label>
-              <input 
-                type="datetime-local" 
-                value={promoExpiresAt} 
-                onChange={e => setPromoExpiresAt(e.target.value)} 
-                className="w-full rounded-xl border border-[#e9e5eb] bg-[#f8f7fa] px-4 py-3 text-sm outline-none transition-colors focus:border-[#c61d70] focus:bg-white" 
-                dir="ltr"
-              />
+              <div className="w-full">
+                <DatePicker
+                  value={promoExpiresAt}
+                  onChange={(date) => setPromoExpiresAt(date ? date.toDate() : null)}
+                  calendar={persian}
+                  locale={persian_fa}
+                  calendarPosition="bottom-right"
+                  inputClass="w-full rounded-xl border border-[#e9e5eb] bg-[#f8f7fa] px-4 py-3 text-sm outline-none transition-colors focus:border-[#c61d70] focus:bg-white"
+                  containerClassName="w-full"
+                  format="YYYY/MM/DD HH:mm"
+                  plugins={[]}
+                  placeholder="برای انتخاب تاریخ کلیک کنید..."
+                />
+              </div>
               <p className="text-[10px] text-[#77717b]">اگر تنظیم شود، یک تایمر شمارش معکوس در نوار نمایش داده می‌شود و پس از آن به طور خودکار حذف می‌شود.</p>
             </div>
           </div>
         </div>
+      </div>
+
       {/* Sticky Mobile Save Bar */}
       <div className="fixed bottom-24 left-3 right-3 z-40 md:hidden">
         <button onClick={handleSave} disabled={saving} className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#28242b] py-3.5 text-sm font-bold text-white shadow-2xl transition-transform active:scale-[0.98] disabled:opacity-50">
