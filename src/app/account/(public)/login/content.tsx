@@ -73,7 +73,9 @@ export default function CustomerLoginPage() {
         setTimeout(() => {
           const urlParams = new URLSearchParams(window.location.search);
           const redirectTo = urlParams.get('redirect') || '/account';
-          window.location.href = redirectTo;
+          // 🛡️ جلوگیری از Open Redirect
+          const safeRedirect = redirectTo.startsWith('/') && !redirectTo.startsWith('//') ? redirectTo : '/account';
+          window.location.href = safeRedirect;
         }, 1000);
       } else {
         toast.error(data.message || 'ایمیل یا رمز عبور اشتباه است');
@@ -156,7 +158,9 @@ export default function CustomerLoginPage() {
           } else {
             const urlParams = new URLSearchParams(window.location.search);
             const redirectTo = urlParams.get('redirect') || '/account';
-            window.location.href = redirectTo;
+          // 🛡️ جلوگیری از Open Redirect
+          const safeRedirect = redirectTo.startsWith('/') && !redirectTo.startsWith('//') ? redirectTo : '/account';
+            window.location.href = safeRedirect;
           }
         }, 1000);
       } else {
