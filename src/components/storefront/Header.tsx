@@ -4,9 +4,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Menu, Search, ShoppingBag, X, ArrowLeft } from 'lucide-react';
+import { Menu, ShoppingBag, X } from 'lucide-react';
 import { useCartStore } from '@/store/cart';
 import UserMenuButton from './UserMenuButton';
+import InstantSearch from './InstantSearch';
 
 const navigation = [
   { href: '/products', label: 'محصولات' },
@@ -75,19 +76,7 @@ export default function Header() {
           <div className="flex items-center gap-1">
             <UserMenuButton />
 
-            <button
-              type="button"
-              className="fl-icon-button"
-              aria-label="جست‌وجوی محصولات"
-              aria-expanded={searchOpen}
-              aria-controls="store-search-panel"
-              onClick={() => {
-                setSearchOpen((open) => !open);
-                setMobileMenuOpen(false);
-              }}
-            >
-              <Search size={18} strokeWidth={1.8} />
-            </button>
+<InstantSearch />
             
             <button
               type="button"
@@ -116,23 +105,7 @@ export default function Header() {
           </div>
         </div>
 
-        {searchOpen && (
-          <div id="store-search-panel" className="fl-search-panel" role="dialog" aria-label="جست‌وجوی محصولات">
-            <form action="/products" method="get" className="fl-search-field" onSubmit={() => setSearchOpen(false)}>
-              <Search size={17} className="shrink-0 text-[#a49aa5]" />
-              <input
-                autoFocus
-                name="q"
-                type="search"
-                placeholder="نام محصول را جست‌وجو کنید..."
-                aria-label="عبارت جست‌وجو"
-              />
-              <button type="submit" className="text-[#c61d70]" aria-label="شروع جست‌وجو">
-                <ArrowLeft size={17} />
-              </button>
-            </form>
-          </div>
-        )}
+
       </header>
 
       {mobileMenuOpen && (
