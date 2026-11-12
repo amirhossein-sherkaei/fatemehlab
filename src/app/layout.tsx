@@ -6,14 +6,15 @@ import BottomNav from "@/components/storefront/BottomNav";
 import CartDrawer from "@/components/storefront/CartDrawer";
 import AuroraBackground from "@/components/storefront/AuroraBackground";
 import PwaInstallPrompt from "@/components/storefront/PwaInstallPrompt";
-import WebVitals from "@/components/shared/WebVitals";
 import PromoBarWrapper from "@/components/storefront/PromoBarWrapper";
+import WebVitals from "@/components/shared/WebVitals";
 import "./globals.css";
 
 const vazirmatn = Vazirmatn({
   subsets: ["arabic", "latin"],
   variable: "--font-vazirmatn",
-  display: "swap",`n  adjustFontFallback: true,
+  display: "swap",
+  adjustFontFallback: true,
   preload: true,
 });
 
@@ -108,61 +109,20 @@ const jsonLdGraph = {
         addressLocality: "تهران",
         addressCountry: "IR",
       },
-      priceRange: "$",
+      priceRange: "$$",
     },
   ],
-};
-
-const jsonLdOrganization = {
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  name: "فاطمه بیوتی لند",
-  url: baseUrl,
-  logo: `${baseUrl}/logo.png`,
-  contactPoint: {
-    "@type": "ContactPoint",
-    telephone: "+989905316327",
-    contactType: "customer service",
-    areaServed: "IR",
-    availableLanguage: "Persian",
-  },
-  sameAs: ["https://instagram.com/fatemehlab.ir"],
-};
-
-const jsonLdWebSite = {
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  name: "فاطمه بیوتی لند",
-  url: baseUrl,
-  potentialAction: {
-    "@type": "SearchAction",
-    target: `${baseUrl}/products?q={search_term_string}`,
-    "query-input": "required name=search_term_string",
-  },
-};
-
-const jsonLdLocalBusiness = {
-  "@context": "https://schema.org",
-  "@type": "Store",
-  name: "فاطمه بیوتی لند",
-  image: `${baseUrl}/logo.png`,
-  url: baseUrl,
-  telephone: "+989905316327",
-  address: {
-    "@type": "PostalAddress",
-    addressLocality: "تهران",
-    addressCountry: "IR",
-  },
-  priceRange: "$$",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="fa-IR" dir="rtl" className={vazirmatn.variable}>
       <head>
+        <link rel="preconnect" href="https://public.blob.vercel-storage.com" />
+        <link rel="dns-prefetch" href="https://public.blob.vercel-storage.com" />
+        <link rel="preconnect" href="https://payment.zarinpal.com" />
+        <link rel="dns-prefetch" href="https://payment.zarinpal.com" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdGraph) }} />
-        
-        
       </head>
       <body className="min-h-[100dvh] font-sans text-foreground overflow-x-hidden">
         <Suspense fallback={null}><PromoBarWrapper /></Suspense>

@@ -12,13 +12,13 @@ interface SafeImageProps {
   height?: number;
   className?: string;
   sizes?: string;
-  priority?: boolean;`n  title?: string;
+  priority?: boolean;
+  title?: string;
 }
 
 export default function SafeImage({ src, alt, fill, width, height, className, sizes, priority, title }: SafeImageProps) {
   const [error, setError] = useState(false);
 
-  // طرح جایگزین لوکس در صورت نبود عکس
   if (!src || src.trim() === '' || error) {
     if (fill) {
       return (
@@ -37,7 +37,6 @@ export default function SafeImage({ src, alt, fill, width, height, className, si
     );
   }
 
-  // حذف unoptimized برای فعال‌سازی فشرده‌سازی خودکار Next.js (WebP)
   return (
     <Image 
       src={src} 
@@ -48,7 +47,9 @@ export default function SafeImage({ src, alt, fill, width, height, className, si
       sizes={sizes} 
       priority={priority}
       className={className}
-      onError={() => setError(true)}`n      title={title || alt}`n      itemProp="image"
+      onError={() => setError(true)}
+      title={title || alt}
+      itemProp="image"
     />
   );
 }
