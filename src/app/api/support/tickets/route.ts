@@ -4,6 +4,7 @@ import { supportTickets, supportMessages } from '@/db/schema';
 import { eq, desc } from 'drizzle-orm';
 import { getCurrentCustomer } from '@/lib/customer-auth';
 import { z } from 'zod';
+import { rateLimit } from '@/lib/rate-limit';
 
 const createSchema = z.object({
   subject: z.string().min(5).max(200),
@@ -23,6 +24,11 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
+    const rl = await rateLimit('ticket-create:' + ip);
+    if (!rl.success) {
+      return NextResponse.json({ message: 'تعداد تیکت‌های اخیر زیاد است. لطفاً کمی صبر کنید.' }, { status: 429 });
+    }
     const current = await getCurrentCustomer();
     if (!current) return NextResponse.json({ message: 'UNAUTHORIZED' }, { status: 401 });
     const body = await req.json();

@@ -15,7 +15,9 @@ function getRedis(): Redis | null {
   } catch { return null; }
 }
 
-const IS_BYPASS = process.env.SMS_BYPASS_MODE === 'true';
+const IS_BYPASS =
+  process.env.SMS_BYPASS_MODE === 'true' &&
+  process.env.NODE_ENV !== 'production';
 
 export async function POST(req: Request) {
   try {

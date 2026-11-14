@@ -3,6 +3,7 @@ import { db } from '@/lib/db';
 import { coupons } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
+import { rateLimit } from '@/lib/rate-limit';
 
 const schema = z.object({
   code: z.string().min(1),
@@ -11,6 +12,11 @@ const schema = z.object({
 
 export async function POST(req: Request) {
   try {
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
+    const rl = await rateLimit('coupon-validate:' + ip);
+    if (!rl.success) {
+      return NextResponse.json({ success: false, message: 'تعداد تلاش‌ها زیاد است. لطفاً یک دقیقه صبر کنید.' }, { status: 429 });
+    }
     const body = await req.json();
     const { code, orderAmount } = schema.parse(body);
     const normalizedCode = code.trim().toUpperCase();

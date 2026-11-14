@@ -1,0 +1,88 @@
+============================================================
+ Phase 1 - Critical Fixes (14050823-190059)
+============================================================
+
+Root: C:\Users\AmirHossien\Desktop\fatemehlab
+
+[Fixes 1-2] SMS bypass gate
+  [skip] send-otp SMS gate (already applied)
+  [skip] verify-otp SMS gate (already applied)
+
+[Fix 3] cron/cleanup: fail-closed CRON_SECRET
+  [skip] cron/cleanup fail-closed (already applied)
+
+[Fix 4] payment/request: auth + ownership + rate limit
+  [skip] payment/request auth + ownership (already applied)
+
+[Fix 5] security.ts: env-driven ALLOWED_ORIGINS
+  [skip] security.ts env origins (already applied)
+
+[Fixes 6-9] Rate limits
+  [skip] coupons/validate: import (already applied)
+  [FAIL] coupons/validate: rate limit - anchor not found
+  [skip] search: import (already applied)
+  [skip] search: rate limit (already applied)
+  [skip] support/tickets: import (already applied)
+  [skip] support/tickets: rate limit (already applied)
+  [skip] reviews: import (already applied)
+  [FAIL] reviews PATCH: rate limit - anchor not found
+
+[Fix 10] verifiedPurchase correctness
+  [skip] reviews: verifiedPurchase by customerId (already applied)
+  [skip] reviews: verifiedPurchase uses currentCustomer (already applied)
+  [skip] reviews: remove duplicate getCurrentCustomer (already applied)
+
+[Fix 11] account/me returns loyaltyPoints + tier
+  [skip] account/me loyaltyPoints (already applied)
+
+[Fix 12] checkout loyalty math
+  [FAIL] checkout: set loyaltyPoints - anchor not found
+
+[Fix 13] orders usedPoints cap
+  [skip] orders: compute actualUsedPoints (already applied)
+  [skip] orders: insert actualUsedPoints (already applied)
+  [skip] orders: if actualUsedPoints (already applied)
+  [skip] orders: subtract actualUsedPoints (already applied)
+  [skip] orders: guard actualUsedPoints (already applied)
+
+[Fix 14] products page LoadMore key
+  [skip] products: LoadMore key (already applied)
+
+[Fix 15] order detail: remove duplicate print button
+  [skip] order detail: already fixed (1 occurrence)
+
+============================================================
+ Summary
+============================================================
+  [OK] F1  send-otp SMS gate
+  [OK] F2  verify-otp SMS gate
+  [OK] F3  cron/cleanup fail-closed
+  [OK] F4  payment/request auth + ownership
+  [OK] F5  security.ts env origins
+  [FAIL] F6  coupons/validate rate limit
+  [OK] F7  search rate limit
+  [OK] F8  support/tickets rate limit
+  [FAIL] F9  reviews PATCH rate limit
+  [OK] F10 reviews verifiedPurchase
+  [OK] F11 account/me loyaltyPoints
+  [FAIL] F12 checkout loyalty math
+  [OK] F13 orders usedPoints cap
+  [OK] F14 products LoadMore key
+  [OK] F15 order detail duplicate print
+
+Passed: 12 / 15
+Failed: 3
+Backup: .phase1-backup-14050823-190059
+Log:    phase1-log-14050823-190059.txt
+
+One or more fixes failed. Review the log above.
+You can restore the original files from: .phase1-backup-14050823-190059
+
+============================================================
+ Build (pnpm build)
+============================================================
+Using: pnpm
+
+
+BUILD FAILED. Check the output above.
+Backup of pre-fix files: .phase1-backup-14050823-190059

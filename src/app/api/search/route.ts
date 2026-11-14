@@ -2,9 +2,15 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { products } from '@/db/schema';
 import { and, eq, ilike, or } from 'drizzle-orm';
+import { rateLimit } from '@/lib/rate-limit';
 
 export async function GET(req: Request) {
   try {
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
+    const rl = await rateLimit('search:' + ip);
+    if (!rl.success) {
+      return NextResponse.json({ success: true, results: [] });
+    }
     const { searchParams } = new URL(req.url);
     const q = searchParams.get('q');
 

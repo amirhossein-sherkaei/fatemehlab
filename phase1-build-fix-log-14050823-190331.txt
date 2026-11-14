@@ -1,0 +1,29 @@
+=== Phase 1 Build Fix + 3 Remaining (14050823-190331) ===
+
+[A] Remove 'export const dynamic' (incompatible with cacheComponents)
+  OK removed: src/app/api/account/me/route.ts
+  OK removed: src/app/api/cron/cleanup/route.ts
+  OK removed: src/app/api/payment/request/route.ts
+
+[B] Fix duplicate 'currentCustomer' in reviews/route.ts
+  OK removed duplicate
+
+[C] Add rate limit to coupons/validate
+  OK added
+
+[D] Add rate limit to reviews PATCH
+  OK added
+
+[E] Add setLoyaltyPoints in checkout
+
+[F] Fix /1000 -> /10000 in checkout
+  OK replaced
+
+=== Build ===
+
+=== BUILD OK ===
+
+Next:
+  git add .
+  git commit -m "fix(phase-1): build compat + complete rate limits"
+  git push

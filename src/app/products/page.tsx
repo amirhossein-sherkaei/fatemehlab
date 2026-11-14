@@ -147,7 +147,7 @@ export default async function ProductsPage({
                   <p className="text-sm text-[#77717b] mb-6">عبارت جستجو یا فیلترها را تغییر دهید.</p>
                 </div>
               ) : (
-                <LoadMoreProducts initialProducts={dbProducts} />
+                <LoadMoreProducts key={JSON.stringify(params)} initialProducts={dbProducts} />
               )}
             </div>
           </div>

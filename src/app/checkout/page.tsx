@@ -90,6 +90,10 @@ export default function CheckoutPage() {
               lastName: prev.lastName || lastName,
               phone: prev.phone || data.customer.phone || '',
             }));
+
+          if (typeof data.customer.loyaltyPoints === 'number' && data.customer.loyaltyPoints > 0) {
+            setLoyaltyPoints(data.customer.loyaltyPoints);
+          }
           }
         }
       })
@@ -375,7 +379,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                         checked={usePoints}
                         onChange={(e) => {
                           setUsePoints(e.target.checked);
-                          setPointsToUse(e.target.checked ? Math.min(loyaltyPoints, Math.floor(getTotalPrice() / 1000)) : 0);
+                          setPointsToUse(e.target.checked ? Math.min(loyaltyPoints, Math.floor(getTotalPrice() / 10000)) : 0);
                         }}
                         className="w-4 h-4 accent-[#c61d70]"
                       />
@@ -393,7 +397,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                       <input 
                         type="range" 
                         min={0} 
-                        max={Math.min(loyaltyPoints, Math.floor(getTotalPrice() / 1000))}
+                        max={Math.min(loyaltyPoints, Math.floor(getTotalPrice() / 10000))}
                         value={pointsToUse}
                         onChange={(e) => setPointsToUse(parseInt(e.target.value))}
                         className="w-full accent-[#c61d70]"

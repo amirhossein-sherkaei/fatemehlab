@@ -106,7 +106,9 @@ export async function POST(req: Request) {
       }
     }
 
-    const pointsDiscount = usedPoints * 10000;
+    const maxUsablePoints = Math.floor(Math.max(0, subtotal - discountAmount) / 10000);
+    const actualUsedPoints = Math.min(usedPoints, maxUsablePoints);
+    const pointsDiscount = actualUsedPoints * 10000;
     const finalAmount = Math.max(0, subtotal - discountAmount - pointsDiscount);
 
     const orderId = crypto.randomUUID();
@@ -136,7 +138,7 @@ export async function POST(req: Request) {
         notes: customer.notes || null,
         totalAmount: finalAmount,
         discountAmount: discountAmount + pointsDiscount,
-        usedPoints: usedPoints,
+        usedPoints: actualUsedPoints,
         couponCode: validCouponCode,
         status: 'pending',
         trackingCode,
@@ -144,10 +146,10 @@ export async function POST(req: Request) {
 
       await tx.insert(orderItems).values(validatedItems.map((item) => ({ ...item, orderId: orderId })));
 
-      if (usedPoints > 0) {
+      if (actualUsedPoints > 0) {
         const pointsUpdateResult = await tx.update(customers)
-          .set({ loyaltyPoints: sql`${customers.loyaltyPoints} - ${usedPoints}` })
-          .where(and(eq(customers.id, currentCustomer.id), gte(customers.loyaltyPoints, usedPoints)))
+          .set({ loyaltyPoints: sql`${customers.loyaltyPoints} - ${actualUsedPoints}` })
+          .where(and(eq(customers.id, currentCustomer.id), gte(customers.loyaltyPoints, actualUsedPoints)))
           .returning({ id: customers.id });
 
         if (pointsUpdateResult.length === 0) {

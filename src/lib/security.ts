@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
 
-// OWASP CSRF Protection: Validate Origin header against an allowlist.
-// This prevents cross-origin state-changing requests.
-const ALLOWED_ORIGINS = [
+const DEFAULT_ORIGINS = [
   'https://fatemehbeautyland.ir',
   'https://www.fatemehbeautyland.ir',
   'https://fatemehlab.vercel.app',
@@ -10,24 +8,36 @@ const ALLOWED_ORIGINS = [
   'http://localhost:3000',
 ];
 
+const ALLOWED_ORIGINS: string[] = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(',').map((s) => s.trim()).filter(Boolean)
+  : DEFAULT_ORIGINS;
+
+const ENABLE_VERCEL_PREVIEW = process.env.ENABLE_VERCEL_PREVIEW === 'true';
+
 export function validateOrigin(request: Request): { valid: boolean; origin: string | null } {
   const origin = request.headers.get('origin');
   const referer = request.headers.get('referer');
+  const candidate = origin || referer;
 
-  // If Origin header is present, validate it
-  if (origin) {
-    const isValid = ALLOWED_ORIGINS.some(allowed => origin.startsWith(allowed));
-    return { valid: isValid, origin };
+  if (!candidate) {
+    return { valid: false, origin: null };
   }
 
-  // Fallback to Referer if Origin is missing (some browsers omit Origin for GET/HEAD)
-  if (referer) {
-    const isValid = ALLOWED_ORIGINS.some(allowed => referer.startsWith(allowed));
-    return { valid: isValid, origin: referer };
+  const isAllowed = ALLOWED_ORIGINS.some((allowed) => candidate.startsWith(allowed));
+  if (isAllowed) return { valid: true, origin: candidate };
+
+  if (ENABLE_VERCEL_PREVIEW) {
+    try {
+      const u = new URL(candidate);
+      if (u.hostname.endsWith('.vercel.app') && u.hostname.includes('fatemehlab')) {
+        return { valid: true, origin: candidate };
+      }
+    } catch {
+      /* ignore */
+    }
   }
 
-  // If neither is present, fail closed (reject) for security
-  return { valid: false, origin: null };
+  return { valid: false, origin: candidate };
 }
 
 export function rejectCsrf(request: Request): NextResponse {
@@ -39,9 +49,8 @@ export function rejectCsrf(request: Request): NextResponse {
   );
 }
 
-// File Upload Security: Validate MIME type and size
 export const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-export const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+export const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 
 export function validateImageUpload(file: File): { valid: boolean; message?: string } {
   if (!file) return { valid: false, message: 'فایلی ارسال نشد' };
@@ -51,7 +60,6 @@ export function validateImageUpload(file: File): { valid: boolean; message?: str
   if (file.size > MAX_IMAGE_SIZE) {
     return { valid: false, message: 'حجم فایل بیش از ۵ مگابایت است' };
   }
-  // 🛡️ بررسی دقیق پسوند (جلوگیری از فایل‌های دوگانه مثل image.jpg.php)
   const ext = file.name.split('.').pop()?.toLowerCase();
   const allowedExts = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
   if (!ext || !allowedExts.includes(ext)) {
@@ -60,7 +68,6 @@ export function validateImageUpload(file: File): { valid: boolean; message?: str
   return { valid: true };
 }
 
-// Prevent path traversal & dangerous extensions
 export function sanitizeFilename(filename: string): string {
   return filename
     .replace(/[^a-zA-Z0-9._-]/g, '_')

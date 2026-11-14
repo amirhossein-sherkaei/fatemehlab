@@ -1,0 +1,88 @@
+============================================================
+ Phase 1 - Critical Fixes (14050823-185828)
+============================================================
+
+Root: C:\Users\AmirHossien\Desktop\fatemehlab
+
+[Fixes 1-2] SMS bypass gate
+  [OK]   send-otp SMS gate
+  [OK]   verify-otp SMS gate
+
+[Fix 3] cron/cleanup: fail-closed CRON_SECRET
+  [OK]   cron/cleanup fail-closed
+
+[Fix 4] payment/request: auth + ownership + rate limit
+  [OK]   payment/request auth + ownership
+
+[Fix 5] security.ts: env-driven ALLOWED_ORIGINS
+  [OK]   security.ts env origins
+
+[Fixes 6-9] Rate limits
+  [OK]   coupons/validate: import
+  [FAIL] coupons/validate: rate limit - anchor not found
+  [OK]   search: import
+  [OK]   search: rate limit
+  [OK]   support/tickets: import
+  [OK]   support/tickets: rate limit
+  [skip] reviews: import (already applied)
+  [FAIL] reviews PATCH: rate limit - anchor not found
+
+[Fix 10] verifiedPurchase correctness
+  [OK]   reviews: verifiedPurchase by customerId
+  [OK]   reviews: verifiedPurchase uses currentCustomer
+  [skip] reviews: remove duplicate getCurrentCustomer (already applied)
+
+[Fix 11] account/me returns loyaltyPoints + tier
+  [OK]   account/me loyaltyPoints
+
+[Fix 12] checkout loyalty math
+  [FAIL] checkout: set loyaltyPoints - anchor not found
+
+[Fix 13] orders usedPoints cap
+  [OK]   orders: compute actualUsedPoints
+  [OK]   orders: insert actualUsedPoints
+  [OK]   orders: if actualUsedPoints
+  [OK]   orders: subtract actualUsedPoints
+  [OK]   orders: guard actualUsedPoints
+
+[Fix 14] products page LoadMore key
+  [OK]   products: LoadMore key
+
+[Fix 15] order detail: remove duplicate print button
+  [OK]   order detail: removed duplicate (2 -> 1)
+
+============================================================
+ Summary
+============================================================
+  [OK] F1  send-otp SMS gate
+  [OK] F2  verify-otp SMS gate
+  [OK] F3  cron/cleanup fail-closed
+  [OK] F4  payment/request auth + ownership
+  [OK] F5  security.ts env origins
+  [FAIL] F6  coupons/validate rate limit
+  [OK] F7  search rate limit
+  [OK] F8  support/tickets rate limit
+  [FAIL] F9  reviews PATCH rate limit
+  [OK] F10 reviews verifiedPurchase
+  [OK] F11 account/me loyaltyPoints
+  [FAIL] F12 checkout loyalty math
+  [OK] F13 orders usedPoints cap
+  [OK] F14 products LoadMore key
+  [OK] F15 order detail duplicate print
+
+Passed: 12 / 15
+Failed: 3
+Backup: .phase1-backup-14050823-185828
+Log:    phase1-log-14050823-185828.txt
+
+One or more fixes failed. Review the log above.
+You can restore the original files from: .phase1-backup-14050823-185828
+
+============================================================
+ Build (pnpm build)
+============================================================
+Using: pnpm
+
+
+BUILD FAILED. Check the output above.
+Backup of pre-fix files: .phase1-backup-14050823-185828

@@ -25,7 +25,9 @@ export async function POST(req: Request) {
 
     // ✅ بررسی خریدار تأیید شده: آیا این ایمیل/نام قبلاً این محصول رو خریداری کرده؟
     let verifiedPurchase = false;
-    if (validated.email) {
+    const currentCustomer = await getCurrentCustomer();
+
+    if (currentCustomer) {
       const purchased = await db
         .select({ id: orderItems.id })
         .from(orderItems)
@@ -33,7 +35,8 @@ export async function POST(req: Request) {
         .where(
           and(
             eq(orderItems.productId, validated.productId),
-            eq(orders.status, 'delivered')
+            eq(orders.status, 'delivered'),
+            eq(orders.customerId, currentCustomer.id)
           )
         )
         .limit(1);
@@ -43,7 +46,6 @@ export async function POST(req: Request) {
     }
 
     // 🛡️ بررسی لاگین بودن کاربر: اگر لاگین باشد، نام و ایمیل از دیتابیس خوانده می‌شود
-    const currentCustomer = await getCurrentCustomer();
     let finalName = validated.name;
     let finalEmail = validated.email || null;
 
@@ -131,6 +133,11 @@ export async function GET(req: Request) {
 // رأی مفید/غیرمفید
 export async function PATCH(req: Request) {
   try {
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
+    const rl = await rateLimit('review-vote:' + ip);
+    if (!rl.success) {
+      return NextResponse.json({ success: false, message: 'تعداد درخواست‌ها زیاد است' }, { status: 429 });
+    }
     const { id, action } = await req.json();
     if (action === 'helpful') {
       await db.update(reviews).set({ helpfulCount: sql`${reviews.helpfulCount} + 1` }).where(eq(reviews.id, id));

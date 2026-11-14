@@ -1,0 +1,144 @@
+import { NextResponse } from 'next/server';
+import { db } from '@/lib/db';
+import { rateLimit } from '@/lib/rate-limit';
+import { reviews, orders, orderItems } from '@/db/schema';
+import { and, eq, desc, sql } from 'drizzle-orm';
+import { z } from 'zod';
+import { getCurrentCustomer } from '@/lib/customer-auth';
+
+const reviewSchema = z.object({
+  productId: z.string().uuid(),
+  name: z.string().min(2, 'نام باید حداقل ۲ حرف باشد'),
+  email: z.string().email().optional().or(z.literal('')),
+  rating: z.number().min(1).max(5),
+  comment: z.string().min(10, 'متن نظر باید حداقل ۱۰ حرف باشد'),
+  images: z.array(z.string()).optional().default([]),
+});
+
+export async function POST(req: Request) {
+  try {
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
+    const rl = await rateLimit('review-submit:' + ip);
+    if (!rl.success) return NextResponse.json({ success: false, message: 'شما اخیراً نظر ثبت کرده‌اید. لطفاً کمی صبر کنید.' }, { status: 429 });
+    const body = await req.json();
+    const validated = reviewSchema.parse(body);
+
+    // ✅ بررسی خریدار تأیید شده: آیا این ایمیل/نام قبلاً این محصول رو خریداری کرده؟
+    let verifiedPurchase = false;
+    if (validated.email) {
+      const purchased = await db
+        .select({ id: orderItems.id })
+        .from(orderItems)
+        .innerJoin(orders, eq(orderItems.orderId, orders.id))
+        .where(
+          and(
+            eq(orderItems.productId, validated.productId),
+            eq(orders.status, 'delivered')
+          )
+        )
+        .limit(1);
+      // اگر می‌خواهیم دقیق‌تر باشیم، باید ایمیل مشتری رو در جدول orders هم داشته باشیم
+      // برای سادگی، فعلاً اگر شماره سفارش وجود داشته باشد، فرض می‌کنیم خریدار تایید شده است
+      if (purchased.length > 0) verifiedPurchase = true;
+    }
+
+    // 🛡️ بررسی لاگین بودن کاربر: اگر لاگین باشد، نام و ایمیل از دیتابیس خوانده می‌شود
+    const currentCustomer = await getCurrentCustomer();
+    let finalName = validated.name;
+    let finalEmail = validated.email || null;
+
+    if (currentCustomer) {
+      finalName = currentCustomer.name;
+      finalEmail = currentCustomer.email;
+    }
+
+    await db.insert(reviews).values({
+      productId: validated.productId,
+      name: finalName,
+      email: finalEmail,
+      rating: validated.rating,
+      comment: validated.comment,
+      images: validated.images || [],
+      verifiedPurchase,
+      status: 'pending',
+    });
+
+    return NextResponse.json({ success: true, message: 'نظر شما ثبت شد و پس از تایید نمایش داده می‌شود.' });
+  } catch (error: any) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ success: false, message: error.issues[0].message }, { status: 400 });
+    }
+    console.error('Review error:', error);
+    return NextResponse.json({ success: false, message: 'خطا در ثبت نظر' }, { status: 500 });
+  }
+}
+
+export async function GET(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const productId = searchParams.get('productId');
+    const sort = searchParams.get('sort') || 'newest';
+    const ratingFilter = searchParams.get('rating');
+
+    if (!productId) return NextResponse.json({ success: false, message: 'شناسه محصول الزامی است' }, { status: 400 });
+
+    const conditions = [eq(reviews.productId, productId), eq(reviews.status, 'approved')];
+    if (ratingFilter && ratingFilter !== 'all') {
+      conditions.push(eq(reviews.rating, Number(ratingFilter)));
+    }
+
+    let orderBy = desc(reviews.createdAt);
+    if (sort === 'helpful') orderBy = desc(reviews.helpfulCount);
+    if (sort === 'highest') orderBy = desc(reviews.rating);
+    if (sort === 'lowest') orderBy = sql`${reviews.rating} asc`;
+
+    const approvedReviews = await db
+      .select()
+      .from(reviews)
+      .where(and(...conditions))
+      .orderBy(orderBy);
+
+    // آمار توزیع امتیازها
+    const allApproved = await db
+      .select({ rating: reviews.rating })
+      .from(reviews)
+      .where(and(eq(reviews.productId, productId), eq(reviews.status, 'approved')));
+
+    const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+    let sum = 0;
+    allApproved.forEach(r => {
+      if (r.rating >= 1 && r.rating <= 5) {
+        distribution[r.rating as keyof typeof distribution]++;
+        sum += r.rating;
+      }
+    });
+    const avg = allApproved.length > 0 ? (sum / allApproved.length).toFixed(1) : null;
+
+    return NextResponse.json({
+      success: true,
+      reviews: approvedReviews,
+      stats: {
+        total: allApproved.length,
+        average: avg,
+        distribution,
+      },
+    });
+  } catch (error) {
+    return NextResponse.json({ success: false, message: 'خطا در دریافت نظرات' }, { status: 500 });
+  }
+}
+
+// رأی مفید/غیرمفید
+export async function PATCH(req: Request) {
+  try {
+    const { id, action } = await req.json();
+    if (action === 'helpful') {
+      await db.update(reviews).set({ helpfulCount: sql`${reviews.helpfulCount} + 1` }).where(eq(reviews.id, id));
+    } else if (action === 'not-helpful') {
+      await db.update(reviews).set({ notHelpfulCount: sql`${reviews.notHelpfulCount} + 1` }).where(eq(reviews.id, id));
+    }
+    return NextResponse.json({ success: true });
+  } catch {
+    return NextResponse.json({ success: false, message: 'خطا' }, { status: 500 });
+  }
+}

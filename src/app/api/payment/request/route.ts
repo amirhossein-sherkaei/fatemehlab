@@ -1,16 +1,73 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { orders } from '@/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
+import { getCurrentCustomer } from '@/lib/customer-auth';
+import { rateLimit } from '@/lib/rate-limit';
+
 
 export async function POST(req: Request) {
   try {
-    const { orderId } = await req.json();
-    const [order] = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
-    if (!order) return NextResponse.json({ success: false, message: 'سفارش یافت نشد' }, { status: 404 });
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
+    const rl = await rateLimit('payment-request:' + ip);
+    if (!rl.success) {
+      return NextResponse.json(
+        { success: false, message: 'تعداد درخواست‌ها زیاد است. لطفاً کمی صبر کنید.' },
+        { status: 429 }
+      );
+    }
+
+    const customer = await getCurrentCustomer();
+    if (!customer) {
+      return NextResponse.json(
+        { success: false, message: 'برای پرداخت ابتدا وارد شوید.' },
+        { status: 401 }
+      );
+    }
+
+    const body = await req.json().catch(() => ({}));
+    const orderId = body?.orderId;
+    if (!orderId || typeof orderId !== 'string') {
+      return NextResponse.json(
+        { success: false, message: 'شناسه سفارش الزامی است.' },
+        { status: 400 }
+      );
+    }
+
+    const [order] = await db
+      .select()
+      .from(orders)
+      .where(and(eq(orders.id, orderId), eq(orders.customerId, customer.id)))
+      .limit(1);
+
+    if (!order) {
+      return NextResponse.json(
+        { success: false, message: 'سفارش یافت نشد.' },
+        { status: 404 }
+      );
+    }
+
+    if (order.status !== 'pending') {
+      return NextResponse.json(
+        { success: false, message: 'وضعیت این سفارش اجازه پرداخت نمی‌دهد.' },
+        { status: 400 }
+      );
+    }
 
     const merchantId = process.env.ZARINPAL_MERCHANT_ID;
-    if (!merchantId) return NextResponse.json({ success: false, message: 'مرچنت کد تنظیم نشده است' }, { status: 500 });
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+    if (!merchantId) {
+      return NextResponse.json(
+        { success: false, message: 'مرچنت کد تنظیم نشده است.' },
+        { status: 500 }
+      );
+    }
+    if (!baseUrl) {
+      return NextResponse.json(
+        { success: false, message: 'آدرس سایت تنظیم نشده است.' },
+        { status: 500 }
+      );
+    }
 
     const response = await fetch('https://payment.zarinpal.com/pg/v4/payment/request.json', {
       method: 'POST',
@@ -18,9 +75,9 @@ export async function POST(req: Request) {
       body: JSON.stringify({
         merchant_id: merchantId,
         amount: order.totalAmount,
-        callback_url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/payment/verify?orderId=${orderId}`,
+        callback_url: `${baseUrl}/api/payment/verify?orderId=${orderId}`,
         description: `پرداخت سفارش ${order.trackingCode}`,
-        metadata: { mobile: order.phone }
+        metadata: { mobile: order.phone },
       }),
     });
 
@@ -28,11 +85,21 @@ export async function POST(req: Request) {
 
     if (data.data && data.data.code === 100) {
       await db.update(orders).set({ paymentAuthority: data.data.authority }).where(eq(orders.id, orderId));
-      return NextResponse.json({ success: true, redirectUrl: `https://payment.zarinpal.com/pg/StartPay/${data.data.authority}` });
-    } else {
-      return NextResponse.json({ success: false, message: data.errors?.message || 'خطا در ایجاد تراکنش' }, { status: 400 });
+      return NextResponse.json({
+        success: true,
+        redirectUrl: `https://payment.zarinpal.com/pg/StartPay/${data.data.authority}`,
+      });
     }
+
+    return NextResponse.json(
+      { success: false, message: data.errors?.message || 'خطا در ایجاد تراکنش.' },
+      { status: 400 }
+    );
   } catch (error) {
-    return NextResponse.json({ success: false, message: 'خطای سرور' }, { status: 500 });
+    console.error('[payment/request]', error);
+    return NextResponse.json(
+      { success: false, message: 'خطای سرور' },
+      { status: 500 }
+    );
   }
 }
