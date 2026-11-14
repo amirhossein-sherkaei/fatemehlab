@@ -1,0 +1,15 @@
+PROJECT SUMMARY
+===============
+Total files : 255
+Total size  : 1.33 MB
+
+BY EXTENSION:
+  .tsx           156 files        915 KB
+  .ts             89 files        261 KB
+  .json            3 files          2 KB
+  .css             2 files        141 KB
+  .gitignore       1 files          1 KB
+  .md              1 files          1 KB
+  .mjs             1 files          0 KB
+  .txt             1 files         38 KB
+  .yaml            1 files          0 KB

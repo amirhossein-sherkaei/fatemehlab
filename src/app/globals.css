@@ -2151,3 +2151,15 @@ html {
     animation: none !important;
   }
 }
+/* ===== CHAT SCROLLBAR (v3) ===== */
+.chat-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+.chat-scroll::-webkit-scrollbar-track { background: transparent; }
+.chat-scroll::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #f4b7d5, #e84e9e);
+  border-radius: 99px;
+  opacity: 0.5;
+}
+.chat-scroll::-webkit-scrollbar-thumb:hover { background: #c61d70; }
+.chat-scroll { scrollbar-width: thin; scrollbar-color: #f4b7d5 transparent; }
+.chat-scroll-hide { scrollbar-width: none; -ms-overflow-style: none; }
+.chat-scroll-hide::-webkit-scrollbar { display: none; }

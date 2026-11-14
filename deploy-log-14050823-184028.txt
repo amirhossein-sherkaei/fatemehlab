@@ -1,0 +1,19 @@
+========================================
+ Deploy — 1405-08-23 18:40:29
+========================================
+
+📁 ریشه: C:\Users\AmirHossien\Desktop\fatemehlab
+
+[1/4] بررسی فایل‌های چت...
+  ⚠️ نیست: src/app/account/(protected)/support/[id]/chat-client.tsx
+  ⚠️ نیست: src/app/admin/(dashboard)/support/[id]/admin-chat-client.tsx
+  ✅ src/app/globals.css (69.1 KB)
+
+[2/4] تشخیص package manager...
+  استفاده از: pnpm
+
+[3/4] Build...
+  ✅ build موفق
+
+[4/4] Deploy...
+  git repo → commit + push
