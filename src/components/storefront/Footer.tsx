@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { ArrowUpLeft, Mail, Phone, MapPin } from 'lucide-react';
-import { InstagramIcon } from '@/components/icons/SocialIcons';
+import { InstagramIcon, RubikaIcon } from '@/components/icons/SocialIcons';
 
 export default function Footer() {
   const [year, setYear] = useState('');
@@ -43,14 +43,16 @@ export default function Footer() {
               <span dir="ltr">mirzaeico255@gmail.com</span>
             </a>
             <a
-              href="https://instagram.com/fatemehlab.ir"
+              href="https://instagram.com/fatemeh_beauty_landd"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 text-[11px] text-[#77717b] hover:text-[#c61d70] transition-all duration-300 group"
             >
               <InstagramIcon size={14} className="shrink-0 transition-transform duration-300 group-hover:scale-125 group-hover:drop-shadow-[0_0_8px_rgba(198,29,112,0.4)]" />
-              <span dir="ltr">@fatemehlab.ir</span>
+              <span dir="ltr">@fatemeh_beauty_landd</span>
             </a>
+
+            <a href="https://rubika.ir/fatemeh_beauty_land" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-[11px] text-[#77717b] hover:text-[#c61d70] transition-all duration-300 group"><RubikaIcon size={14} className="shrink-0 transition-transform duration-300 group-hover:scale-125" /><span dir="ltr">@fatemeh_beauty_land</span></a>
             <span className="flex items-center gap-2 text-[11px] text-[#77717b]">
               <MapPin size={13} className="shrink-0" />
               تهران

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Header from '@/components/storefront/Header';
 import Footer from '@/components/storefront/Footer';
 import { ArrowLeft, Mail, MapPin, Phone, Clock } from 'lucide-react';
-import { InstagramIcon } from '@/components/icons/SocialIcons';
+import { InstagramIcon, RubikaIcon } from '@/components/icons/SocialIcons';
 
 export const metadata: Metadata = {
   title: 'تماس با فاطمه بیوتی لند',
@@ -38,7 +38,7 @@ export default function ContactPage() {
             </a>
 
             <a
-              href="https://instagram.com/fatemehlab.ir"
+              href="https://instagram.com/fatemeh_beauty_landd"
               target="_blank"
               rel="noopener noreferrer"
               className="group rounded-2xl border border-[#eee9ef] bg-white p-5 transition hover:border-[#e6b3ce]"
@@ -47,7 +47,15 @@ export default function ContactPage() {
                 <InstagramIcon size={18} />
               </span>
               <span className="block text-[11px] text-[#908894]">اینستاگرام</span>
-              <span className="mt-1 block text-[14px] font-bold text-[#302a33]" dir="ltr">@fatemehlab.ir</span>
+              <span className="mt-1 block text-[14px] font-bold text-[#302a33]" dir="ltr">@fatemeh_beauty_landd</span>
+            </a>
+
+            <a href="https://rubika.ir/fatemeh_beauty_land" target="_blank" rel="noopener noreferrer" className="group rounded-2xl border border-[#eee9ef] bg-white p-5 transition hover:border-[#e6b3ce]">
+              <span className="mb-4 grid h-10 w-10 place-items-center rounded-xl bg-[#fff0f7] text-[#c61d70] transition-transform duration-300 group-hover:scale-110">
+                <RubikaIcon size={18} />
+              </span>
+              <span className="block text-[11px] text-[#908894]">روبیکا</span>
+              <span className="mt-1 block text-[14px] font-bold text-[#302a33]" dir="ltr">@fatemeh_beauty_land</span>
             </a>
 
             <div className="rounded-2xl border border-[#eee9ef] bg-white p-5">

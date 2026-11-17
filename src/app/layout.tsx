@@ -86,7 +86,7 @@ const jsonLdGraph = {
         areaServed: "IR",
         availableLanguage: "Persian",
       },
-      sameAs: ["https://instagram.com/fatemehlab.ir"],
+      sameAs: ["https://instagram.com/fatemeh_beauty_landd", "https://rubika.ir/fatemeh_beauty_land"],
     },
     {
       "@type": "WebSite",
