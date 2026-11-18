@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, ShoppingBag, Package, Menu } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, Package, Menu, Images } from 'lucide-react';
 
 export default function AdminBottomNav({
   pendingCount = 0,
@@ -17,6 +17,7 @@ export default function AdminBottomNav({
     { href: '/admin', label: 'داشبورد', icon: LayoutDashboard, exact: true },
     { href: '/admin/orders', label: 'سفارشات', icon: Package, badge: pendingCount },
     { href: '/admin/products', label: 'محصولات', icon: ShoppingBag },
+    { href: '/admin/banners', label: 'اسلایدر', icon: Images },
   ];
 
   return (

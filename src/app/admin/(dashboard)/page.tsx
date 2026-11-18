@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { db } from '@/lib/db';
 import { orders, orderItems, products } from '@/db/schema';
-import { ShoppingBag, AlertCircle, Plus, Activity, DollarSign, TrendingUp, Clock, ArrowUpRight } from 'lucide-react';
+import { ShoppingBag, AlertCircle, Plus, Activity, DollarSign, TrendingUp, Clock, ArrowUpRight, Images } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { formatToman } from '@/lib/currency';
@@ -81,6 +81,11 @@ async function DashboardContent() {
             تحلیل داده‌های فروشگاه <Activity size={22} className="text-[#c61d70]" />
           </h1>
           <p className="mt-1 text-xs text-[#77717b]">نمای کلی از عملکرد مالی و سفارشات شما</p>
+          <div className="mt-3">
+            <Link href="/admin/banners" className="inline-flex items-center gap-2 rounded-xl border border-[#f2d7e5] bg-[#fff0f7] px-4 py-2.5 text-xs font-black text-[#c61d70] shadow-sm transition-all hover:-translate-y-0.5 hover:bg-[#ffe5f1] hover:shadow-md">
+              <Images size={16} /> مدیریت اسلایدرهای صفحه اصلی
+            </Link>
+          </div>
         </div>
         <Link href="/admin/products/new" className="flex items-center gap-2 rounded-xl bg-[#c61d70] px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-[#c61d70]/20 hover:bg-[#a9155d] transition-colors">
           <Plus size={18} /> محصول جدید
