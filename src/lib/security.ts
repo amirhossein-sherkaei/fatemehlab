@@ -8,41 +8,55 @@ const DEFAULT_ORIGINS = [
   'http://localhost:3000',
 ];
 
-const ALLOWED_ORIGINS: string[] = process.env.ALLOWED_ORIGINS
-  ? process.env.ALLOWED_ORIGINS.split(',').map((s) => s.trim()).filter(Boolean)
+const CONFIGURED_ORIGINS = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(',')
   : DEFAULT_ORIGINS;
+const ALLOWED_ORIGINS = [
+  ...CONFIGURED_ORIGINS,
+  ...(process.env.NEXT_PUBLIC_BASE_URL ? [process.env.NEXT_PUBLIC_BASE_URL] : []),
+].map((value) => value.trim()).filter(Boolean);
 
 const ENABLE_VERCEL_PREVIEW = process.env.ENABLE_VERCEL_PREVIEW === 'true';
 
-export function validateOrigin(request: Request): { valid: boolean; origin: string | null } {
-  const origin = request.headers.get('origin');
-  const referer = request.headers.get('referer');
-  const candidate = origin || referer;
-
-  if (!candidate) {
-    return { valid: false, origin: null };
+function getHttpOrigin(value: string): string | null {
+  try {
+    const parsed = new URL(value);
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return null;
+    return parsed.origin.toLowerCase();
+  } catch {
+    return null;
   }
+}
 
-  const isAllowed = ALLOWED_ORIGINS.some((allowed) => candidate.startsWith(allowed));
-  if (isAllowed) return { valid: true, origin: candidate };
+export function validateOrigin(request: Request): { valid: boolean; origin: string | null } {
+  const originHeader = request.headers.get('origin');
+  const refererHeader = request.headers.get('referer');
+  const candidate = originHeader || refererHeader;
+
+  if (!candidate) return { valid: false, origin: null };
+
+  const candidateOrigin = getHttpOrigin(candidate);
+  if (!candidateOrigin) return { valid: false, origin: null };
+
+  const isAllowed = ALLOWED_ORIGINS.some((allowed) => getHttpOrigin(allowed) === candidateOrigin);
+  if (isAllowed) return { valid: true, origin: candidateOrigin };
 
   if (ENABLE_VERCEL_PREVIEW) {
     try {
-      const u = new URL(candidate);
-      if (u.hostname.endsWith('.vercel.app') && u.hostname.includes('fatemehlab')) {
-        return { valid: true, origin: candidate };
-      }
+      const hostname = new URL(candidateOrigin).hostname.toLowerCase();
+      const isProjectPreview = hostname === 'fatemehlab.vercel.app' || /^fatemehlab-[a-z0-9-]+\.vercel\.app$/.test(hostname);
+      if (isProjectPreview) return { valid: true, origin: candidateOrigin };
     } catch {
-      /* ignore */
+      // Invalid URLs are rejected below.
     }
   }
 
-  return { valid: false, origin: candidate };
+  return { valid: false, origin: candidateOrigin };
 }
 
 export function rejectCsrf(request: Request): NextResponse {
   const { origin } = validateOrigin(request);
-  console.error(`[CSRF BLOCKED] Origin: ${origin} | URL: ${request.url}`);
+  console.error('[CSRF BLOCKED] Origin: ' + String(origin) + ' | URL: ' + request.url);
   return NextResponse.json(
     { success: false, message: 'درخواست نامعتبر (CSRF)' },
     { status: 403 }

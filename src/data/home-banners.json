@@ -1,0 +1,26 @@
+[
+  {
+    "id": "banner-01",
+    "image": "/banners/IMG_20261118_184317_190.jpg",
+    "alt": "بنر فاطمه بیوتی لند - IMG 20261118 184317 190",
+    "href": "/products"
+  },
+  {
+    "id": "banner-02",
+    "image": "/banners/IMG_20261118_184320_620.jpg",
+    "alt": "بنر فاطمه بیوتی لند - IMG 20261118 184320 620",
+    "href": "/products"
+  },
+  {
+    "id": "banner-03",
+    "image": "/banners/IMG_20261118_184325_946.jpg",
+    "alt": "بنر فاطمه بیوتی لند - IMG 20261118 184325 946",
+    "href": "/products"
+  },
+  {
+    "id": "banner-04",
+    "image": "/banners/IMG_20261118_184333_310.jpg",
+    "alt": "بنر فاطمه بیوتی لند - IMG 20261118 184333 310",
+    "href": "/products"
+  }
+]

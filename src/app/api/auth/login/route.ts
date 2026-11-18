@@ -5,22 +5,33 @@ import { eq } from 'drizzle-orm';
 import * as argon2 from 'argon2';
 import { SignJWT } from 'jose';
 import { rateLimit } from '@/lib/rate-limit';
-
-const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'fallback-secret-change-me-in-env');
+import { validateOrigin, rejectCsrf } from '@/lib/security';
 
 export async function POST(req: Request) {
   try {
-    // 🛡️ سپر امنیتی: جلوگیری از حملات Brute-force
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
-    const rl = await rateLimit('admin-login:' + ip);
-    
-    if (!rl.success) {
-      return NextResponse.json({ message: 'تلاش‌های ناموفق زیاد است. لطفاً ۵ دقیقه دیگر تلاش کنید.' }, { status: 429 });
+    const { valid: originValid } = validateOrigin(req);
+    if (!originValid) return rejectCsrf(req);
+
+    const secretValue = process.env.JWT_SECRET;
+    if (!secretValue) {
+      console.error('[admin-login] JWT_SECRET is missing. Configure it in the deployment environment.');
+      return NextResponse.json({ message: 'تنظیمات امنیتی سرور کامل نیست.' }, { status: 500 });
     }
 
-    const { email, password } = await req.json();
-    const user = await db.select().from(adminUsers).where(eq(adminUsers.email, email)).limit(1);
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    const rl = await rateLimit('admin-login:' + ip);
+    if (!rl.success) {
+      return NextResponse.json({ message: 'تلاش‌های ناموفق زیاد است. لطفاً کمی بعد تلاش کنید.' }, { status: 429 });
+    }
 
+    const body = await req.json().catch(() => ({}));
+    const email = typeof body?.email === 'string' ? body.email.trim().toLowerCase() : '';
+    const password = typeof body?.password === 'string' ? body.password : '';
+    if (!email || !password || email.length > 254 || password.length > 1024) {
+      return NextResponse.json({ message: 'ایمیل یا رمز عبور اشتباه است' }, { status: 401 });
+    }
+
+    const user = await db.select().from(adminUsers).where(eq(adminUsers.email, email)).limit(1);
     if (user.length === 0) {
       return NextResponse.json({ message: 'ایمیل یا رمز عبور اشتباه است' }, { status: 401 });
     }
@@ -30,6 +41,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: 'ایمیل یا رمز عبور اشتباه است' }, { status: 401 });
     }
 
+    const secret = new TextEncoder().encode(secretValue);
     const token = await new SignJWT({ id: user[0].id, role: user[0].role })
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
@@ -40,13 +52,13 @@ export async function POST(req: Request) {
     response.cookies.set('admin_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax', // باگ خروج ناخواسته را برطرف کردیم
+      sameSite: 'lax',
       maxAge: 60 * 60 * 24,
       path: '/',
     });
-
     return response;
   } catch (error) {
+    console.error('[admin-login]', error);
     return NextResponse.json({ message: 'خطای سرور' }, { status: 500 });
   }
 }

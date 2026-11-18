@@ -13,6 +13,7 @@ const productSchema = z.object({
   sku: z.string().optional().nullable(),
   description: z.string().optional().nullable(),
   price: z.coerce.number().min(0, 'قیمت نمی‌تواند منفی باشد'),
+  compareAtPrice: z.union([z.coerce.number().int().positive(), z.null()]).optional(),
   stock: z.coerce.number().min(0, 'موجودی نمی‌تواند منفی باشد'),
   status: z.enum(['draft', 'published']),
   mainImage: z.string().optional().nullable(),
@@ -30,10 +31,14 @@ export async function POST(req: Request) {
     await verifyAdmin();
     const body = await req.json();
     const validated = productSchema.parse(body);
+    if (validated.compareAtPrice != null && validated.compareAtPrice <= validated.price) {
+      return NextResponse.json({ message: 'قیمت قبل از تخفیف باید بیشتر از قیمت فروش باشد.' }, { status: 400 });
+    }
 
     const newProduct = await db.insert(products).values({
       ...validated,
       price: tomanToRial(validated.price),
+      compareAtPrice: validated.compareAtPrice == null ? null : tomanToRial(validated.compareAtPrice),
     }).returning();
 
     revalidateTag('products', 'max');

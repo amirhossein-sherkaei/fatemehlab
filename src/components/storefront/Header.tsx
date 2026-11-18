@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Menu, Search, ShoppingBag, X, ArrowLeft } from 'lucide-react';
+import { Menu, ShoppingBag, X } from 'lucide-react';
 import { useCartStore } from '@/store/cart';
 import UserMenuButton from './UserMenuButton';
 import InstantSearch from './InstantSearch';
@@ -74,7 +74,7 @@ export default function Header() {
 
           {/* آیکون‌ها */}
           <div className="flex items-center gap-1 md:gap-2">
-            <div className="hidden md:block"><InstantSearch /></div>
+            <div className="shrink-0"><InstantSearch /></div>
             <UserMenuButton />
             
             <button

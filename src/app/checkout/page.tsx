@@ -32,14 +32,28 @@ export default function CheckoutPage() {
     firstName: '', lastName: '', phone: '', address: '', city: '', postalCode: '', notes: '',
   });
 
+  const couponDiscountAmount = appliedCoupon?.discount ?? 0;
+  const maxRedeemablePoints = Math.min(
+    loyaltyPoints,
+    Math.floor(Math.max(0, getTotalPrice() - couponDiscountAmount) / 10000)
+  );
+  const totalPayableBeforeShipping = Math.max(
+    0,
+    getTotalPrice() - couponDiscountAmount - (pointsToUse * 10000)
+  );
+
   useEffect(() => { 
     setIsMounted(true); 
-    // 🛡️ پاکسازی state در صورت بازگشت به صفحه
+    // پاکسازی state تخفیف هنگام ورود تازه به تسویه‌حساب
     setAppliedCoupon(null);
     setCouponCode('');
     setUsePoints(false);
     setPointsToUse(0);
   }, []);
+
+  useEffect(() => {
+    if (pointsToUse > maxRedeemablePoints) setPointsToUse(maxRedeemablePoints);
+  }, [pointsToUse, maxRedeemablePoints]);
   // 🛡️ اعتبارسنجی مجدد کد تخفیف وقتی سبد خرید تغییر می‌کند
   useEffect(() => {
     if (!appliedCoupon) return;
@@ -158,7 +172,7 @@ export default function CheckoutPage() {
       const data = await res.json();
       if (res.ok && data.success) {
         setAppliedCoupon({ code: data.coupon.code, discount: data.discount, description: data.coupon.description || '' });
-        toast.success(`کد تخفیف اعمال شد: ${data.discount.toLocaleString('fa-IR')} ریال تخفیف`);
+        toast.success('کد تخفیف اعمال شد: ' + formatToman(data.discount) + ' تخفیف');
       } else {
         setCouponError(data.message || 'کد نامعتبر است');
         setAppliedCoupon(null);
@@ -181,6 +195,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     setLoading(true);
     setIsSubmitting(true);
     const toastId = toast.loading('در حال ثبت سفارش و اتصال به درگاه...');
+    let createdOrderId: string | null = null;
 
     try {
       const res = await fetch('/api/orders', {
@@ -191,6 +206,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       const data = await res.json();
 
       if (!res.ok) throw new Error(data.message || 'خطا در ثبت سفارش');
+      createdOrderId = typeof data.orderId === 'string' ? data.orderId : null;
 
       const payRes = await fetch('/api/payment/request', {
         method: 'POST',
@@ -208,6 +224,10 @@ const handleSubmit = async (e: React.FormEvent) => {
 
     } catch (err: any) {
       toast.error(err.message || 'خطا در ارتباط با سرور', { id: toastId });
+      if (createdOrderId) {
+        router.push('/order/failure?reason=payment_request_failed&orderId=' + encodeURIComponent(createdOrderId));
+        return;
+      }
       setIsSubmitting(false);
       setLoading(false);
     }
@@ -351,7 +371,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                         <span className="text-xs font-bold text-emerald-700">کد اعمال شده:</span>
                         <span className="font-mono font-black text-sm text-emerald-700">{appliedCoupon.code}</span>
                       </div>
-                      <p className="text-xs font-bold text-emerald-700">تخفیف: {appliedCoupon.discount.toLocaleString('fa-IR')} ریال</p>
+                      <p className="text-xs font-bold text-emerald-700">تخفیف: {formatToman(appliedCoupon.discount)}</p>
                     </div>
                     <button onClick={removeCoupon} className="text-rose-500 text-xs font-bold hover:underline">حذف</button>
                   </div>
@@ -379,7 +399,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                         checked={usePoints}
                         onChange={(e) => {
                           setUsePoints(e.target.checked);
-                          setPointsToUse(e.target.checked ? Math.min(loyaltyPoints, Math.floor(getTotalPrice() / 10000)) : 0);
+                          setPointsToUse(e.target.checked ? maxRedeemablePoints : 0);
                         }}
                         className="w-4 h-4 accent-[#c61d70]"
                       />
@@ -397,27 +417,27 @@ const handleSubmit = async (e: React.FormEvent) => {
                       <input 
                         type="range" 
                         min={0} 
-                        max={Math.min(loyaltyPoints, Math.floor(getTotalPrice() / 10000))}
+                        max={maxRedeemablePoints}
                         value={pointsToUse}
                         onChange={(e) => setPointsToUse(parseInt(e.target.value))}
                         className="w-full accent-[#c61d70]"
                       />
-                      <p className="text-[10px] text-[#77717b] mt-2">تخفیف اعمال شده: {((pointsToUse * 1000)).toLocaleString('fa-IR')} تومان</p>
+                      <p className="text-[10px] text-[#77717b] mt-2">تخفیف امتیاز: {formatToman(pointsToUse * 10000)}</p>
                     </div>
                   )}
                 </div>
               )}
               {appliedCoupon && (
                 <div className="border-t border-[#e9e5eb] mt-3 pt-3 flex justify-between text-sm">
-                  <span className="text-[#77717b]">جمع با تخفیف</span>
-                  <span className="font-bold text-emerald-600">{formatToman(getTotalPrice() - appliedCoupon.discount)}</span>
+                  <span className="text-[#77717b]">جمع پس از تخفیف‌ها</span>
+                  <span className="font-bold text-emerald-600">{formatToman(totalPayableBeforeShipping)}</span>
                 </div>
               )}
 
               <div className="border-t border-[#e9e5eb] mt-4 pt-4 flex justify-between items-center mb-6">
                 <span className="font-bold text-[#28242b]">مبلغ قابل پرداخت</span>
                 <span className="font-black text-xl text-[#c61d70]">
-                  {formatToman(appliedCoupon ? getTotalPrice() - appliedCoupon.discount : getTotalPrice())}
+                  {formatToman(totalPayableBeforeShipping)}
                 </span>
               </div>
 
@@ -438,7 +458,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         <div className="flex items-center justify-between gap-4">
           <div>
             <p className="text-[10px] text-[#77717b] mb-0.5">مبلغ قابل پرداخت</p>
-            <p className="text-base font-black text-[#28242b]">{formatToman(getTotalPrice())}</p>
+            <p className="text-base font-black text-[#28242b]">{formatToman(totalPayableBeforeShipping)}</p>
           </div>
           <button type="submit" form="checkout-form" disabled={loading} className="flex-1 max-w-[200px] min-h-[48px] bg-[#c61d70] text-white text-sm font-bold rounded-xl disabled:opacity-50">
             {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'ثبت نهایی'}

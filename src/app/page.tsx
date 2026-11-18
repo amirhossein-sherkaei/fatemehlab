@@ -12,6 +12,8 @@ export const metadata: Metadata = {
 import Link from 'next/link';
 import { ArrowLeft, ArrowUpLeft, BadgeCheck, BookOpenText, PackageCheck, Search, Sparkles, Droplets, Flame, Heart, Wind, Star, ShoppingBag } from 'lucide-react';
 import Header from '@/components/storefront/Header';
+import HomeBannerCarousel from '@/components/storefront/HomeBannerCarousel';
+import homeBanners from '@/data/home-banners.json';
 import Footer from '@/components/storefront/Footer';
 import RecentlyViewed from '@/components/storefront/RecentlyViewed';
 import SafeImage from '@/components/product/SafeImage';
@@ -56,7 +58,10 @@ export default async function Home() {
       <Header />
       <main className="flex-1 relative z-10">
         
-        <section className="fl-home-hero">
+        {homeBanners.length > 0 ? (
+          <HomeBannerCarousel slides={homeBanners} />
+        ) : (
+<section className="fl-home-hero">
           <div className="container-custom fl-hero-grid">
             <div className="fl-hero-copy-wrap">
               <span className="fl-eyebrow"><span className="fl-eyebrow-dot" />FATEMEH BEAUTY LAND / BEAUTY & CARE</span>
@@ -85,6 +90,7 @@ export default async function Home() {
             </div>
           </div>
         </section>
+        )}
 
         <section className="container-custom">
           <div className="fl-feature-strip">
