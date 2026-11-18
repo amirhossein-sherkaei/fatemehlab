@@ -2436,3 +2436,217 @@ html {
 @media (prefers-reduced-motion: reduce) {
   .fl-search-dialog, .fl-banner-slide, .fl-banner-arrow, .fl-banner-dot { animation: none !important; transition: none !important; }
 }
+
+/* FATEMEH-PHASE-2-CAROUSEL-REFINEMENT
+   Compact ad-strip proportions, edge-to-edge artwork and reliable touch controls. */
+.fl-banner-section {
+  padding-block: clamp(10px, 1.4vw, 18px) clamp(14px, 1.8vw, 24px) !important;
+}
+
+.fl-banner-carousel {
+  position: relative !important;
+  width: 100% !important;
+  height: clamp(230px, 26.5vw, 360px) !important;
+  min-height: 230px !important;
+  max-height: 360px !important;
+  aspect-ratio: auto !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+  border: 1px solid rgba(232, 207, 222, .72) !important;
+  border-radius: 20px !important;
+  background: #f8eaf1 !important;
+  box-shadow: 0 8px 26px rgba(73, 32, 57, .065) !important;
+  touch-action: pan-y pinch-zoom !important;
+}
+
+.fl-banner-slide {
+  position: absolute !important;
+  z-index: 0 !important;
+  inset: 0 !important;
+  display: block !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: scale(1.006) !important;
+  transition: opacity 420ms ease, transform 700ms ease !important;
+}
+
+.fl-banner-slide.is-active {
+  z-index: 1 !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  transform: scale(1) !important;
+}
+
+.fl-banner-slide-link,
+.fl-banner-picture {
+  position: absolute !important;
+  inset: 0 !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  overflow: hidden !important;
+}
+
+.fl-banner-image {
+  object-fit: cover !important;
+  object-position: center center !important;
+  user-select: none !important;
+  -webkit-user-drag: none !important;
+}
+
+.fl-banner-arrow {
+  position: absolute !important;
+  z-index: 20 !important;
+  top: 50% !important;
+  display: grid !important;
+  width: 46px !important;
+  height: 46px !important;
+  min-width: 46px !important;
+  min-height: 46px !important;
+  padding: 0 !important;
+  place-items: center !important;
+  border: 1px solid rgba(255, 255, 255, .92) !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, .9) !important;
+  color: #743b59 !important;
+  box-shadow: 0 5px 18px rgba(39, 20, 33, .14) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  transform: translateY(-50%) !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+}
+
+.fl-banner-arrow:hover {
+  background: #c61d70 !important;
+  color: #fff !important;
+}
+
+.fl-banner-arrow-prev { right: 14px !important; }
+.fl-banner-arrow-next { left: 14px !important; }
+
+.fl-banner-pagination {
+  position: absolute !important;
+  z-index: 21 !important;
+  right: 50% !important;
+  bottom: 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0 !important;
+  padding: 2px 9px !important;
+  border: 1px solid rgba(255, 255, 255, .76) !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, .76) !important;
+  box-shadow: 0 3px 12px rgba(39, 20, 33, .1) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  transform: translateX(50%) !important;
+  pointer-events: auto !important;
+}
+
+/* The button keeps a comfortable hit area; only its inner indicator is visible. */
+.fl-banner-pagination .fl-banner-dot {
+  display: grid !important;
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  margin-inline: -3px !important;
+  padding: 0 !important;
+  place-items: center !important;
+  border: 0 !important;
+  border-radius: 50% !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+}
+
+.fl-banner-dot-indicator {
+  display: block !important;
+  width: 7px !important;
+  height: 7px !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  border-radius: 999px !important;
+  background: #c9b6c2 !important;
+  transition: width .24s ease, background .24s ease !important;
+}
+
+.fl-banner-dot.is-active .fl-banner-dot-indicator {
+  width: 22px !important;
+  background: #c61d70 !important;
+}
+
+/* Make the mobile search action easier to notice and tap without changing its logic. */
+.fl-search-trigger {
+  display: inline-flex !important;
+  width: 42px !important;
+  height: 42px !important;
+  min-width: 42px !important;
+  min-height: 42px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: 1px solid #f1d6e4 !important;
+  border-radius: 13px !important;
+  background: #fff8fc !important;
+  color: #c61d70 !important;
+}
+
+.fl-search-trigger svg {
+  width: 20px !important;
+  height: 20px !important;
+}
+
+@media (max-width: 767px) {
+  .fl-banner-section {
+    width: min(100% - 24px, 1280px) !important;
+    padding-top: 10px !important;
+    padding-bottom: 16px !important;
+  }
+
+  .fl-banner-carousel {
+    width: 100% !important;
+    height: clamp(168px, 49vw, 224px) !important;
+    min-height: 168px !important;
+    max-height: 224px !important;
+    aspect-ratio: auto !important;
+    border-radius: 16px !important;
+  }
+
+  .fl-banner-arrow {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+  }
+
+  .fl-banner-arrow-prev { right: 8px !important; }
+  .fl-banner-arrow-next { left: 8px !important; }
+  .fl-banner-pagination { bottom: 7px !important; padding: 0 7px !important; }
+  .fl-banner-pagination .fl-banner-dot {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    margin-inline: -2px !important;
+  }
+
+  .fl-search-trigger {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    border-radius: 12px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fl-banner-slide,
+  .fl-banner-arrow,
+  .fl-banner-dot-indicator {
+    animation: none !important;
+    transition: none !important;
+  }
+}

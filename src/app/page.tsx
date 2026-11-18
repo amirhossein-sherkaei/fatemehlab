@@ -21,9 +21,8 @@ import { getCachedPublishedProducts } from '@/lib/products';
 import { formatToman } from '@/lib/currency';
 import { getPublicProductDescription, getPublicProductImage } from '@/lib/product-content';
 import { db } from '@/lib/db';
-import { categories } from '@/db/schema';
-import { desc } from 'drizzle-orm';
-
+import { categories, siteSettings } from '@/db/schema';
+import { desc, eq } from 'drizzle-orm';
 export const instant = false;
 
 const getCategoryIcon = (slug: string) => {
@@ -51,6 +50,20 @@ export default async function Home() {
   const newProducts = dbProducts.slice(0, 4);
   const featuredProducts = dbProducts.filter(p => p.isFeatured).slice(0, 4);
   const dbCategories = await db.select().from(categories).orderBy(desc(categories.createdAt)).limit(6);
+  const [homeBannerSetting] = await db.select({ value: siteSettings.value })
+    .from(siteSettings)
+    .where(eq(siteSettings.key, 'homeBannerConfig'))
+    .limit(1);
+  type ManagedBanner = { id: string; image: string; mobileImage?: string; alt: string; href?: string; active?: boolean; order?: number; objectPosition?: string };
+  type ManagedBannerConfig = { slides?: ManagedBanner[]; autoPlay?: boolean; intervalMs?: number };
+  const managedBannerConfig = homeBannerSetting?.value as ManagedBannerConfig | null | undefined;
+  const homeBannerSlides: ManagedBanner[] = Array.isArray(managedBannerConfig?.slides)
+    ? managedBannerConfig.slides
+        .filter((slide) => slide && slide.active !== false && typeof slide.image === 'string' && typeof slide.id === 'string')
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+    : (homeBanners as ManagedBanner[]);
+  const homeBannerInterval = typeof managedBannerConfig?.intervalMs === 'number' ? managedBannerConfig.intervalMs : 5600;
+  const homeBannerAutoPlay = managedBannerConfig?.autoPlay !== false;
 
   return (
     <div className="min-h-screen flex flex-col relative">
@@ -58,8 +71,8 @@ export default async function Home() {
       <Header />
       <main className="flex-1 relative z-10">
         
-        {homeBanners.length > 0 ? (
-          <HomeBannerCarousel slides={homeBanners} />
+        {homeBannerSlides.length > 0 ? (
+          <HomeBannerCarousel slides={homeBannerSlides} interval={homeBannerInterval} autoPlay={homeBannerAutoPlay} />
         ) : (
 <section className="fl-home-hero">
           <div className="container-custom fl-hero-grid">
