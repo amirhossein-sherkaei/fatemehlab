@@ -2838,3 +2838,352 @@ html {
 @media (prefers-reduced-motion: reduce) {
   .fl-banner-backdrop { filter: none !important; }
 }
+/* ==========================================================================
+   PHASE 03 — Storefront merchandising shelves
+   ========================================================================== */
+.fl-home-categories { padding-top: clamp(30px, 4vw, 48px); }
+.fl-home-category-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+}
+.fl-home-category-card {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 156px;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  padding: 16px;
+  border: 1px solid #eee3eb;
+  border-radius: 21px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(226, 112, 169, .12), transparent 43%),
+    linear-gradient(145deg, #fff 0%, #fff9fc 100%);
+  box-shadow: 0 5px 18px rgba(75, 39, 61, .035);
+  transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease;
+}
+.fl-home-category-card::after {
+  position: absolute;
+  right: -23px;
+  bottom: -36px;
+  width: 94px;
+  height: 94px;
+  border: 1px solid rgba(198, 29, 112, .08);
+  border-radius: 50%;
+  box-shadow: 0 0 0 13px rgba(198, 29, 112, .025), 0 0 0 27px rgba(198, 29, 112, .018);
+  content: "";
+  pointer-events: none;
+}
+.fl-home-category-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(198, 29, 112, .28);
+  box-shadow: 0 13px 30px rgba(104, 43, 77, .09);
+}
+.fl-home-category-index {
+  position: absolute;
+  top: 13px;
+  left: 14px;
+  color: #c9bac4;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+.fl-home-category-icon {
+  display: grid;
+  width: 43px;
+  height: 43px;
+  place-items: center;
+  border: 1px solid #f2d5e4;
+  border-radius: 15px;
+  background: rgba(255, 240, 247, .9);
+  color: #c61d70;
+}
+.fl-home-category-title {
+  position: relative;
+  z-index: 1;
+  margin-top: 14px;
+  color: #302832;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.8;
+}
+.fl-home-category-bottom {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+  color: #a08b99;
+  font-size: 10px;
+  font-weight: 650;
+}
+.fl-home-category-bottom svg { color: #c61d70; transition: transform .2s ease; }
+.fl-home-category-card:hover .fl-home-category-bottom svg { transform: translateX(-3px); }
+
+.fl-home-shelf { overflow: hidden; }
+.fl-home-shelf-head { align-items: end; }
+.fl-home-shelf-tools { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+.fl-home-shelf-arrows { display: flex; align-items: center; gap: 7px; }
+.fl-home-shelf-arrows button {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border: 1px solid #eadde6;
+  border-radius: 12px;
+  background: rgba(255,255,255,.92);
+  color: #66525f;
+  box-shadow: 0 3px 10px rgba(75, 39, 61, .04);
+  transition: background .18s ease, color .18s ease, border-color .18s ease, transform .18s ease;
+}
+.fl-home-shelf-arrows button:hover {
+  transform: translateY(-1px);
+  border-color: #c61d70;
+  background: #c61d70;
+  color: #fff;
+}
+.fl-home-shelf-arrows button:focus-visible,
+.fl-home-category-card:focus-visible,
+.fl-shelf-image-link:focus-visible,
+.fl-shelf-name:focus-visible,
+.fl-shelf-cta:focus-visible {
+  outline: 3px solid rgba(198, 29, 112, .28);
+  outline-offset: 3px;
+}
+.fl-product-rail {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: calc((100% - 54px) / 4);
+  gap: 18px;
+  overflow-x: auto;
+  padding: 2px 1px 17px;
+  direction: rtl;
+  overscroll-behavior-inline: contain;
+  scroll-snap-type: inline mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.fl-product-rail::-webkit-scrollbar { display: none; }
+.fl-shelf-card {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid #eee7ed;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 4px 16px rgba(57, 35, 49, .035);
+  scroll-snap-align: start;
+  transition: transform .24s ease, border-color .24s ease, box-shadow .24s ease;
+}
+.fl-shelf-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(198, 29, 112, .2);
+  box-shadow: 0 14px 34px rgba(74, 38, 61, .09);
+}
+.fl-shelf-media {
+  position: relative;
+  aspect-ratio: 1 / 1.08;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(255,255,255,.98) 0 18%, transparent 66%),
+    linear-gradient(145deg, #fffafd 0%, #f8f3f7 100%);
+}
+.fl-shelf-image-link { position: absolute; inset: 0; display: block; }
+.fl-shelf-media img {
+  padding: 16px;
+  object-fit: contain;
+  transition: transform .45s cubic-bezier(.2,.7,.2,1);
+}
+.fl-shelf-card:hover .fl-shelf-media img { transform: scale(1.055); }
+.fl-shelf-badge {
+  position: absolute;
+  top: 11px;
+  right: 11px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: calc(100% - 82px);
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.8);
+  border-radius: 9px;
+  background: rgba(255,255,255,.9);
+  padding: 5px 8px;
+  color: #8e5272;
+  font-size: 9px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  box-shadow: 0 3px 10px rgba(57, 35, 49, .05);
+  backdrop-filter: blur(10px);
+}
+.fl-shelf-badge.is-sale { border-color: #f7d9e6; background: #fff0f6; color: #bd1c67; }
+.fl-shelf-stock-badge {
+  position: absolute;
+  right: 11px;
+  bottom: 11px;
+  z-index: 3;
+  border: 1px solid rgba(255,255,255,.8);
+  border-radius: 8px;
+  background: rgba(255,255,255,.9);
+  padding: 4px 7px;
+  color: #987e8d;
+  font-size: 9px;
+  font-weight: 750;
+  backdrop-filter: blur(8px);
+}
+.fl-shelf-card-actions {
+  position: absolute;
+  top: 9px;
+  left: 9px;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.fl-shelf-card-actions > button,
+.fl-shelf-card-actions > div,
+.fl-shelf-card-actions .w-9,
+.fl-shelf-card-actions .h-9 {
+  width: 34px;
+  height: 34px;
+}
+.fl-shelf-info {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 13px 13px 12px;
+}
+.fl-shelf-brand {
+  overflow: hidden;
+  color: #b16a91;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1.6;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.fl-shelf-name {
+  display: -webkit-box;
+  min-height: 44px;
+  overflow: hidden;
+  margin-top: 3px;
+  color: #302832;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.85;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.fl-shelf-name:hover { color: #c61d70; }
+.fl-shelf-description {
+  display: -webkit-box;
+  min-height: 34px;
+  overflow: hidden;
+  margin-top: 3px;
+  color: #918894;
+  font-size: 9px;
+  line-height: 1.9;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.fl-shelf-price-area {
+  min-height: 48px;
+  margin-top: 9px;
+  border-top: 1px solid #f3edf1;
+  padding-top: 9px;
+}
+.fl-shelf-old-price {
+  display: block;
+  width: fit-content;
+  color: #a49aa3;
+  font-size: 9px;
+  line-height: 1.5;
+  text-decoration-thickness: 1px;
+}
+.fl-shelf-price-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 7px;
+  margin-top: 2px;
+}
+.fl-shelf-price-row strong {
+  color: #302832;
+  font-size: 11px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+.fl-shelf-price-row strong.has-discount { color: #c61d70; }
+.fl-shelf-status {
+  color: #28835e;
+  font-size: 9px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+.fl-shelf-status.is-out { color: #a47c86; }
+.fl-shelf-cta {
+  display: flex;
+  min-height: 34px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 9px;
+  border: 1px solid #f0d7e4;
+  border-radius: 10px;
+  background: #fff8fc;
+  color: #b51b66;
+  font-size: 10px;
+  font-weight: 800;
+  transition: background .18s ease, color .18s ease, border-color .18s ease;
+}
+.fl-shelf-cta:hover { border-color: #c61d70; background: #c61d70; color: #fff; }
+
+
+.fl-home-shelf[data-shelf-variant="sale"] .fl-shelf-card { border-color: #f1d5e2; }
+.fl-home-shelf[data-shelf-variant="sale"] .fl-shelf-price-area { border-top-color: #f3e2ea; }
+.fl-home-shelf[data-shelf-variant="bestseller"] .fl-shelf-badge { background: #f0faf5; color: #27835c; border-color: #d9eee3; }
+
+@media (max-width: 1050px) {
+  .fl-home-category-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .fl-product-rail { grid-auto-columns: calc((100% - 36px) / 3); gap: 18px; }
+}
+@media (max-width: 680px) {
+  .fl-home-category-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .fl-home-category-card { min-height: 138px; padding: 13px; border-radius: 17px; }
+  .fl-home-category-icon { width: 39px; height: 39px; border-radius: 13px; }
+  .fl-home-category-title { margin-top: 10px; font-size: 12px; }
+  .fl-home-shelf-head { align-items: flex-end; gap: 10px; }
+  .fl-home-shelf-tools { gap: 0; }
+  .fl-home-shelf-tools > .fl-text-link { font-size: 10px; }
+  .fl-home-shelf-arrows { display: none; }
+  .fl-product-rail { grid-auto-columns: calc((100% - 12px) / 2.08); gap: 12px; padding-bottom: 12px; }
+  .fl-shelf-card { border-radius: 16px; }
+  .fl-shelf-media { aspect-ratio: 1 / 1.02; }
+  .fl-shelf-media img { padding: 11px; }
+  .fl-shelf-info { padding: 10px 10px 9px; }
+  .fl-shelf-name { min-height: 41px; font-size: 11px; }
+  .fl-shelf-description { min-height: 30px; font-size: 8px; }
+  .fl-shelf-price-row strong { font-size: 10px; }
+  .fl-shelf-card-actions { top: 7px; left: 7px; gap: 5px; }
+  .fl-shelf-card-actions > button,
+  .fl-shelf-card-actions > div,
+  .fl-shelf-card-actions .w-9,
+  .fl-shelf-card-actions .h-9 { width: 30px; height: 30px; }
+  .fl-shelf-badge { top: 8px; right: 8px; padding: 4px 6px; font-size: 8px; }
+  .fl-shelf-stock-badge { right: 8px; bottom: 8px; padding: 3px 6px; font-size: 8px; }
+  .fl-shelf-cta { min-height: 32px; font-size: 9px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fl-home-category-card,
+  .fl-home-category-bottom svg,
+  .fl-shelf-card,
+  .fl-shelf-media img,
+  .fl-shelf-cta,
+  .fl-home-shelf-arrows button { transition: none; }
+}

@@ -10,19 +10,20 @@ export const metadata: Metadata = {
   },
 };
 import Link from 'next/link';
-import { ArrowLeft, ArrowUpLeft, BadgeCheck, BookOpenText, PackageCheck, Search, Sparkles, Droplets, Flame, Heart, Wind, Star, ShoppingBag } from 'lucide-react';
+import { ArrowLeft, ArrowUpLeft, BadgeCheck, BookOpenText, PackageCheck, Search, Sparkles, Droplets, Flame, Heart, Wind, Star } from 'lucide-react';
 import Header from '@/components/storefront/Header';
 import HomeBannerCarousel from '@/components/storefront/HomeBannerCarousel';
 import homeBanners from '@/data/home-banners.json';
 import Footer from '@/components/storefront/Footer';
 import RecentlyViewed from '@/components/storefront/RecentlyViewed';
+import HomeProductShelf from '@/components/storefront/HomeProductShelf';
 import SafeImage from '@/components/product/SafeImage';
 import { getCachedPublishedProducts } from '@/lib/products';
 import { formatToman } from '@/lib/currency';
 import { getPublicProductDescription, getPublicProductImage } from '@/lib/product-content';
 import { db } from '@/lib/db';
-import { categories, siteSettings } from '@/db/schema';
-import { desc, eq } from 'drizzle-orm';
+import { categories, siteSettings, orderItems, orders } from '@/db/schema';
+import { desc, eq, inArray, sql } from 'drizzle-orm';
 export const instant = false;
 
 const getCategoryIcon = (slug: string) => {
@@ -47,9 +48,72 @@ const jsonLdHomeFaq = {
 
 export default async function Home() {
   const dbProducts = await getCachedPublishedProducts();
-  const newProducts = dbProducts.slice(0, 4);
-  const featuredProducts = dbProducts.filter(p => p.isFeatured).slice(0, 4);
-  const dbCategories = await db.select().from(categories).orderBy(desc(categories.createdAt)).limit(6);
+  const newProducts = dbProducts.filter((product) => product.price > 0).slice(0, 8);
+  const featuredProducts = dbProducts.filter((product) => product.isFeatured && product.price > 0).slice(0, 8);
+  const discountedProducts = dbProducts
+    .filter((product) =>
+      product.price > 0 &&
+      product.stock > 0 &&
+      typeof product.compareAtPrice === 'number' &&
+      product.compareAtPrice > product.price
+    )
+    .sort((a, b) => {
+      const aDiscount = (a.compareAtPrice! - a.price) / a.compareAtPrice!;
+      const bDiscount = (b.compareAtPrice! - b.price) / b.compareAtPrice!;
+      return bDiscount - aDiscount;
+    })
+    .slice(0, 8);
+
+  const dbCategories = await db.select().from(categories).orderBy(desc(categories.createdAt)).limit(8);
+  const categoryCounts = new Map<string, number>();
+  for (const product of dbProducts) {
+    if (product.categoryId) {
+      categoryCounts.set(product.categoryId, (categoryCounts.get(product.categoryId) ?? 0) + 1);
+    }
+  }
+  const categoriesWithProducts = dbCategories
+    .map((category) => ({ ...category, productCount: categoryCounts.get(category.id) ?? 0 }))
+    .filter((category) => category.productCount > 0);
+
+  // رتبه‌بندی پرفروش‌ها فقط بر اساس سفارش‌هایی که پرداختشان تأیید شده است.
+  let bestSellerRows: Array<{ productId: string; totalSold: number }> = [];
+  try {
+    bestSellerRows = await db
+      .select({
+        productId: orderItems.productId,
+        totalSold: sql<number>`coalesce(sum(${orderItems.quantity}), 0)`.mapWith(Number),
+      })
+      .from(orderItems)
+      .innerJoin(orders, eq(orderItems.orderId, orders.id))
+      .where(inArray(orders.status, ['paid', 'processing', 'shipped', 'delivered']))
+      .groupBy(orderItems.productId)
+      .orderBy(desc(sql`sum(${orderItems.quantity})`))
+      .limit(12);
+  } catch (error) {
+    console.error('[homepage] Unable to calculate best sellers:', error);
+  }
+
+  const publishedProductsById = new Map<string, (typeof dbProducts)[number]>(
+    dbProducts.map((product) => [product.id, product] as const)
+  );
+  const bestSellerProducts = bestSellerRows
+    .map((row) => publishedProductsById.get(row.productId))
+    .filter((product): product is (typeof dbProducts)[number] =>
+      Boolean(product && product.price > 0 && product.stock > 0)
+    )
+    .slice(0, 8);
+
+  const toShelfProduct = (product: (typeof dbProducts)[number]) => ({
+    id: product.id,
+    slug: product.slug,
+    name: product.name,
+    brand: product.brand,
+    description: getPublicProductDescription(product.description),
+    price: product.price,
+    compareAtPrice: product.compareAtPrice,
+    stock: product.stock,
+    mainImage: getPublicProductImage(product.mainImage),
+  });
   const [homeBannerSetting] = await db.select({ value: siteSettings.value })
     .from(siteSettings)
     .where(eq(siteSettings.key, 'homeBannerConfig'))
@@ -113,23 +177,36 @@ export default async function Home() {
           </div>
         </section>
 
-        {dbCategories.length > 0 && (
-          <section className="container-custom fl-section">
+        {categoriesWithProducts.length > 0 && (
+          <section className="container-custom fl-section fl-home-categories" aria-labelledby="home-categories-title">
             <div className="fl-section-head">
               <div>
                 <span className="fl-section-kicker">SHOP BY CATEGORY</span>
-                <h2 className="fl-section-title">دسته‌بندی‌های محصولات</h2>
+                <h2 className="fl-section-title" id="home-categories-title">از کجا شروع کنیم؟</h2>
+                <p className="fl-section-note">دسته‌بندی موردنظرتان را انتخاب کنید و محصولات مرتبط را ببینید.</p>
               </div>
+              <Link href="/products" className="fl-text-link">
+                همه دسته‌ها
+                <ArrowUpLeft size={15} aria-hidden="true" />
+              </Link>
             </div>
-            <div className="grid grid-cols-3 md:grid-cols-6 gap-3 md:gap-4">
-              {dbCategories.map((cat) => {
-                const Icon = getCategoryIcon(cat.slug);
+
+            <div className="fl-home-category-grid">
+              {categoriesWithProducts.map((category, index) => {
+                const Icon = getCategoryIcon(category.slug);
                 return (
-                  <Link key={cat.id} href={`/products?category=${cat.slug}`} className="group flex flex-col items-center justify-center rounded-2xl border border-[#e9e5eb] bg-white/70 backdrop-blur-md p-4 shadow-sm transition-all hover:-translate-y-1 hover:border-[#c61d70]/30 hover:shadow-md hover:bg-white">
-                    <div className="mb-3 grid h-12 w-12 place-items-center rounded-full bg-[#fff0f7] text-[#c61d70] transition-transform group-hover:scale-110">
-                      <Icon size={24} strokeWidth={1.5} />
-                    </div>
-                    <span className="text-center text-xs font-bold text-[#28242b] md:text-sm">{cat.name}</span>
+                  <Link
+                    key={category.id}
+                    href={`/products?category=${encodeURIComponent(category.slug)}`}
+                    className="fl-home-category-card"
+                  >
+                    <span className="fl-home-category-index">{String(index + 1).padStart(2, '0')}</span>
+                    <span className="fl-home-category-icon"><Icon size={23} strokeWidth={1.65} /></span>
+                    <span className="fl-home-category-title">{category.name}</span>
+                    <span className="fl-home-category-bottom">
+                      <span>{category.productCount.toLocaleString('fa-IR')} محصول</span>
+                      <ArrowLeft size={14} aria-hidden="true" />
+                    </span>
                   </Link>
                 );
               })}
@@ -137,92 +214,60 @@ export default async function Home() {
           </section>
         )}
 
-        <section className="container-custom fl-section">
-          <div className="fl-section-head">
-            <div>
-              <span className="fl-section-kicker">NEW ARRIVALS</span>
-              <h2 className="fl-section-title">تازه‌رسیده‌ها</h2>
-              <p className="fl-section-note">جدیدترین محصولات اضافه شده به فروشگاه</p>
-            </div>
-            <Link href="/products" className="fl-text-link">همه محصولات <ArrowUpLeft size={16} /></Link>
-          </div>
+        {discountedProducts.length > 0 && (
+          <HomeProductShelf
+            eyebrow="SPECIAL OFFERS"
+            title="پیشنهادهای تخفیف‌دار"
+            description="محصولاتی که قیمت قبلی و قیمت فروش آن‌ها در فروشگاه ثبت شده است."
+            products={discountedProducts.map(toShelfProduct)}
+            variant="sale"
+            actionLabel="مشاهده همه تخفیف‌ها"
+            actionHref="/products"
+          />
+        )}
 
-          {newProducts.length > 0 ? (
-            <div className="fl-product-grid">
-              {newProducts.map((product) => {
-                const hasPrice = product.price > 0;
-                const isAvailable = product.stock > 0 && hasPrice;
-                const productImage = getPublicProductImage(product.mainImage);
-                const productDescription = getPublicProductDescription(product.description);
-                return (
-                  <Link href={`/products/${product.slug}`} key={product.id} className="fl-product-card group">
-                    <div className="fl-product-media bg-white/50 backdrop-blur-sm relative overflow-hidden">
-                      <SafeImage src={productImage} alt={`تصویر ${product.name}`} fill sizes="(max-width: 680px) 46vw, (max-width: 1024px) 30vw, 280px" />
-                      {!isAvailable && (
-                        <span className="absolute right-3 top-3 rounded-lg border border-white/70 bg-white/90 px-2.5 py-1 text-[9px] font-bold text-[#8a6478] z-10">{hasPrice ? 'ناموجود' : 'قیمت ثبت نشده'}</span>
-                      )}
-                    </div>
-                    <div className="fl-product-info">
-                      <h3 className="fl-product-name">{product.name}</h3>
-                      <p className="fl-product-desc">{productDescription || 'مشاهده مشخصات و اطلاعات ثبت‌شده'}</p>
-                      <div className="fl-product-bottom">
-                        <span className="fl-product-price">{hasPrice ? formatToman(product.price) : 'قیمت ثبت نشده'}</span>
-                        <span className={`fl-product-status ${isAvailable ? '' : 'is-out'}`}>{isAvailable ? 'موجود' : hasPrice ? 'ناموجود' : 'در انتظار قیمت'}</span>
-                      </div>
-                      <span className="fl-product-view">مشاهده جزئیات <ArrowLeft size={13} /></span>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-          ) : (
+        {bestSellerProducts.length > 0 && (
+          <HomeProductShelf
+            eyebrow="CUSTOMER FAVORITES"
+            title="پرفروش‌های فروشگاه"
+            description="مرتب‌شده بر اساس تعداد اقلام ثبت‌شده در سفارش‌های پرداخت‌شده و در حال انجام."
+            products={bestSellerProducts.map(toShelfProduct)}
+            variant="bestseller"
+            actionLabel="مشاهده همه محصولات"
+          />
+        )}
+
+        {newProducts.length > 0 ? (
+          <HomeProductShelf
+            eyebrow="NEW ARRIVALS"
+            title="تازه‌رسیده‌ها"
+            description="جدیدترین محصولات منتشرشده در فاطمه بیوتی لند."
+            products={newProducts.map(toShelfProduct)}
+            variant="new"
+            actionLabel="مشاهده همه محصولات"
+          />
+        ) : (
+          <section className="container-custom fl-section">
             <div className="fl-empty-state">
-              <div className="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-2xl bg-[#fff0f7] text-[#c61d70]"><PackageCheck size={22} /></div>
-              <h3 className="text-sm font-bold text-[#28242b]">محصولی برای نمایش ثبت نشده است</h3>
-              <p className="mt-2 text-xs text-[#77717b]">پس از انتشار محصولات از پنل مدیریت، آن‌ها در این بخش نمایش داده می‌شوند.</p>
+              <div className="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-2xl bg-[#fff0f7] text-[#c61d70]">
+                <PackageCheck size={22} />
+              </div>
+              <h2 className="text-sm font-bold text-[#28242b]">محصولی برای نمایش ثبت نشده است</h2>
+              <p className="mt-2 text-xs text-[#77717b]">پس از انتشار محصولات قیمت‌گذاری‌شده از پنل مدیریت، آن‌ها در این بخش نمایش داده می‌شوند.</p>
             </div>
-          )}
-        </section>
+          </section>
+        )}
 
         {featuredProducts.length > 0 && (
-          <section className="container-custom fl-section pt-0">
-            <div className="rounded-3xl border border-[#f0d8e5] bg-gradient-to-br from-[#fff8fc]/80 to-[#fff]/80 backdrop-blur-md p-6 md:p-10 relative overflow-hidden shadow-sm">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-[#c61d70]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
-              <div className="relative z-10">
-                <div className="fl-section-head mb-6">
-                  <div>
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#fff0f7] px-3 py-1 text-[10px] font-bold text-[#c61d70] mb-2"><Sparkles size={12}/> انتخاب سردبیر</span>
-                    <h2 className="fl-section-title">پیشنهاد ویژه فاطمه بیوتی لند</h2>
-                  </div>
-                </div>
-                <div className="fl-product-grid">
-                  {featuredProducts.map((product) => {
-                    const hasPrice = product.price > 0;
-                    const isAvailable = product.stock > 0 && hasPrice;
-                    const productImage = getPublicProductImage(product.mainImage);
-                    return (
-                      <Link href={`/products/${product.slug}`} key={product.id} className="fl-product-card group">
-                        <div className="fl-product-media !border-[#f2d7e5] bg-white/60 relative overflow-hidden">
-                          <SafeImage src={productImage} alt={`تصویر ${product.name}`} fill sizes="(max-width: 680px) 46vw, (max-width: 1024px) 30vw, 280px" />
-                        </div>
-                        <div className="fl-product-info">
-                          <h3 className="fl-product-name">{product.name}</h3>
-                          <div className="fl-product-bottom mt-2">
-                            <span className="fl-product-price text-[#c61d70]">{hasPrice ? formatToman(product.price) : 'قیمت ثبت نشده'}</span>
-                            <span className={`fl-product-status ${isAvailable ? '' : 'is-out'}`}>{isAvailable ? 'موجود' : hasPrice ? 'ناموجود' : 'در انتظار قیمت'}</span>
-                          </div>
-                          <span className="fl-product-view mt-3">مشاهده محصول <ArrowLeft size={13} /></span>
-                        </div>
-                      </Link>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
-
-        <section className="container-custom pb-10">
+          <HomeProductShelf
+            eyebrow="STORE EDIT"
+            title="انتخاب فاطمه بیوتی لند"
+            description="محصولاتی که در پنل مدیریت به‌عنوان پیشنهاد منتخب مشخص شده‌اند."
+            products={featuredProducts.map(toShelfProduct)}
+            variant="featured"
+            actionLabel="مشاهده محصولات منتخب"
+          />
+        )}        <section className="container-custom pb-10">
           <div className="fl-editorial-panel bg-white/60 backdrop-blur-md">
             <div className="fl-editorial-visual" aria-hidden="true" />
             <div className="fl-editorial-copy">

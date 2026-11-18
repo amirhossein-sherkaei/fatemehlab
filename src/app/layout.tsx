@@ -4,6 +4,7 @@ import { Vazirmatn } from "next/font/google";
 import { Toaster } from "sonner";
 import BottomNav from "@/components/storefront/BottomNav";
 import CartDrawer from "@/components/storefront/CartDrawer";
+import QuickViewModal from "@/components/storefront/QuickViewModal";
 import AuroraBackground from "@/components/storefront/AuroraBackground";
 import PwaInstallPrompt from "@/components/storefront/PwaInstallPrompt";
 import FloatingSupportButton from "@/components/storefront/FloatingSupportButton";
@@ -134,6 +135,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <AuroraBackground />
         <WebVitals />
         <CartDrawer />
+        <QuickViewModal />
         <FloatingSupportButton />
         <PwaInstallPrompt />
         {children}
