@@ -64,7 +64,7 @@ export default async function Home() {
     })
     .slice(0, 8);
 
-  const dbCategories = await db.select().from(categories).orderBy(desc(categories.createdAt)).limit(8);
+  const dbCategories = await db.select().from(categories).orderBy(desc(categories.createdAt)).limit(24);
   const categoryCounts = new Map<string, number>();
   for (const product of dbProducts) {
     if (product.categoryId) {
@@ -73,7 +73,8 @@ export default async function Home() {
   }
   const categoriesWithProducts = dbCategories
     .map((category) => ({ ...category, productCount: categoryCounts.get(category.id) ?? 0 }))
-    .filter((category) => category.productCount > 0);
+    .filter((category) => category.productCount > 0)
+    .slice(0, 6);
 
   // رتبه‌بندی پرفروش‌ها فقط بر اساس سفارش‌هایی که پرداختشان تأیید شده است.
   let bestSellerRows: Array<{ productId: string; totalSold: number }> = [];
@@ -128,6 +129,20 @@ export default async function Home() {
     : (homeBanners as ManagedBanner[]);
   const homeBannerInterval = typeof managedBannerConfig?.intervalMs === 'number' ? managedBannerConfig.intervalMs : 5600;
   const homeBannerAutoPlay = managedBannerConfig?.autoPlay !== false;
+  // هر محصول فقط در یک ویترین صفحه اصلی نمایش داده شود.
+  // اولویت نمایش: تخفیف‌دار، پرفروش، تازه‌رسیده و سپس منتخب فروشگاه.
+  const usedHomepageProductIds = new Set<string>();
+  const takeUniqueHomepageProducts = (products: typeof dbProducts) => {
+    const selected = products
+      .filter((product) => !usedHomepageProductIds.has(product.id))
+      .slice(0, 8);
+    for (const product of selected) usedHomepageProductIds.add(product.id);
+    return selected;
+  };
+  const homepageDiscountedProducts = takeUniqueHomepageProducts(discountedProducts);
+  const homepageBestSellerProducts = takeUniqueHomepageProducts(bestSellerProducts);
+  const homepageNewProducts = takeUniqueHomepageProducts(newProducts);
+  const homepageFeaturedProducts = takeUniqueHomepageProducts(featuredProducts);
 
   return (
     <div className="min-h-screen flex flex-col relative">
@@ -219,7 +234,7 @@ export default async function Home() {
             eyebrow="SPECIAL OFFERS"
             title="پیشنهادهای تخفیف‌دار"
             description="محصولاتی که قیمت قبلی و قیمت فروش آن‌ها در فروشگاه ثبت شده است."
-            products={discountedProducts.map(toShelfProduct)}
+            products={homepageDiscountedProducts.map(toShelfProduct)}
             variant="sale"
             actionLabel="مشاهده همه تخفیف‌ها"
             actionHref="/products"
@@ -231,18 +246,18 @@ export default async function Home() {
             eyebrow="CUSTOMER FAVORITES"
             title="پرفروش‌های فروشگاه"
             description="مرتب‌شده بر اساس تعداد اقلام ثبت‌شده در سفارش‌های پرداخت‌شده و در حال انجام."
-            products={bestSellerProducts.map(toShelfProduct)}
+            products={homepageBestSellerProducts.map(toShelfProduct)}
             variant="bestseller"
             actionLabel="مشاهده همه محصولات"
           />
         )}
 
-        {newProducts.length > 0 ? (
+        {homepageNewProducts.length > 0 ? (
           <HomeProductShelf
             eyebrow="NEW ARRIVALS"
             title="تازه‌رسیده‌ها"
             description="جدیدترین محصولات منتشرشده در فاطمه بیوتی لند."
-            products={newProducts.map(toShelfProduct)}
+            products={homepageNewProducts.map(toShelfProduct)}
             variant="new"
             actionLabel="مشاهده همه محصولات"
           />
@@ -258,16 +273,17 @@ export default async function Home() {
           </section>
         )}
 
-        {featuredProducts.length > 0 && (
+        {homepageFeaturedProducts.length > 0 && (
           <HomeProductShelf
             eyebrow="STORE EDIT"
             title="انتخاب فاطمه بیوتی لند"
             description="محصولاتی که در پنل مدیریت به‌عنوان پیشنهاد منتخب مشخص شده‌اند."
-            products={featuredProducts.map(toShelfProduct)}
+            products={homepageFeaturedProducts.map(toShelfProduct)}
             variant="featured"
             actionLabel="مشاهده محصولات منتخب"
           />
-        )}        <section className="container-custom pb-10">
+        )}
+        <section className="container-custom pb-10">
           <div className="fl-editorial-panel bg-white/60 backdrop-blur-md">
             <div className="fl-editorial-visual" aria-hidden="true" />
             <div className="fl-editorial-copy">

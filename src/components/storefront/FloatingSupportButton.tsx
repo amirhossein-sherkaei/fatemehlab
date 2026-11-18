@@ -31,9 +31,9 @@ export default function FloatingSupportButton() {
   if (!isMounted || hidden || loggedIn === null) return null;
 
   return (
-    <div className="fixed bottom-24 right-4 md:bottom-6 md:right-6 z-40">
+    <div className="fbl-support-float fixed bottom-24 right-4 md:bottom-6 md:right-6 z-40">
       {expanded && (
-        <div className="mb-3 w-72 rounded-2xl border border-[#e9e5eb] bg-white/95 backdrop-blur-xl p-4 shadow-2xl animate-in slide-in-from-bottom-4 fade-in duration-300">
+        <div className="fbl-support-popover mb-3 w-72 rounded-2xl border border-[#e9e5eb] bg-white/95 backdrop-blur-xl p-4 shadow-2xl animate-in slide-in-from-bottom-4 fade-in duration-300">
           <div className="flex items-start gap-3 mb-3">
             <div className="shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-[#c61d70] to-[#e84e9e] flex items-center justify-center shadow-md">
               <Headphones size={18} className="text-white" />
@@ -58,7 +58,7 @@ export default function FloatingSupportButton() {
 
       <button
         onClick={() => setExpanded((v) => !v)}
-        className="w-14 h-14 rounded-full bg-gradient-to-br from-[#c61d70] to-[#e84e9e] text-white shadow-2xl shadow-[#c61d70]/40 flex items-center justify-center hover:scale-110 active:scale-95 transition-all animate-glow-pulse"
+        className="fbl-support-trigger w-12 h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-br from-[#c61d70] to-[#e84e9e] text-white shadow-2xl shadow-[#c61d70]/30 flex items-center justify-center hover:scale-105 active:scale-95 transition-all animate-glow-pulse"
         aria-label="پشتیبانی"
       >
         {expanded ? <X size={22} /> : <MessageCircle size={24} />}
