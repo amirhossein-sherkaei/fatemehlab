@@ -105,6 +105,11 @@ export default function HomeBannerCarousel({ slides, interval = 5600, autoPlay =
               className={`fl-banner-slide${isActive ? ' is-active' : ''}`}
               aria-hidden={!isActive}
             >
+              <span
+                className="fl-banner-backdrop"
+                style={{ backgroundImage: `url("${slide.image}")` }}
+                aria-hidden="true"
+              />
               <Link
                 href={slide.href || '/products'}
                 className="fl-banner-slide-link"

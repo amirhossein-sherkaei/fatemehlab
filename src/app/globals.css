@@ -2490,7 +2490,7 @@ html {
 
 .fl-banner-image {
   object-fit: cover !important;
-  object-position: center center !important;
+  object-position: center center;
   user-select: none !important;
   -webkit-user-drag: none !important;
 }
@@ -2649,4 +2649,192 @@ html {
     animation: none !important;
     transition: none !important;
   }
+}
+/* FATEMEH-CAROUSEL-VISIBILITY-FIX-20261118
+   Show every pixel of campaign artwork. A blurred duplicate fills unused space gracefully. */
+.fl-banner-carousel {
+  height: clamp(230px, 27vw, 350px) !important;
+  min-height: 220px !important;
+  max-height: 350px !important;
+  aspect-ratio: auto !important;
+  background: #fff7fb !important;
+  overflow: hidden !important;
+}
+
+.fl-banner-slide {
+  isolation: isolate !important;
+  background: #fff7fb !important;
+}
+
+.fl-banner-backdrop {
+  position: absolute !important;
+  z-index: 0 !important;
+  inset: -22px !important;
+  display: block !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+  filter: blur(22px) saturate(.82) !important;
+  opacity: .25 !important;
+  transform: scale(1.08) !important;
+  pointer-events: none !important;
+}
+
+.fl-banner-backdrop::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background: linear-gradient(90deg, rgba(255,249,252,.32), rgba(255,255,255,.08) 50%, rgba(255,249,252,.32));
+}
+
+.fl-banner-slide-link {
+  position: absolute !important;
+  z-index: 1 !important;
+  inset: 0 !important;
+  display: block !important;
+  background: rgba(255,255,255,.04) !important;
+}
+
+.fl-banner-picture {
+  position: absolute !important;
+  z-index: 1 !important;
+  inset: 0 !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Critical: contain displays the entire uploaded banner instead of cutting off its sides. */
+.fl-banner-image {
+  object-fit: contain !important;
+  padding: 3px 8px !important;
+  user-select: none !important;
+  -webkit-user-drag: none !important;
+}
+
+.fl-banner-arrow {
+  width: 38px !important;
+  height: 38px !important;
+  min-width: 38px !important;
+  min-height: 38px !important;
+  padding: 0 !important;
+}
+
+.fl-banner-arrow svg {
+  width: 17px !important;
+  height: 17px !important;
+}
+
+@media (max-width: 767px) {
+  .fl-banner-section {
+    width: min(100% - 20px, 1280px) !important;
+    padding-top: 8px !important;
+    padding-bottom: 13px !important;
+  }
+
+  .fl-banner-carousel {
+    height: clamp(174px, 51vw, 208px) !important;
+    min-height: 174px !important;
+    max-height: 208px !important;
+    border-radius: 15px !important;
+  }
+
+  .fl-banner-backdrop {
+    inset: -15px !important;
+    filter: blur(17px) saturate(.8) !important;
+    opacity: .20 !important;
+  }
+
+  .fl-banner-image {
+    padding: 2px 4px !important;
+  }
+
+  /* Smaller, quieter arrows keep the product artwork clear. */
+  .fl-banner-arrow {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    min-height: 38px !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .fl-banner-arrow::before {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 27px;
+    height: 27px;
+    border: 1px solid rgba(255,255,255,.82);
+    border-radius: 50%;
+    background: rgba(255,255,255,.78);
+    box-shadow: 0 2px 8px rgba(39,20,33,.09);
+    content: "";
+    transform: translate(-50%, -50%);
+  }
+
+  .fl-banner-arrow svg {
+    width: 13px !important;
+    height: 13px !important;
+  }
+
+  .fl-banner-arrow-prev { right: 6px !important; }
+  .fl-banner-arrow-next { left: 6px !important; }
+
+  /* The dots have small visible marks and compact touch surfaces. */
+  .fl-banner-pagination {
+    bottom: 5px !important;
+    gap: 1px !important;
+    padding: 1px 4px !important;
+    border-color: rgba(255,255,255,.72) !important;
+    background: rgba(255,255,255,.66) !important;
+    box-shadow: 0 1px 6px rgba(39,20,33,.07) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+  }
+
+  .fl-banner-pagination .fl-banner-dot {
+    display: grid !important;
+    width: 23px !important;
+    height: 22px !important;
+    min-width: 23px !important;
+    min-height: 22px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    place-items: center !important;
+    background: transparent !important;
+  }
+
+  .fl-banner-dot-indicator {
+    width: 5px !important;
+    height: 5px !important;
+    min-width: 5px !important;
+    min-height: 5px !important;
+  }
+
+  .fl-banner-dot.is-active .fl-banner-dot-indicator {
+    width: 14px !important;
+    height: 5px !important;
+    min-width: 14px !important;
+    min-height: 5px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .fl-banner-arrow::before {
+    width: 25px;
+    height: 25px;
+  }
+
+  .fl-banner-pagination .fl-banner-dot {
+    width: 20px !important;
+    min-width: 20px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fl-banner-backdrop { filter: none !important; }
 }
