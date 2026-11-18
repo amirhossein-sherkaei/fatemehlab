@@ -13,6 +13,7 @@ type Product = {
   slug: string;
   price: number;
   mainImage: string | null;
+  stock?: number;
 };
 
 export default function FrequentlyBoughtTogether({ currentProduct, fbtProducts }: { currentProduct: Product, fbtProducts: Product[] }) {
@@ -41,6 +42,7 @@ export default function FrequentlyBoughtTogether({ currentProduct, fbtProducts }
       slug: p.slug,
       price: p.price,
       mainImage: p.mainImage,
+      stock: p.stock,
     }));
 
     addBundle(cartItems);

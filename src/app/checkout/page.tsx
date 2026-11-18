@@ -233,7 +233,20 @@ const handleSubmit = async (e: React.FormEvent) => {
     }
   };
 
-  if (!isMounted || checkingAuth) return null;
+  if (!isMounted || checkingAuth) return (
+    <div className="min-h-screen bg-[#fafafc]" dir="rtl" aria-busy="true" aria-live="polite">
+      <Header />
+      <main className="container-custom py-10">
+        <div className="mx-auto max-w-3xl space-y-5">
+          <div className="h-8 w-44 animate-pulse rounded-lg bg-[#eee8ee]" />
+          <div className="grid gap-5 md:grid-cols-[1.2fr_.8fr]">
+            <div className="h-[420px] animate-pulse rounded-3xl border border-[#e9e5eb] bg-white" />
+            <div className="h-[320px] animate-pulse rounded-3xl border border-[#e9e5eb] bg-white" />
+          </div>
+        </div>
+      </main>
+    </div>
+  );
   if (items.length === 0 && !isSubmitting) return null;
 
   return (
@@ -441,7 +454,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                 </span>
               </div>
 
-              <button type="submit" form="checkout-form" disabled={loading} className="w-full min-h-[52px] bg-[#c61d70] text-white text-base font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-[#a9155d] transition-colors disabled:opacity-50 shadow-lg shadow-[#c61d70]/30">
+              <button type="submit" form="checkout-form" disabled={loading || isSubmitting} className="w-full min-h-[52px] bg-[#c61d70] text-white text-base font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-[#a9155d] transition-colors disabled:opacity-50 shadow-lg shadow-[#c61d70]/30">
                 {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ShieldCheck className="w-5 h-5" />}
                 {loading ? 'در حال ثبت...' : 'ثبت نهایی سفارش'}
               </button>
@@ -454,13 +467,13 @@ const handleSubmit = async (e: React.FormEvent) => {
         </div>
       </main>
       
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#e9e5eb] p-4">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-[60] bg-white/95 backdrop-blur-xl border-t border-[#e9e5eb] px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] shadow-[0_-8px_30px_rgba(40,36,43,.06)]">
         <div className="flex items-center justify-between gap-4">
           <div>
             <p className="text-[10px] text-[#77717b] mb-0.5">مبلغ قابل پرداخت</p>
             <p className="text-base font-black text-[#28242b]">{formatToman(totalPayableBeforeShipping)}</p>
           </div>
-          <button type="submit" form="checkout-form" disabled={loading} className="flex-1 max-w-[200px] min-h-[48px] bg-[#c61d70] text-white text-sm font-bold rounded-xl disabled:opacity-50">
+          <button type="submit" form="checkout-form" disabled={loading || isSubmitting} className="flex-1 max-w-[200px] min-h-[48px] bg-[#c61d70] text-white text-sm font-bold rounded-xl disabled:opacity-50">
             {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'ثبت نهایی'}
           </button>
         </div>

@@ -11,6 +11,7 @@ import { getPublicProductDescription, getPublicProductImage } from '@/lib/produc
 import Header from '@/components/storefront/Header';
 import Footer from '@/components/storefront/Footer';
 import AddToCartButton from './add-to-cart';
+import ProductGallery from '@/components/product/ProductGallery';
 import StockNotifyButton from '@/components/product/StockNotifyButton';
 import WishlistButton from '@/components/storefront/WishlistButton';
 import ProductReviews from '@/components/storefront/ProductReviews';
@@ -59,7 +60,11 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   if (!product || product.status !== 'published') notFound();
 
   const isPriced = product.price > 0;
-  const isAvailable = product.stock > 0 && isPriced; 
+  const isAvailable = product.stock > 0 && isPriced;
+  const hasDiscount = isPriced && typeof product.compareAtPrice === 'number' && product.compareAtPrice > product.price;
+  const discountPercent = hasDiscount && product.compareAtPrice
+    ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
+    : 0;
   const publicDescription = getPublicProductDescription(product.description);
   const publicMainImage = getPublicProductImage(product.mainImage);
   const publicGallery = (product.gallery || []).map((img) => getPublicProductImage(img)).filter((img): img is string => Boolean(img));
@@ -141,26 +146,14 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           </nav>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
-            
-            {/* گالری تصاویر */}
-            <div className="space-y-3">
-              <div className="relative aspect-square md:aspect-[4/5] rounded-3xl overflow-hidden bg-white border border-[#e9e5eb] shadow-sm flex items-center justify-center p-6 md:p-10">
-                {publicMainImage ? (
-                  <Image src={publicMainImage} alt={product.name} fill className="object-contain" priority />
-                ) : (
-                  <Package size={80} className="text-[#c61d70]/20" />
-                )}
-              </div>
-              {publicGallery.length > 0 && (
-                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                  {publicGallery.map((img, i) => (
-                    <div key={i} className="relative w-16 h-16 md:w-20 md:h-20 flex-shrink-0 rounded-xl overflow-hidden border border-[#e9e5eb] bg-white">
-                       <Image src={img} alt={`${product.name} - ${i}`} fill className="object-contain p-1.5" />
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            {/* گالری تعاملی محصول */}
+            <ProductGallery
+              key={product.id}
+              mainImage={publicMainImage}
+              gallery={publicGallery}
+              name={product.name}
+            />
+
 
             {/* اطلاعات و خرید */}
             <div className="flex flex-col">
@@ -178,23 +171,40 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
               {publicDescription && <p className="text-[#77717b] text-sm leading-loose mb-6">{publicDescription}</p>}
 
-              <div className="bg-white rounded-2xl border border-[#e9e5eb] p-5 md:p-6 mb-6 shadow-sm">
-                <div className="flex items-end justify-between mb-4">
+              <div className="bg-white rounded-2xl border border-[#f0dce7] p-5 md:p-6 mb-6 shadow-[0_12px_34px_rgba(67,35,57,.06)]">
+                <div className="flex flex-wrap items-start justify-between gap-3 mb-5">
                   <div>
-                    <span className="block text-xs text-[#918a95] mb-1">قیمت</span>
-                    <span className="text-2xl md:text-3xl font-black text-[#28242b]">
-                      {isPriced ? formatToman(product.price) : 'به زودی'}
-                    </span>
+                    <span className="block text-xs text-[#918a95] mb-2">قیمت نهایی محصول</span>
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                      <span className="text-2xl md:text-3xl font-black text-[#28242b]">
+                        {isPriced ? formatToman(product.price) : 'به زودی'}
+                      </span>
+                      {hasDiscount && product.compareAtPrice && (
+                        <span className="text-sm font-semibold text-[#a49ba5] line-through decoration-rose-300">
+                          {formatToman(product.compareAtPrice)}
+                        </span>
+                      )}
+                    </div>
                   </div>
+                  {hasDiscount && (
+                    <span className="inline-flex items-center rounded-full bg-[#fff0f7] px-3 py-1.5 text-xs font-black text-[#c61d70]">
+                      {discountPercent.toLocaleString('fa-IR')}٪ تخفیف
+                    </span>
+                  )}
                 </div>
                 <div className="hidden md:flex gap-3 items-stretch">
                   <div className="flex-1">
-                    <AddToCartButton product={product} />
+                    {isAvailable ? <AddToCartButton product={product} /> : <StockNotifyButton productId={product.id} />}
                   </div>
                   <WishlistButton productId={product.id} variant="button" className="min-w-[140px]" />
                   <ShareButton title={product.name} />
                 </div>
+                <div className="mt-4 grid grid-cols-2 gap-2 border-t border-[#f1e9ef] pt-4 text-[10px] font-medium text-[#77717b]">
+                  <span className="flex items-center gap-1.5"><CheckCircle2 size={13} className="text-emerald-500" /> وضعیت موجودی محصول</span>
+                  <span className="flex items-center gap-1.5"><ShieldAlert size={13} className="text-[#c61d70]" /> پرداخت از درگاه امن</span>
+                </div>
               </div>
+
 
               {/* هشدارها و نوع پوست */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -285,8 +295,11 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-[#e9e5eb] p-4 z-50 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] pb-safe">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <span className="block text-[10px] text-[#918a95]">قیمت</span>
+              <span className="block text-[10px] text-[#918a95]">قیمت نهایی</span>
               <span className="text-base font-black text-[#28242b]">{formatToman(product.price)}</span>
+              {hasDiscount && product.compareAtPrice && (
+                <span className="block text-[10px] text-[#a49ba5] line-through">{formatToman(product.compareAtPrice)}</span>
+              )}
             </div>
             <div className="flex-1 max-w-[220px]">
               {isAvailable ? (

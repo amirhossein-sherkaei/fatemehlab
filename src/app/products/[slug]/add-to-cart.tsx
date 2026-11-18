@@ -30,15 +30,14 @@ export default function AddToCartButton({ product }: { product: CartProduct }) {
     setLoading(true);
     
     setTimeout(() => {
-      for (let i = 0; i < quantity; i++) {
-        addItem({ 
-          id: product.id, 
-          name: product.name, 
-          slug: product.slug, 
-          price: product.price, 
-          mainImage: product.mainImage
-        });
-      }
+      addItem({
+        id: product.id,
+        name: product.name,
+        slug: product.slug,
+        price: product.price,
+        mainImage: product.mainImage,
+        stock: product.stock,
+      }, quantity);
       
       setLoading(false);
       setAdded(true);

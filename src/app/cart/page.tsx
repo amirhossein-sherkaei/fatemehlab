@@ -23,12 +23,14 @@ export default function CartPage() {
   );
 
   const totalPrice = getTotalPrice();
+  const totalUnits = items.reduce((sum, item) => sum + item.quantity, 0);
+  const hasUnavailableItems = items.some((item) => typeof item.stock === 'number' && (item.stock <= 0 || item.quantity > item.stock));
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
       <main className="flex-1 container-custom py-6 md:py-10 pb-24 md:pb-10">
-        <h1 className="text-2xl md:text-3xl font-extrabold text-ink mb-6">سبد خرید شما</h1>
+        <h1 className="text-2xl md:text-3xl font-extrabold text-ink mb-6">سبد خرید شما <span className="mr-2 text-sm font-semibold text-[#918a95]">({totalUnits.toLocaleString('fa-IR')} کالا)</span></h1>
 
         {items.length === 0 ? (
           <div className="glass-panel p-10 md:p-16 text-center flex flex-col items-center justify-center max-w-md mx-auto">
@@ -46,10 +48,10 @@ export default function CartPage() {
             {/* لیست محصولات */}
             <div className="lg:col-span-2 space-y-3">
               {items.map((item) => (
-                <div key={item.id} className="glass-panel p-4 flex gap-3 items-start">
+                <div key={item.id} className="glass-panel p-3.5 md:p-4 flex gap-3 items-center rounded-2xl">
                   <Link href={`/products/${item.slug}`} className="shrink-0 w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden bg-oat relative">
                     {item.mainImage ? (
-                      <Image src={item.mainImage} alt={item.name} fill sizes="96px" className="object-cover" />
+                      <Image src={item.mainImage} alt={item.name} fill sizes="96px" className="object-contain p-2" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
                         <Sparkles className="w-6 h-6 text-sage/30" />
@@ -67,10 +69,13 @@ export default function CartPage() {
                       </button>
                     </div>
                     <p className="text-[11px] text-muted mt-1">{formatToman(item.price)}</p>
+                    {typeof item.stock === 'number' && (item.stock <= 0 || item.quantity > item.stock) && (
+                      <p className="mt-1 text-[10px] font-bold text-rose-600">موجودی این محصول تغییر کرده؛ تعداد را اصلاح یا محصول را حذف کنید.</p>
+                    )}
                     
                     <div className="flex items-center justify-between mt-3">
                       <div className="flex items-center bg-white border border-line rounded-lg overflow-hidden">
-                        <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="p-2 hover:bg-chalk text-ink" aria-label="افزایش تعداد">
+                        <button onClick={() => updateQuantity(item.id, item.quantity + 1)} disabled={typeof item.stock === 'number' && item.quantity >= item.stock} className="p-2 hover:bg-chalk text-ink disabled:opacity-30 disabled:cursor-not-allowed" aria-label="افزایش تعداد">
                           <Plus size={14} />
                         </button>
                         <span className="w-8 text-center text-sm font-bold">{item.quantity.toLocaleString('fa-IR')}</span>
@@ -107,9 +112,15 @@ export default function CartPage() {
                   <span>مبلغ قابل پرداخت</span>
                   <span>{formatToman(totalPrice)}</span>
                 </div>
-                <Link href="/checkout" className="btn-primary w-full justify-center">
-                  ادامه و تسویه حساب <ArrowRight size={16} />
-                </Link>
+                {hasUnavailableItems ? (
+                  <div role="alert" className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-center text-xs font-bold leading-7 text-rose-700">
+                    برای ادامه خرید، ابتدا تعداد کالاهای ناموجود یا بیش از موجودی را اصلاح کنید.
+                  </div>
+                ) : (
+                  <Link href="/checkout" className="btn-primary w-full justify-center">
+                    ادامه و تسویه حساب <ArrowRight size={16} />
+                  </Link>
+                )}
                 <div className="mt-4 flex items-center justify-center gap-2 text-xs text-muted">
                   <ShieldCheck size={14} className="text-sage" /> پرداخت امن
                 </div>

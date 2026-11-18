@@ -17,6 +17,7 @@ export default function QuickViewButton({ product }: { product: any }) {
           slug: product.slug,
           price: product.price,
           mainImage: product.mainImage,
+          stock: product.stock,
         });
       }}
       className="w-9 h-9 flex items-center justify-center bg-white/90 backdrop-blur rounded-full text-[#77717b] hover:text-[#c61d70] hover:scale-110 shadow-md border border-[#e9e5eb] transition-all"

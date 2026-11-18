@@ -57,7 +57,7 @@ export default function QuickViewModal() {
           </div>
 
           <div className="space-y-3 mt-auto">
-            <button onClick={handleAddToCart} disabled={quickViewProduct.price <= 0} className="w-full h-12 bg-[#c61d70] text-white text-sm font-bold rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-[#c61d70]/20 hover:bg-[#a9155d] transition-all disabled:opacity-50">
+            <button onClick={handleAddToCart} disabled={quickViewProduct.price <= 0 || quickViewProduct.stock === 0} className="w-full h-12 bg-[#c61d70] text-white text-sm font-bold rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-[#c61d70]/20 hover:bg-[#a9155d] transition-all disabled:opacity-50">
               <ShoppingBag size={18} /> افزودن به سبد خرید
             </button>
             <Link href={`/products/${quickViewProduct.slug}`} onClick={closeQuickView} className="w-full h-12 bg-white border border-[#e9e5eb] text-[#28242b] text-sm font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-[#f8f7fa] transition-all">

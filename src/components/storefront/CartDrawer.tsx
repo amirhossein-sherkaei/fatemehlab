@@ -79,7 +79,7 @@ export default function CartDrawer() {
                   
                   <div className="flex items-center justify-between mt-2">
                     <div className="flex items-center bg-[#fafafc] border border-[#e9e5eb] rounded-lg overflow-hidden">
-                      <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="p-1.5 hover:bg-white hover:text-[#c61d70] text-[#77717b] transition-colors">
+                      <button onClick={() => updateQuantity(item.id, item.quantity + 1)} disabled={typeof item.stock === 'number' && item.quantity >= item.stock} className="p-1.5 hover:bg-white hover:text-[#c61d70] text-[#77717b] transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
                         <Plus size={14} />
                       </button>
                       <span className="w-8 text-center text-xs font-black text-[#28242b]">{item.quantity.toLocaleString('fa-IR')}</span>

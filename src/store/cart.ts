@@ -8,6 +8,7 @@ export interface CartItem {
   price: number;
   mainImage: string | null;
   quantity: number;
+  stock?: number;
 }
 
 interface CartStore {
@@ -16,7 +17,7 @@ interface CartStore {
   recentlyViewed: Omit<CartItem, 'quantity'>[];
   quickViewProduct: Omit<CartItem, 'quantity'> | null;
   
-  addItem: (item: Omit<CartItem, 'quantity'>) => void;
+  addItem: (item: Omit<CartItem, 'quantity'>, quantity?: number) => void;
   addBundle: (items: Omit<CartItem, 'quantity'>[]) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
@@ -40,29 +41,31 @@ export const useCartStore = create<CartStore>()(
       recentlyViewed: [],
       quickViewProduct: null,
 
-      addItem: (item) => {
+      addItem: (item, requestedQuantity = 1) => {
         const currentItems = get().items;
         const existingItem = currentItems.find((i) => i.id === item.id);
+        const safeRequested = Math.max(1, Math.floor(Number.isFinite(requestedQuantity) ? requestedQuantity : 1));
+        const stockLimit = typeof item.stock === 'number' ? item.stock : Number.POSITIVE_INFINITY;
+        if (stockLimit <= 0) return;
+        const currentQuantity = existingItem?.quantity ?? 0;
+        const nextQuantity = Math.min(stockLimit, currentQuantity + safeRequested);
+
         if (existingItem) {
-          set({
-            items: currentItems.map((i) =>
-              i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
-            ),
-          });
+          set({ items: currentItems.map((i) => i.id === item.id ? { ...i, ...item, quantity: nextQuantity } : i) });
         } else {
-          set({ items: [...currentItems, { ...item, quantity: 1 }] });
+          set({ items: [...currentItems, { ...item, quantity: Math.min(stockLimit, safeRequested) }] });
         }
       },
 
       addBundle: (itemsToAdd) => {
         const currentItems = [...get().items];
         itemsToAdd.forEach(item => {
+          const stockLimit = typeof item.stock === 'number' ? item.stock : Number.POSITIVE_INFINITY;
+          if (stockLimit <= 0) return;
           const existingIndex = currentItems.findIndex(i => i.id === item.id);
           if (existingIndex > -1) {
-            currentItems[existingIndex] = { 
-              ...currentItems[existingIndex], 
-              quantity: currentItems[existingIndex].quantity + 1 
-            };
+            const nextQuantity = Math.min(stockLimit, currentItems[existingIndex].quantity + 1);
+            currentItems[existingIndex] = { ...currentItems[existingIndex], ...item, quantity: nextQuantity };
           } else {
             currentItems.push({ ...item, quantity: 1 });
           }
@@ -73,10 +76,15 @@ export const useCartStore = create<CartStore>()(
       removeItem: (id) => set({ items: get().items.filter((i) => i.id !== id) }),
       
       updateQuantity: (id, quantity) => {
-        if (quantity < 1) return;
-        set({
-          items: get().items.map((i) => (i.id === id ? { ...i, quantity } : i)),
-        });
+        if (!Number.isFinite(quantity) || quantity < 1) return;
+        const currentItem = get().items.find((item) => item.id === id);
+        if (!currentItem) return;
+        const requested = Math.floor(quantity);
+        if (typeof currentItem.stock === 'number' && currentItem.stock <= 0 && requested >= currentItem.quantity) return;
+        const safeQuantity = typeof currentItem.stock === 'number' && currentItem.stock > 0
+          ? Math.min(requested, currentItem.stock)
+          : requested;
+        set({ items: get().items.map((item) => item.id === id ? { ...item, quantity: safeQuantity } : item) });
       },
       
       clearCart: () => set({ items: [] }),
