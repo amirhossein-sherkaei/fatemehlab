@@ -92,7 +92,7 @@ export default function StockNotifyClient() {
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-[#f8f7fa] border border-[#e9e5eb] flex items-center justify-center shrink-0 overflow-hidden relative">
                           {n.productImage ? (
-                            <Image src={n.productImage} alt={n.productName} fill className="object-contain p-1" />
+                            <Image src={n.productImage} alt={n.productName} fill sizes="64px" className="object-contain p-1" />
                           ) : (
                             <Package size={16} className="text-[#918a95]" />
                           )}

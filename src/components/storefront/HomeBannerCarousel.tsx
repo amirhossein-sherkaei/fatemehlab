@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import { getImageProps } from 'next/image';
 import Link from 'next/link';
 import { useEffect, useRef, useState, type TouchEvent, type MouseEvent } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -99,17 +99,32 @@ export default function HomeBannerCarousel({ slides, interval = 5600, autoPlay =
       >
         {slides.map((slide, index) => {
           const isActive = index === activeIndex;
+          const altText = slide.alt || 'پیشنهاد ویژه فاطمه بیوتی لند';
+          const desktopImage = getImageProps({
+            src: slide.image,
+            alt: altText,
+            width: 1672,
+            height: 941,
+            quality: 75,
+            sizes: '(max-width: 767px) 100vw, (max-width: 1280px) 94vw, 1280px',
+          });
+          const mobileImage = slide.mobileImage
+            ? getImageProps({
+                src: slide.mobileImage,
+                alt: altText,
+                width: 750,
+                height: 1000,
+                quality: 75,
+                sizes: '100vw',
+              })
+            : null;
           return (
             <div
               key={slide.id}
               className={`fl-banner-slide${isActive ? ' is-active' : ''}`}
               aria-hidden={!isActive}
             >
-              <span
-                className="fl-banner-backdrop"
-                style={{ backgroundImage: `url("${slide.image}")` }}
-                aria-hidden="true"
-              />
+              <span className="fl-banner-backdrop" aria-hidden="true" />
               <Link
                 href={slide.href || '/products'}
                 className="fl-banner-slide-link"
@@ -118,17 +133,20 @@ export default function HomeBannerCarousel({ slides, interval = 5600, autoPlay =
                 draggable={false}
               >
                 <picture className="fl-banner-picture">
-                  {slide.mobileImage && (
-                    <source media="(max-width: 767px)" srcSet={slide.mobileImage} />
+                  {mobileImage && (
+                    <source
+                      media="(max-width: 767px)"
+                      srcSet={mobileImage.props.srcSet}
+                      sizes={mobileImage.props.sizes}
+                    />
                   )}
-                  <Image
-                    src={slide.image}
-                    alt={slide.alt || 'پیشنهاد ویژه فاطمه بیوتی لند'}
-                    fill
-                    priority={index === 0}
-                    sizes="(max-width: 767px) 100vw, (max-width: 1280px) 94vw, 1280px"
+                  <img
+                    {...desktopImage.props}
                     className="fl-banner-image"
                     style={{ objectPosition: slide.objectPosition || 'center center' }}
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                    fetchPriority={index === 0 ? 'high' : 'auto'}
+                    decoding="async"
                     draggable={false}
                   />
                 </picture>

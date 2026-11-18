@@ -273,7 +273,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                   <Link key={p.id} href={`/products/${p.slug}`} className="group bg-white rounded-xl border border-[#e9e5eb] overflow-hidden hover:shadow-lg transition-all">
                     <div className="relative aspect-square bg-[#fafafc]">
                       {getPublicProductImage(p.mainImage) ? (
-                        <Image src={getPublicProductImage(p.mainImage)!} alt={p.name} fill className="object-contain p-3" />
+                        <Image src={getPublicProductImage(p.mainImage)!} alt={p.name} fill sizes="(max-width: 767px) 45vw, (max-width: 1024px) 23vw, 280px" className="object-contain p-3" />
                       ) : (
                         <Package size={32} className="absolute inset-0 m-auto text-[#c61d70]/20" />
                       )}

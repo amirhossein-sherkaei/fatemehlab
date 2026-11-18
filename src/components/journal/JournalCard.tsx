@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft, Clock } from 'lucide-react';
 
@@ -37,7 +38,7 @@ export function FeaturedCard({ article }: { article: Article }) {
       <div className="journal-featured-visual">
         {article.coverImage ? (
           <div className="relative w-full h-full min-h-[300px] md:min-h-[480px] rounded-[24px] overflow-hidden">
-            <img src={article.coverImage} alt={article.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+            <Image src={article.coverImage} alt={article.title} fill sizes="(max-width: 767px) 100vw, (max-width: 1200px) 50vw, 720px" className="object-cover transition-transform duration-700 group-hover:scale-105" />
           </div>
         ) : (
           <div className={`journal-featured-art bg-gradient-to-br ${gradient}`}>
@@ -69,7 +70,7 @@ export function EditorsPickCard({ article }: { article: Article }) {
     <Link href={`/journal/${article.slug}`} className="journal-pick group" aria-label={`مطالعه مقاله ${article.title}`}>
       <div className="journal-pick-art relative overflow-hidden">
         {article.coverImage ? (
-          <img src={article.coverImage} alt={article.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+          <Image src={article.coverImage} alt={article.title} fill sizes="(max-width: 767px) 90vw, (max-width: 1200px) 40vw, 360px" className="object-cover transition-transform duration-500 group-hover:scale-105" />
         ) : (
           <div className={`w-full h-full bg-gradient-to-br ${gradient} flex items-center justify-center`}>
             <span className="journal-pick-icon">{icon}</span>
@@ -98,7 +99,7 @@ export function StandardCard({ article }: { article: Article }) {
     <Link href={`/journal/${article.slug}`} className="journal-card group" aria-label={`مطالعه مقاله ${article.title}`}>
       <div className="journal-card-art relative overflow-hidden">
         {article.coverImage ? (
-          <img src={article.coverImage} alt={article.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+          <Image src={article.coverImage} alt={article.title} fill sizes="(max-width: 767px) 90vw, (max-width: 1200px) 40vw, 360px" className="object-cover transition-transform duration-500 group-hover:scale-105" />
         ) : (
           <div className={`w-full h-full bg-gradient-to-br ${gradient} flex items-center justify-center`}>
             <span className="journal-card-icon">{icon}</span>

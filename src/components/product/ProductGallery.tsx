@@ -85,7 +85,7 @@ export default function ProductGallery({ mainImage, gallery, name }: ProductGall
             src={activeImage}
             alt={`${name}، تصویر ${activeIndex + 1}`}
             fill
-            unoptimized={activeImage.startsWith('http')}
+
             priority={activeIndex === 0}
             sizes="(max-width: 900px) 100vw, 50vw"
             className="object-contain p-5 md:p-8 transition-transform duration-500 group-hover:scale-[1.025]"
@@ -124,7 +124,7 @@ export default function ProductGallery({ mainImage, gallery, name }: ProductGall
                 aria-label={`نمایش تصویر شماره ${index + 1}`}
                 aria-pressed={activeIndex === index}
               >
-                <Image src={image} alt="" fill unoptimized={image.startsWith('http')} sizes="70px" className="object-contain p-1" />
+                <Image src={image} alt="" fill sizes="70px" className="object-contain p-1" />
               </button>
             ))}
           </div>
@@ -143,7 +143,7 @@ export default function ProductGallery({ mainImage, gallery, name }: ProductGall
             </>
           )}
           <div className="relative h-[82dvh] w-full max-w-5xl" onClick={(event) => event.stopPropagation()}>
-            <Image src={activeImage} alt={name} fill sizes="100vw" priority className="object-contain" unoptimized={activeImage.startsWith('http')} />
+            <Image src={activeImage} alt={name} fill sizes="100vw" priority className="object-contain"  />
           </div>
           {allImages.length > 1 && <span className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold text-white" dir="ltr">{activeIndex + 1} / {allImages.length}</span>}
         </div>

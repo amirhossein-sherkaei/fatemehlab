@@ -28,10 +28,18 @@ export default function FloatingSupportButton() {
     pathname === '/login' ||
     pathname === '/register';
 
+  // Keep the support bubble above mobile navigation when that navigation is visible.
+  const bottomNavHidden =
+    pathname.startsWith('/admin') ||
+    pathname === '/cart' ||
+    pathname === '/checkout' ||
+    pathname.startsWith('/account') ||
+    (pathname.startsWith('/products/') && pathname !== '/products');
+
   if (!isMounted || hidden || loggedIn === null) return null;
 
   return (
-    <div className="fbl-support-float fixed bottom-24 right-4 md:bottom-6 md:right-6 z-40">
+    <div className={`fbl-support-float fixed right-4 z-40 ${bottomNavHidden ? 'is-viewport-bottom' : 'is-above-bottom-nav'}`}>
       {expanded && (
         <div className="fbl-support-popover mb-3 w-72 rounded-2xl border border-[#e9e5eb] bg-white/95 backdrop-blur-xl p-4 shadow-2xl animate-in slide-in-from-bottom-4 fade-in duration-300">
           <div className="flex items-start gap-3 mb-3">

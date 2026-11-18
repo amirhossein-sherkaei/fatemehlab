@@ -219,7 +219,7 @@ export default function ProductReviews({ productId }: { productId: string }) {
               <div className="flex flex-wrap gap-2 mb-3">
                 {uploadedImages.map((url, i) => (
                   <div key={i} className="relative w-20 h-20 rounded-xl overflow-hidden border border-[#e9e5eb] bg-white">
-                    <Image src={url} alt={`عکس ${i}`} fill className="object-cover" />
+                    <Image src={url} alt={`عکس ${i}`} fill sizes="80px" className="object-cover" />
                     <button type="button" onClick={() => removeImage(i)} className="absolute top-1 right-1 bg-rose-500 text-white p-1 rounded-md hover:bg-rose-600">
                       <X size={10} />
                     </button>
@@ -312,7 +312,7 @@ export default function ProductReviews({ productId }: { productId: string }) {
                     <div className="flex gap-2 mb-4 flex-wrap">
                       {review.images.map((img: string, i: number) => (
                         <button key={i} onClick={() => setLightboxImage(img)} className="relative w-20 h-20 rounded-xl overflow-hidden border border-[#e9e5eb] hover:scale-105 transition-transform">
-                          <Image src={img} alt={`عکس نظر ${i}`} fill className="object-cover" />
+                          <Image src={img} alt={`عکس نظر ${i}`} fill sizes="80px" className="object-cover" />
                         </button>
                       ))}
                     </div>
@@ -358,7 +358,7 @@ export default function ProductReviews({ productId }: { productId: string }) {
             <X size={24} />
           </button>
           <div className="relative w-full max-w-2xl aspect-square" onClick={(e) => e.stopPropagation()}>
-            <Image src={lightboxImage} alt="عکس نظر" fill className="object-contain" />
+            <Image src={lightboxImage} alt="عکس نظر" fill sizes="(max-width: 767px) 100vw, 672px" className="object-contain" />
           </div>
         </div>
       )}

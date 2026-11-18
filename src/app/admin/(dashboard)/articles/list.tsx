@@ -3,6 +3,7 @@ import { formatPersianDate, formatPersianDateTime } from '@/lib/format';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Trash2, Edit, Plus, Search, BookOpen, Sparkles, Eye } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -115,7 +116,7 @@ export default function ArticlesClient({ initialArticles }: { initialArticles: a
               {/* کاور */}
               <div className="aspect-video relative bg-gradient-to-br from-pink-50 to-purple-50">
                 {article.coverImage ? (
-                  <img src={article.coverImage} alt={article.title} className="w-full h-full object-cover" />
+                  <Image src={article.coverImage} alt={article.title} fill sizes="(max-width: 767px) 100vw, (max-width: 1200px) 50vw, 360px" className="object-cover" />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center">
                     <BookOpen size={32} className="text-sage/30" />

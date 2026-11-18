@@ -92,7 +92,7 @@ export default function AdminReviewsPage() {
                 <div className="md:w-48 shrink-0 bg-[#fafafc] p-4 flex flex-row md:flex-col items-center gap-3 border-b md:border-b-0 md:border-l border-[#e9e5eb]">
                   <div className="w-16 h-16 relative rounded-xl border border-[#e9e5eb] bg-white overflow-hidden shrink-0">
                     {review.productImage ? (
-                      <Image src={review.productImage} alt={review.productName} fill className="object-contain p-1.5" />
+                      <Image src={review.productImage} alt={review.productName} fill sizes="64px" className="object-contain p-1.5" />
                     ) : (
                       <Package className="w-6 h-6 m-auto text-[#918a95]" />
                     )}

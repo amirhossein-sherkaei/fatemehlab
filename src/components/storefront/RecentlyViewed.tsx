@@ -28,7 +28,7 @@ export default function RecentlyViewed() {
           <Link key={product.id} href={`/products/${product.slug}`} className="group bg-white rounded-2xl border border-[#e9e5eb] p-3 hover:shadow-lg transition-all duration-300">
             <div className="relative aspect-square bg-[#fafafc] rounded-xl overflow-hidden mb-3">
               {product.mainImage ? (
-                <Image src={product.mainImage} alt={product.name} fill className="object-contain p-2 group-hover:scale-105 transition-transform" />
+                <Image src={product.mainImage} alt={product.name} fill sizes="(max-width: 640px) 45vw, (max-width: 1024px) 28vw, 220px" className="object-contain p-2 group-hover:scale-105 transition-transform" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-[#c61d70]/20">بدون عکس</div>
               )}

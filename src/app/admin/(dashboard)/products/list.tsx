@@ -70,7 +70,7 @@ export default function ProductsPage({ initialProducts }: { initialProducts: any
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="relative grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-xl border border-[#e9e5eb] bg-[#f8f7fa]">
-                          {product.mainImage ? <Image src={product.mainImage} alt={product.name} fill className="object-cover" /> : <Package size={20} className="text-[#918a95]" />}
+                          {product.mainImage ? <Image src={product.mainImage} alt={product.name} fill sizes="88px" className="object-cover" /> : <Package size={20} className="text-[#918a95]" />}
                         </div>
                         <div><span className="block font-bold text-[#28242b]">{product.name}</span><span className="text-[10px] text-[#77717b]" dir="ltr">{product.slug}</span></div>
                       </div>
@@ -97,7 +97,7 @@ export default function ProductsPage({ initialProducts }: { initialProducts: any
               <div key={product.id} className="rounded-2xl border border-[#e9e5eb] bg-white p-4 shadow-sm">
                 <div className="mb-3 flex gap-3">
                   <div className="relative grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-xl border border-[#e9e5eb] bg-[#f8f7fa]">
-                    {product.mainImage ? <Image src={product.mainImage} alt={product.name} fill className="object-cover" /> : <Package size={20} className="text-[#918a95]" />}
+                    {product.mainImage ? <Image src={product.mainImage} alt={product.name} fill sizes="88px" className="object-cover" /> : <Package size={20} className="text-[#918a95]" />}
                   </div>
                   <div className="min-w-0 flex-1">
                     <h3 className="truncate text-sm font-bold text-[#28242b]">{product.name}</h3>

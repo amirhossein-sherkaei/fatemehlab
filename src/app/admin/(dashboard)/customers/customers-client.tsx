@@ -115,7 +115,7 @@ export default function CustomersClient() {
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#fff0f7] to-[#fce5f0] text-[#c61d70] flex items-center justify-center font-black shrink-0 overflow-hidden relative">
                           {customer.avatar ? (
-                            <Image src={customer.avatar} alt={customer.name} fill className="object-cover" />
+                            <Image src={customer.avatar} alt={customer.name} fill sizes="48px" className="object-cover" />
                           ) : (
                             customer.name?.charAt(0) || '?'
                           )}

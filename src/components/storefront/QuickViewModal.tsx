@@ -38,7 +38,7 @@ export default function QuickViewModal() {
         {/* تصویر */}
         <div className="md:w-1/2 bg-[#fafafc] p-8 flex items-center justify-center relative min-h-[300px]">
           {quickViewProduct.mainImage ? (
-            <Image src={quickViewProduct.mainImage} alt={quickViewProduct.name} fill className="object-contain p-6 drop-shadow-xl hover:scale-105 transition-transform duration-500" />
+            <Image src={quickViewProduct.mainImage} alt={quickViewProduct.name} fill sizes="(max-width: 767px) 90vw, 50vw" className="object-contain p-6 drop-shadow-xl hover:scale-105 transition-transform duration-500" />
           ) : (
             <Sparkles size={64} className="text-[#c61d70]/20" />
           )}

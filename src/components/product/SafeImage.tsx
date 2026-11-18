@@ -38,13 +38,13 @@ export default function SafeImage({ src, alt, fill, width, height, className, si
   }
 
   return (
-    <Image 
-      src={src} 
-      alt={alt} 
-      fill={fill} 
+    <Image
+      src={src}
+      alt={alt}
+      fill={fill}
       width={!fill ? width : undefined}
       height={!fill ? height : undefined}
-      sizes={sizes} 
+      sizes={sizes || (fill ? "(max-width: 767px) 50vw, 25vw" : undefined)}
       priority={priority}
       className={className}
       onError={() => setError(true)}

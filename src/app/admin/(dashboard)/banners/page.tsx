@@ -231,7 +231,7 @@ export default function AdminBannersPage() {
               <div className="space-y-3">
                 <div className="flex items-center gap-2 text-xs font-black text-[#4b4650]"><Monitor size={15} className="text-[#c61d70]" /> تصویر دسکتاپ <span className="text-rose-500">* الزامی</span></div>
                 <div className="relative aspect-[16/7] overflow-hidden rounded-2xl border border-[#eee7ed] bg-[#fbf6f9]">
-                  {slide.image ? <Image src={slide.image} alt={slide.alt || slide.title} fill unoptimized sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" /> : <div className="absolute inset-0 grid place-items-center text-xs font-bold text-[#a49ba5]">تصویر دسکتاپ انتخاب نشده</div>}
+                  {slide.image ? <Image src={slide.image} alt={slide.alt || slide.title} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" /> : <div className="absolute inset-0 grid place-items-center text-xs font-bold text-[#a49ba5]">تصویر دسکتاپ انتخاب نشده</div>}
                 </div>
                 <label className="flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-[#e5b9d0] bg-[#fff8fb] px-3 text-xs font-extrabold text-[#b21a64] transition hover:bg-[#fff0f7]">
                   {uploading[`${slide.id}:image`] ? <Loader2 size={16} className="animate-spin" /> : <UploadCloud size={16} />}
@@ -243,7 +243,7 @@ export default function AdminBannersPage() {
               <div className="space-y-3">
                 <div className="flex items-center gap-2 text-xs font-black text-[#4b4650]"><Smartphone size={15} className="text-[#c61d70]" /> تصویر موبایل <span className="text-[10px] font-medium text-[#a49ba5]">اختیاری</span></div>
                 <div className="relative mx-auto aspect-[16/7] w-full overflow-hidden rounded-2xl border border-[#eee7ed] bg-[#fbf6f9]">
-                  {slide.mobileImage ? <Image src={slide.mobileImage} alt={`${slide.alt} موبایل`} fill unoptimized sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" /> : <div className="absolute inset-0 grid place-items-center text-xs font-bold text-[#a49ba5]">در موبایل از تصویر دسکتاپ استفاده می‌شود</div>}
+                  {slide.mobileImage ? <Image src={slide.mobileImage} alt={`${slide.alt} موبایل`} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" /> : <div className="absolute inset-0 grid place-items-center text-xs font-bold text-[#a49ba5]">در موبایل از تصویر دسکتاپ استفاده می‌شود</div>}
                 </div>
                 <label className="flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-[#e5b9d0] bg-[#fff8fb] px-3 text-xs font-extrabold text-[#b21a64] transition hover:bg-[#fff0f7]">
                   {uploading[`${slide.id}:mobileImage`] ? <Loader2 size={16} className="animate-spin" /> : <UploadCloud size={16} />}

@@ -7,8 +7,12 @@ const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
   images: {
+    // Responsive image delivery: AVIF where supported, WebP fallback.
+    formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 604800,
     remotePatterns: [
       { protocol: 'https', hostname: '*.public.blob.vercel-storage.com' },
+      { protocol: 'https', hostname: 'public.blob.vercel-storage.com' },
       { protocol: 'https', hostname: '*.vercel-storage.com' },
     ],
   },

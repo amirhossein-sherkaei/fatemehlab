@@ -3820,3 +3820,56 @@ html {
   .fl-shelf-media img,
   .fbl-store-brand-mark { transition: none !important; }
 }
+
+/* FATEMEH-IMAGE-DELIVERY-AND-SUPPORT-FLOAT-FIX */
+/* FATEMEH-IMAGE-DELIVERY-AND-SUPPORT-FLOAT-FIX
+   Responsive image delivery and collision-free support positioning. */
+.fl-banner-backdrop {
+  background:
+    radial-gradient(circle at 18% 48%, rgba(198, 29, 112, .20), transparent 44%),
+    radial-gradient(circle at 82% 52%, rgba(237, 170, 204, .34), transparent 48%),
+    linear-gradient(125deg, #f8e5ee 0%, #fff8fb 52%, #f5e0eb 100%) !important;
+}
+.fl-banner-image {
+  position: absolute !important;
+  inset: 0 !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  object-fit: contain !important;
+}
+.fbl-support-float {
+  position: fixed !important;
+  z-index: 60 !important;
+  right: max(16px, env(safe-area-inset-right, 16px)) !important;
+}
+@media (min-width: 768px) {
+  .fbl-support-float,
+  .fbl-support-float.is-above-bottom-nav,
+  .fbl-support-float.is-viewport-bottom {
+    bottom: 24px !important;
+    right: 24px !important;
+  }
+}
+@media (max-width: 767px) {
+  .fbl-support-float {
+    right: 14px !important;
+  }
+  .fbl-support-float.is-above-bottom-nav {
+    bottom: calc(max(16px, env(safe-area-inset-bottom, 16px)) + 68px + 14px) !important;
+  }
+  .fbl-support-float.is-viewport-bottom {
+    bottom: max(18px, env(safe-area-inset-bottom, 18px)) !important;
+  }
+  .fbl-support-trigger {
+    width: 46px !important;
+    height: 46px !important;
+    min-width: 46px !important;
+    min-height: 46px !important;
+  }
+  .fbl-support-popover {
+    max-height: min(58dvh, 420px) !important;
+    width: min(286px, calc(100vw - 28px)) !important;
+  }
+}

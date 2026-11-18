@@ -120,7 +120,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         {article.coverImage && (
           <section className="px-3 md:px-4 -mt-4 md:-mt-8 relative z-10 mb-8 md:mb-16">
             <div className="max-w-5xl mx-auto relative aspect-video md:aspect-[21/9] rounded-xl md:rounded-[2rem] overflow-hidden shadow-xl md:shadow-2xl shadow-[#c61d70]/20 border-2 md:border-4 border-white">
-              <Image src={article.coverImage} alt={article.title} fill className="object-cover" priority />
+              <Image src={article.coverImage} alt={article.title} fill sizes="(max-width: 767px) 100vw, 1024px" className="object-cover" priority />
             </div>
           </section>
         )}
@@ -146,7 +146,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
                   <Link key={rel.id} href={`/journal/${rel.slug}`} className="group bg-white rounded-2xl md:rounded-3xl border border-[#e9e5eb] overflow-hidden hover:shadow-2xl hover:shadow-[#c61d70]/10 hover:-translate-y-1 transition-all duration-300">
                     <div className="relative aspect-[16/10] md:aspect-[4/3] bg-[#fce5f0]">
                       {rel.coverImage ? (
-                        <Image src={rel.coverImage} alt={rel.title} fill className="object-cover" />
+                        <Image src={rel.coverImage} alt={rel.title} fill sizes="(max-width: 767px) 90vw, (max-width: 1024px) 30vw, 320px" className="object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-[#c61d70]/20"><BookOpen size={32} className="md:w-10 md:h-10" /></div>
                       )}
