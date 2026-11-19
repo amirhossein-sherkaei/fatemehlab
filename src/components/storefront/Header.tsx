@@ -81,7 +81,7 @@ export default function Header() {
                 key={item.href}
                 href={item.href}
                 className="fbl-header-nav-link text-xs font-bold text-[#625c66] hover:text-[#c61d70] transition-colors"
-                aria-current={pathname === item.href ? 'page' : undefined}
+                aria-current={pathname === item.href || pathname.startsWith(`${item.href}/`) ? 'page' : undefined}
               >
                 {item.label}
               </Link>
@@ -136,7 +136,7 @@ export default function Header() {
             </div>
             <nav className="fbl-mobile-menu-nav flex-1 overflow-y-auto p-4 space-y-1" aria-label="ناوبری موبایل">
               {navigation.map((item) => (
-                <Link key={item.href} href={item.href} onClick={closeOverlays} aria-current={pathname === item.href ? 'page' : undefined} className="fbl-mobile-menu-link block px-4 py-3 text-sm font-bold text-[#28242b] hover:bg-[#f8f7fa] rounded-xl transition-colors">
+                <Link key={item.href} href={item.href} onClick={closeOverlays} aria-current={pathname === item.href || pathname.startsWith(`${item.href}/`) ? 'page' : undefined} className="fbl-mobile-menu-link block px-4 py-3 text-sm font-bold text-[#28242b] hover:bg-[#f8f7fa] rounded-xl transition-colors">
                   {item.label}
                 </Link>
               ))}

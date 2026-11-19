@@ -9,6 +9,7 @@ import AuroraBackground from "@/components/storefront/AuroraBackground";
 import PwaInstallPrompt from "@/components/storefront/PwaInstallPrompt";
 import FloatingSupportButton from "@/components/storefront/FloatingSupportButton";
 import PromoBarWrapper from "@/components/storefront/PromoBarWrapper";
+import HideOnRoutes from "@/components/shared/HideOnRoutes";
 import WebVitals from "@/components/shared/WebVitals";
 import RouteProgress from "@/components/shared/RouteProgress";
 import ScrollToTop from "@/components/shared/ScrollToTop";
@@ -130,7 +131,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       </head>
       <body className="min-h-[100dvh] font-sans text-foreground overflow-x-hidden">
         <RouteProgress />
-        <Suspense fallback={null}><PromoBarWrapper /></Suspense>
+        <Suspense fallback={null}>
+          <HideOnRoutes hiddenOn={["/cart", "/checkout"]}>
+            <PromoBarWrapper />
+          </HideOnRoutes>
+        </Suspense>
         <Toaster position="top-center" richColors theme="light" closeButton />
         <AuroraBackground />
         <WebVitals />

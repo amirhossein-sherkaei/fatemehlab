@@ -4,11 +4,32 @@ import { useState, useEffect } from 'react';
 import { useCartStore } from '@/store/cart';
 import { formatToman } from '@/lib/currency';
 import { ShieldCheck, MapPin, User, Phone, Loader2, ArrowRight, Home, Check, Plus, TicketPercent, X, AlertCircle } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import Header from '@/components/storefront/Header';
 import Footer from '@/components/storefront/Footer';
+
+function CheckoutBrand() {
+  return (
+    <header className="border-b border-[#eadce6] bg-white/95 shadow-[0_4px_18px_rgba(68,38,58,0.045)] backdrop-blur-xl">
+      <div className="container-custom flex min-h-[68px] items-center justify-between gap-3">
+        <Link href="/" aria-label="بازگشت به فروشگاه فاطمه بیوتی لند" className="group inline-flex min-h-11 items-center gap-3 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#a92768]">
+          <span className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#ead8e4] bg-white shadow-sm">
+            <Image src="/logo.png" alt="" fill sizes="40px" priority className="object-contain p-1" />
+          </span>
+          <span className="flex flex-col gap-0.5">
+            <span className="text-sm font-black tracking-tight text-[#342633]">فاطمه بیوتی لند</span>
+            <span dir="ltr" className="text-[7px] font-bold tracking-[0.16em] text-[#9b7890]">FATEMEH BEAUTY LAND</span>
+          </span>
+        </Link>
+        <span className="inline-flex min-h-10 items-center gap-2 rounded-full border border-[#eadce6] bg-[#fff8fb] px-3 text-[11px] font-bold text-[#785e70]">
+          <ShieldCheck size={15} className="text-[#a66b88]" /> پرداخت امن
+        </span>
+      </div>
+    </header>
+  );
+}
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -235,7 +256,7 @@ const handleSubmit = async (e: React.FormEvent) => {
 
   if (!isMounted || checkingAuth) return (
     <div className="min-h-screen bg-[#fafafc]" dir="rtl" aria-busy="true" aria-live="polite">
-      <Header />
+      <CheckoutBrand />
       <main className="container-custom py-10">
         <div className="mx-auto max-w-3xl space-y-5">
           <div className="h-8 w-44 animate-pulse rounded-lg bg-[#eee8ee]" />
@@ -251,7 +272,7 @@ const handleSubmit = async (e: React.FormEvent) => {
 
   return (
     <div className="min-h-screen bg-[#fafafc] flex flex-col">
-      <Header />
+      <CheckoutBrand />
       <main className="flex-1 container-custom py-6 md:py-10 pb-32 md:pb-10">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl md:text-3xl font-black text-[#28242b]">تسویه‌حساب</h1>

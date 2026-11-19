@@ -7,7 +7,6 @@ import EmptyState from '@/components/shared/EmptyState';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import Header from '@/components/storefront/Header';
 import Footer from '@/components/storefront/Footer';
 
 export default function CartPage() {
@@ -28,9 +27,13 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <Header />
       <main className="flex-1 container-custom py-6 md:py-10 pb-24 md:pb-10">
-        <h1 className="text-2xl md:text-3xl font-extrabold text-ink mb-6">سبد خرید شما <span className="mr-2 text-sm font-semibold text-[#918a95]">({totalUnits.toLocaleString('fa-IR')} کالا)</span></h1>
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 md:mb-7">
+          <h1 className="text-2xl md:text-3xl font-extrabold text-ink">سبد خرید شما <span className="mr-2 text-sm font-semibold text-[#918a95]">({totalUnits.toLocaleString('fa-IR')} کالا)</span></h1>
+          <Link href="/products" data-fbl-cart-continue-link="true" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#ead6e2] bg-white/85 px-4 text-xs font-bold text-[#8f456d] shadow-sm transition hover:border-[#d89abc] hover:bg-[#fff5fa] hover:text-[#b62470] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c61d70]">
+            ادامه خرید <ArrowRight size={15} />
+          </Link>
+        </div>
 
         {items.length === 0 ? (
           <div className="glass-panel p-10 md:p-16 text-center flex flex-col items-center justify-center max-w-md mx-auto">
