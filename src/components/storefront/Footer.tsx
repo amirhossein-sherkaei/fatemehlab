@@ -2,10 +2,34 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
-import { ArrowUpLeft, Mail, Phone, MapPin } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import {
+  ArrowLeft,
+  ArrowUpLeft,
+  CreditCard,
+  Mail,
+  MapPin,
+  Phone,
+  ShieldCheck,
+} from 'lucide-react';
 import { InstagramIcon, RubikaIcon } from '@/components/icons/SocialIcons';
 import StoreTrustBenefits from '@/components/storefront/StoreTrustBenefits';
+
+const storeLinks = [
+  { href: '/products', label: 'همه محصولات' },
+  { href: '/cart', label: 'سبد خرید' },
+  { href: '/track', label: 'رهگیری سفارش' },
+  { href: '/journal', label: 'مجله زیبایی' },
+];
+
+const helpLinks = [
+  { href: '/about', label: 'درباره ما' },
+  { href: '/contact', label: 'تماس با ما' },
+  { href: '/faq', label: 'سؤالات متداول' },
+  { href: '/policies/shipping', label: 'روش‌های ارسال' },
+  { href: '/policies/returns', label: 'شرایط مرجوعی' },
+  { href: '/policies/privacy', label: 'حریم خصوصی' },
+];
 
 export default function Footer() {
   const [year, setYear] = useState('');
@@ -17,114 +41,154 @@ export default function Footer() {
   return (
     <>
       <StoreTrustBenefits />
-      <footer className="fl-footer fl-footer-premium">
-        <div className="container-custom fl-footer-main fl-footer-grid">
-          <div className="fl-footer-brand">
-            <Link href="/" className="fl-brand w-fit">
-              <span className="fl-brand-mark">
-                <Image src="/logo.png" alt="نشان فاطمه بیوتی لند" fill sizes="39px" />
-              </span>
-              <span className="flex flex-col">
-                <span className="fl-brand-name">فاطمه بیوتی لند</span>
-                <span className="fl-brand-latin">FATEMEH BEAUTY LAND</span>
-              </span>
+      <footer className="fbl-lux-footer" aria-labelledby="fbl-lux-footer-title">
+        <div className="fbl-lux-footer__ambient" aria-hidden="true" />
+        <div className="container-custom fbl-lux-footer__inner">
+          <div className="fbl-lux-footer__intro">
+            <div className="fbl-lux-footer__intro-copy">
+              <span className="fbl-lux-footer__eyebrow">FATEMEH BEAUTY LAND <i /> BEAUTY WITH INTENTION</span>
+              <h2 id="fbl-lux-footer-title">زیبایی، از انتخابی آگاهانه آغاز می‌شود.</h2>
+              <p>جزئیات محصولات را ببینید، آگاهانه مقایسه کنید و متناسب با نیازتان انتخاب کنید.</p>
+            </div>
+            <Link href="/products" className="fbl-lux-footer__discover">
+              <span>کشف محصولات</span>
+              <ArrowUpLeft size={17} strokeWidth={1.8} aria-hidden="true" />
             </Link>
+          </div>
 
-            <p className="mt-4 max-w-sm text-[12px] leading-[2.1] text-[#77717b]">
-              فاطمه بیوتی لند؛ جایی برای بررسی آگاهانه محصولات آرایشی و مراقبتی و انتخاب متناسب با نیاز شما.
-            </p>
+          <div className="fbl-lux-footer__rule" />
 
-            <Link href="/products" className="fl-text-link mt-4">
-              مرور محصولات <ArrowUpLeft size={15} />
-            </Link>
+          <div className="fbl-lux-footer__grid">
+            <section className="fbl-lux-footer__brand" aria-label="معرفی فاطمه بیوتی لند">
+              <Link href="/" className="fbl-lux-footer__brand-lockup" aria-label="فاطمه بیوتی لند، صفحه اصلی">
+                <span className="fbl-lux-footer__brand-seal">
+                  <Image
+                    src="/logo.png"
+                    alt="نشان فاطمه بیوتی لند"
+                    fill
+                    sizes="58px"
+                    className="fbl-lux-footer__brand-image"
+                  />
+                </span>
+                <span className="fbl-lux-footer__brand-words">
+                  <strong>فاطمه بیوتی لند</strong>
+                  <small>FATEMEH BEAUTY LAND</small>
+                </span>
+              </Link>
 
-            <div className="fl-footer-contact mt-5">
-              <a href="tel:09905316327" className="fl-footer-contact-link">
-                <Phone size={14} />
-                <span dir="ltr">۰۹۹۰۵۳۱۶۳۲۷</span>
+              <p className="fbl-lux-footer__description">
+                فاطمه بیوتی لند؛ جایی برای بررسی آگاهانه محصولات آرایشی و مراقبتی و انتخاب متناسب با نیاز شما.
+              </p>
+              <div className="fbl-lux-footer__brand-note">
+                <span aria-hidden="true" />
+                <span>مراقبت، با انتخابی آگاهانه</span>
+              </div>
+            </section>
+
+            <nav className="fbl-lux-footer__nav" aria-label="دسترسی به فروشگاه">
+              <h3 className="fbl-lux-footer__heading">فروشگاه</h3>
+              <ul>
+                {storeLinks.map((item) => (
+                  <li key={item.href}>
+                    <Link href={item.href} className="fbl-lux-footer__link">
+                      <span>{item.label}</span>
+                      <ArrowLeft size={13} aria-hidden="true" />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+
+            <nav className="fbl-lux-footer__nav" aria-label="راهنما و پشتیبانی مشتریان">
+              <h3 className="fbl-lux-footer__heading">راهنما و پشتیبانی</h3>
+              <ul>
+                {helpLinks.map((item) => (
+                  <li key={item.href}>
+                    <Link href={item.href} className="fbl-lux-footer__link">
+                      <span>{item.label}</span>
+                      <ArrowLeft size={13} aria-hidden="true" />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+
+            <section className="fbl-lux-footer__contact" aria-label="راه‌های ارتباطی">
+              <h3 className="fbl-lux-footer__heading">با ما در ارتباط باشید</h3>
+              <a href="tel:09905316327" className="fbl-lux-footer__contact-link">
+                <span className="fbl-lux-footer__contact-icon"><Phone size={15} aria-hidden="true" /></span>
+                <span><small>تماس با فروشگاه</small><strong dir="ltr">۰۹۹۰۵۳۱۶۳۲۷</strong></span>
               </a>
-              <a href="mailto:mirzaeico255@gmail.com" className="fl-footer-contact-link">
-                <Mail size={14} />
-                <span dir="ltr">mirzaeico255@gmail.com</span>
+              <a href="mailto:mirzaeico255@gmail.com" className="fbl-lux-footer__contact-link">
+                <span className="fbl-lux-footer__contact-icon"><Mail size={15} aria-hidden="true" /></span>
+                <span><small>رایانامه</small><strong dir="ltr">mirzaeico255@gmail.com</strong></span>
               </a>
-              <span className="fl-footer-contact-link">
-                <MapPin size={14} />
-                <span>تهران</span>
+              <div className="fbl-lux-footer__contact-link fbl-lux-footer__location">
+                <span className="fbl-lux-footer__contact-icon"><MapPin size={15} aria-hidden="true" /></span>
+                <span><small>موقعیت</small><strong>تهران</strong></span>
+              </div>
+
+              <div className="fbl-lux-footer__socials" aria-label="شبکه‌های اجتماعی">
+                <a
+                  href="https://instagram.com/fatemeh_beauty_landd"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="اینستاگرام فاطمه بیوتی لند"
+                  className="fbl-lux-footer__social-link"
+                >
+                  <InstagramIcon size={19} />
+                  <span>اینستاگرام</span>
+                  <ArrowUpLeft size={13} aria-hidden="true" />
+                </a>
+                <a
+                  href="https://rubika.ir/fatemeh_beauty_land"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="روبیکای فاطمه بیوتی لند"
+                  className="fbl-lux-footer__social-link"
+                >
+                  <RubikaIcon size={19} />
+                  <span>روبیکا</span>
+                  <ArrowUpLeft size={13} aria-hidden="true" />
+                </a>
+              </div>
+            </section>
+          </div>
+
+          <div className="fbl-lux-footer__assurance">
+            <div className="fbl-lux-footer__assurance-copy">
+              <span className="fbl-lux-footer__assurance-icon"><ShieldCheck size={20} aria-hidden="true" /></span>
+              <span>
+                <strong>خریدی روشن از انتخاب تا پرداخت</strong>
+                <small><CreditCard size={13} aria-hidden="true" /> پرداخت سفارش از مسیر درگاه بانکی فروشگاه انجام می‌شود.</small>
               </span>
             </div>
-          </div>
-
-          <div className="fl-footer-column">
-            <h2 className="fl-footer-title">فروشگاه</h2>
-            <ul className="grid gap-3">
-              <li><Link className="fl-footer-link" href="/products">همه محصولات</Link></li>
-              <li><Link className="fl-footer-link" href="/cart">سبد خرید</Link></li>
-              <li><Link className="fl-footer-link" href="/track">رهگیری سفارش</Link></li>
-              <li><Link className="fl-footer-link" href="/journal">مجله زیبایی</Link></li>
-            </ul>
-          </div>
-
-          <div className="fl-footer-column">
-            <h2 className="fl-footer-title">راهنما و قوانین</h2>
-            <ul className="grid gap-3">
-              <li><Link className="fl-footer-link" href="/about">درباره ما</Link></li>
-              <li><Link className="fl-footer-link" href="/contact">تماس با ما</Link></li>
-              <li><Link className="fl-footer-link" href="/faq">سؤالات متداول</Link></li>
-              <li><Link className="fl-footer-link" href="/policies/shipping">روش‌های ارسال</Link></li>
-              <li><Link className="fl-footer-link" href="/policies/returns">شرایط مرجوعی</Link></li>
-              <li><Link className="fl-footer-link" href="/policies/privacy">حریم خصوصی</Link></li>
-            </ul>
-          </div>
-
-          <div className="fl-footer-social">
-            <h2 className="fl-footer-title">همراه ما باشید</h2>
-            <p className="fl-footer-social-note">برای دیدن تازه‌ها و اطلاعیه‌های فروشگاه، ما را در شبکه‌های اجتماعی دنبال کنید.</p>
-            <div className="fl-footer-social-links">
+            <div className="fbl-lux-footer__certificate">
+              <span>نماد اعتماد الکترونیکی</span>
               <a
-                href="https://instagram.com/fatemeh_beauty_landd"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="صفحه اینستاگرام فاطمه بیوتی لند"
-                className="fl-footer-social-link"
-              >
-                <span className="fl-footer-social-mark fl-footer-social-instagram"><InstagramIcon size={21} /></span>
-                <span className="fl-footer-social-label"><strong>اینستاگرام</strong><small dir="ltr">@fatemeh_beauty_landd</small></span>
-                <ArrowUpLeft size={15} />
-              </a>
-              <a
-                href="https://rubika.ir/fatemeh_beauty_land"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="صفحه روبیکای فاطمه بیوتی لند"
-                className="fl-footer-social-link"
-              >
-                <span className="fl-footer-social-mark fl-footer-social-rubika"><RubikaIcon size={21} /></span>
-                <span className="fl-footer-social-label"><strong>روبیکا</strong><small dir="ltr">@fatemeh_beauty_land</small></span>
-                <ArrowUpLeft size={15} />
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <div className="container-custom fl-footer-bottom fl-footer-bottom-premium">
-          <div className="fl-footer-copyright">
-            <p>© {year} فاطمه بیوتی لند. تمامی حقوق محفوظ است.</p>
-            <p className="fl-footer-tagline"><span /> مراقبت، با انتخابی آگاهانه</p>
-          </div>
-          <div className="fl-footer-enamad">
-            <a
-              referrerPolicy="origin"
-              target="_blank"
-              rel="noopener noreferrer"
-              href="https://trustseal.enamad.ir/?id=8646028&Code=0k8tNe8JU0wOu1wOUF3YVI3faqSFyznQ"
-              aria-label="مشاهده نماد اعتماد الکترونیکی فاطمه بیوتی لند"
-            >
-              <img
                 referrerPolicy="origin"
-                src="https://trustseal.enamad.ir/logo.aspx?id=8646028&Code=0k8tNe8JU0wOu1wOUF3YVI3faqSFyznQ"
-                alt="نماد اعتماد الکترونیکی"
-              />
-            </a>
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://trustseal.enamad.ir/?id=8646028&Code=0k8tNe8JU0wOu1wOUF3YVI3faqSFyznQ"
+                aria-label="مشاهده نماد اعتماد الکترونیکی فاطمه بیوتی لند"
+              >
+                <img
+                  referrerPolicy="origin"
+                  src="https://trustseal.enamad.ir/logo.aspx?id=8646028&Code=0k8tNe8JU0wOu1wOUF3YVI3faqSFyznQ"
+                  alt="نماد اعتماد الکترونیکی"
+                />
+              </a>
+            </div>
+          </div>
+
+          <div className="fbl-lux-footer__bottom">
+            <p>© {year} فاطمه بیوتی لند. تمامی حقوق محفوظ است.</p>
+            <div className="fbl-lux-footer__bottom-links">
+              <Link href="/policies/privacy">حریم خصوصی</Link>
+              <span aria-hidden="true" />
+              <Link href="/policies/returns">شرایط مرجوعی</Link>
+            </div>
+            <span className="fbl-lux-footer__signature">FATEMEH BEAUTY LAND</span>
           </div>
         </div>
       </footer>
