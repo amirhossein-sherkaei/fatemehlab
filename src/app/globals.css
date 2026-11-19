@@ -4034,3 +4034,240 @@ html {
     transition: none !important;
   }
 }
+
+/* FBL_HEADER_ATELIER_20261119 */
+/* Atelier Glass: one quiet, precise control island for the storefront header. */
+.fbl-header-controls {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 9px;
+  direction: rtl;
+}
+.fbl-header-action-island {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 4px;
+  overflow: visible;
+  border: 1px solid rgba(224, 190, 210, .68);
+  border-radius: 19px;
+  background: linear-gradient(145deg, rgba(255,255,255,.94) 0%, rgba(255,248,252,.88) 58%, rgba(255,242,248,.82) 100%);
+  box-shadow: 0 7px 23px rgba(91, 43, 71, .075), 0 1px 2px rgba(91, 43, 71, .035), inset 0 1px 0 rgba(255,255,255,.98);
+  -webkit-backdrop-filter: blur(18px) saturate(1.18);
+  backdrop-filter: blur(18px) saturate(1.18);
+}
+.fbl-header-action-island::before {
+  position: absolute;
+  z-index: -1;
+  inset: 1px;
+  border-radius: inherit;
+  background: radial-gradient(ellipse at 16% 0%, rgba(255,255,255,.96), transparent 56%);
+  content: "";
+  pointer-events: none;
+}
+.fbl-header-action-island .fbl-header-search-slot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.fbl-header-action-island .fl-icon-button,
+.fbl-header-action-island .fbl-cart-action {
+  position: relative;
+  display: inline-flex !important;
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px;
+  flex: 0 0 40px;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  border: 1px solid transparent !important;
+  border-radius: 13px !important;
+  background: transparent !important;
+  color: #76566a !important;
+  box-shadow: none !important;
+  transition: color .2s ease, background .2s ease, border-color .2s ease, transform .2s cubic-bezier(.2,.8,.2,1);
+  -webkit-tap-highlight-color: transparent;
+}
+.fbl-header-action-island .fl-icon-button svg,
+.fbl-header-action-island .fbl-cart-action svg {
+  width: 19px;
+  height: 19px;
+  stroke-width: 1.75;
+}
+.fbl-header-action-island .fl-icon-button:hover,
+.fbl-header-action-island .fbl-cart-action:hover,
+.fbl-header-action-island .fl-icon-button[aria-expanded="true"] {
+  border-color: rgba(220, 143, 181, .24) !important;
+  background: linear-gradient(145deg, rgba(255,255,255,.98), rgba(255,235,245,.92)) !important;
+  color: #b62470 !important;
+  transform: translateY(-1px);
+}
+.fbl-header-action-island .fl-icon-button:active,
+.fbl-header-action-island .fbl-cart-action:active,
+.fbl-menu-trigger:active {
+  transform: scale(.94);
+}
+.fbl-header-action-island .fl-icon-button:focus-visible,
+.fbl-header-action-island .fbl-cart-action:focus-visible,
+.fbl-account-avatar:focus-visible,
+.fbl-menu-trigger:focus-visible {
+  outline: 3px solid rgba(198, 29, 112, .23);
+  outline-offset: 3px;
+}
+.fbl-header-action-island .fbl-cart-badge {
+  top: -3px;
+  inset-inline-start: -3px;
+  min-width: 17px;
+  height: 17px;
+  border: 2px solid #fff;
+  background: linear-gradient(145deg, #df3b91, #b51e6a);
+  box-shadow: 0 2px 7px rgba(157, 25, 88, .22);
+  font-size: 9px;
+}
+.fbl-account-avatar,
+.fbl-account-avatar-skeleton {
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  flex: 0 0 44px !important;
+  border: 2px solid rgba(255,255,255,.98) !important;
+  border-radius: 50% !important;
+  background: linear-gradient(145deg, #fff8fc, #f8eaf2) !important;
+  box-shadow: 0 0 0 1px rgba(217, 151, 187, .76), 0 3px 11px rgba(94, 38, 69, .13) !important;
+  transition: transform .22s cubic-bezier(.2,.8,.2,1), box-shadow .22s ease !important;
+}
+.fbl-account-avatar { isolation: isolate; }
+.fbl-account-avatar:hover {
+  transform: translateY(-1px) scale(1.035) !important;
+  box-shadow: 0 0 0 1px rgba(198, 29, 112, .58), 0 0 0 4px rgba(245, 218, 233, .55), 0 6px 15px rgba(153, 39, 94, .16) !important;
+}
+.fbl-account-avatar-image {
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: 50% 32%;
+  transform: scale(1.035);
+}
+.fbl-account-avatar-initial {
+  background: radial-gradient(circle at 28% 18%, rgba(255,255,255,.3), transparent 38%), linear-gradient(145deg, #e04b98 0%, #bd286f 54%, #8f1b55 100%) !important;
+  font-size: 15px !important;
+  font-weight: 850;
+}
+.fbl-account-avatar-skeleton {
+  background: linear-gradient(110deg, #f8eaf2 18%, #fff8fc 42%, #f6e5ef 66%) !important;
+  background-size: 220% 100% !important;
+  animation: fbl-atelier-avatar-shimmer 1.7s ease-in-out infinite;
+}
+@keyframes fbl-atelier-avatar-shimmer {
+  to { background-position-x: -220%; }
+}
+.fbl-menu-trigger {
+  display: inline-flex;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(224, 190, 210, .58);
+  border-radius: 14px;
+  background: linear-gradient(145deg, rgba(255,255,255,.96), rgba(255,248,252,.9));
+  color: #76566a;
+  box-shadow: 0 4px 13px rgba(91, 43, 71, .055), inset 0 1px 0 #fff;
+  transition: color .2s ease, background .2s ease, border-color .2s ease, transform .2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.fbl-menu-trigger:hover {
+  border-color: rgba(220, 143, 181, .42);
+  background: linear-gradient(145deg, #fff, #fff0f7);
+  color: #b62470;
+}
+@media (min-width: 768px) {
+  .fbl-menu-trigger { display: none !important; }
+}
+@media (max-width: 767px) {
+  .fbl-header-controls { gap: 6px; }
+  .fbl-header-action-island { gap: 1px; padding: 3px; border-radius: 17px; }
+  .fbl-header-action-island .fl-icon-button,
+  .fbl-header-action-island .fbl-cart-action {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px;
+    flex-basis: 38px;
+    border-radius: 12px !important;
+  }
+  .fbl-account-avatar,
+  .fbl-account-avatar-skeleton {
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    flex-basis: 42px !important;
+  }
+  .fbl-menu-trigger { width: 38px; height: 38px; min-width: 38px; border-radius: 13px; }
+}
+@media (max-width: 380px) {
+  .fbl-header-controls { gap: 4px; }
+  .fbl-header-action-island { gap: 0; padding: 2px; }
+  .fbl-header-action-island .fl-icon-button,
+  .fbl-header-action-island .fbl-cart-action {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px;
+    flex-basis: 36px;
+  }
+  .fbl-account-avatar,
+  .fbl-account-avatar-skeleton {
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    flex-basis: 40px !important;
+  }
+  .fbl-menu-trigger { width: 36px; height: 36px; min-width: 36px; }
+}
+/* Keep the same hierarchy in the optional dark theme. */
+.dark .fbl-header-action-island {
+  border-color: rgba(224, 190, 210, .16);
+  background: linear-gradient(145deg, rgba(38,30,40,.94), rgba(31,24,34,.9) 58%, rgba(44,27,39,.86));
+  box-shadow: 0 7px 23px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.07);
+}
+.dark .fbl-header-action-island::before {
+  background: radial-gradient(ellipse at 16% 0%, rgba(255,255,255,.09), transparent 58%);
+}
+.dark .fbl-header-action-island .fl-icon-button,
+.dark .fbl-header-action-island .fbl-cart-action,
+.dark .fbl-menu-trigger { color: #eadde6 !important; }
+.dark .fbl-header-action-island .fl-icon-button:hover,
+.dark .fbl-header-action-island .fbl-cart-action:hover,
+.dark .fbl-header-action-island .fl-icon-button[aria-expanded="true"],
+.dark .fbl-menu-trigger:hover {
+  border-color: rgba(231, 149, 190, .2) !important;
+  background: rgba(198, 29, 112, .13) !important;
+  color: #ffd5e8 !important;
+}
+.dark .fbl-menu-trigger {
+  border-color: rgba(224, 190, 210, .16);
+  background: linear-gradient(145deg, rgba(38,30,40,.94), rgba(31,24,34,.9));
+  box-shadow: 0 4px 13px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.07);
+}
+.dark .fbl-account-avatar,
+.dark .fbl-account-avatar-skeleton {
+  border-color: rgba(43,32,43,.98) !important;
+  box-shadow: 0 0 0 1px rgba(217, 151, 187, .46), 0 4px 13px rgba(0,0,0,.28) !important;
+}
+
+@media (hover: none) {
+  .fbl-header-action-island .fl-icon-button:hover,
+  .fbl-header-action-island .fbl-cart-action:hover,
+  .fbl-account-avatar:hover,
+  .fbl-menu-trigger:hover { transform: none !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fbl-header-action-island *,
+  .fbl-account-avatar,
+  .fbl-account-avatar-skeleton,
+  .fbl-menu-trigger { animation: none !important; transition: none !important; }
+}

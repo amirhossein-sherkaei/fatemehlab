@@ -40,7 +40,8 @@ export default function UserMenuButton() {
             alt=""
             fill
             sizes="44px"
-            quality={90}
+            quality={92}
+            draggable={false}
             className="fbl-account-avatar-image"
           />
         ) : (

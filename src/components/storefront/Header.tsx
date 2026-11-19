@@ -73,31 +73,35 @@ export default function Header() {
           </nav>
 
           {/* آیکون‌ها */}
-          <div className="fbl-store-actions flex items-center gap-1 md:gap-2">
-            <div className="shrink-0"><InstantSearch /></div>
-            <UserMenuButton />
-            
+          <div className="fbl-header-controls">
+            <div className="fbl-header-action-island" role="group" aria-label="ابزارهای فروشگاه">
+              <div className="fbl-header-search-slot shrink-0"><InstantSearch /></div>
+              <UserMenuButton />
+              <button
+                type="button"
+                onClick={openCart}
+                className="fbl-cart-action relative"
+                aria-label="سبد خرید"
+                title="سبد خرید"
+              >
+                <ShoppingBag size={19} strokeWidth={1.75} />
+                {cartCount > 0 && !isCartPage && (
+                  <span className="fbl-cart-badge">
+                    {cartCount.toLocaleString('fa-IR')}
+                  </span>
+                )}
+              </button>
+            </div>
+
             <button
               type="button"
-              onClick={openCart}
-              className="fbl-cart-action relative"
-              aria-label="سبد خرید"
-              title="سبد خرید"
-            >
-              <ShoppingBag size={19} strokeWidth={1.8} />
-              {cartCount > 0 && !isCartPage && (
-                <span className="fbl-cart-badge">
-                  {cartCount.toLocaleString('fa-IR')}
-                </span>
-              )}
-            </button>
-            
-            <button
               onClick={() => setMobileMenuOpen(true)}
-              className="p-2 rounded-xl text-[#625c66] hover:bg-[#fff0f7] hover:text-[#c61d70] transition-colors md:hidden"
+              className="fbl-menu-trigger md:hidden"
               aria-label="باز کردن منو"
+              aria-expanded={mobileMenuOpen}
+              title="منو"
             >
-              <Menu size={22} strokeWidth={2} />
+              <Menu size={20} strokeWidth={1.8} />
             </button>
           </div>
         </div>
