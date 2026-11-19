@@ -4660,3 +4660,197 @@ html {
   .fbl-header-couture *, .fbl-header-couture *::before, .fbl-mobile-menu-panel,
   .fbl-mobile-menu-panel *, .fbl-mobile-menu-backdrop { animation: none !important; transition: none !important; }
 }
+
+/* FBL_HEADER_COUTURE_FINISH_20261119
+   Fix viewport sticky scrolling, center/crop the store mark, and refine the complete header. */
+
+/* overflow-x:hidden creates a scrolling ancestor and can break viewport sticky positioning.
+   clip prevents horizontal overflow without creating a new scroll container. */
+html,
+body {
+  overflow-x: clip !important;
+}
+html {
+  height: auto !important;
+  min-height: 100% !important;
+  scroll-behavior: smooth;
+}
+body {
+  height: auto !important;
+  min-height: 100dvh !important;
+  touch-action: pan-y;
+}
+
+.fbl-header-couture {
+  position: -webkit-sticky !important;
+  position: sticky !important;
+  inset-block-start: 0 !important;
+  top: 0 !important;
+  z-index: 100 !important;
+  align-self: start;
+  transform: none !important;
+  background: rgba(255, 253, 255, .94) !important;
+  transition: background .24s ease, box-shadow .24s ease, border-color .24s ease;
+}
+.fbl-header-couture[data-scrolled="true"] {
+  background: rgba(255, 253, 255, .985) !important;
+  border-bottom-color: rgba(214, 170, 197, .72) !important;
+  box-shadow: 0 12px 34px rgba(68, 35, 57, .105), 0 1px 0 rgba(255,255,255,.92) inset !important;
+}
+
+/* The source logo has intentional white margins; scale its canvas inside the clipped round mark
+   so the gold monogram is optically centered and occupies the frame correctly. */
+.fbl-brand-mark-couture {
+  display: grid !important;
+  place-items: center !important;
+  border-radius: 50% !important;
+  padding: 0 !important;
+  isolation: isolate;
+  background: #fffdfd !important;
+  box-shadow: 0 0 0 3px rgba(250, 239, 246, .92), 0 7px 19px rgba(118, 70, 96, .12), inset 0 0 0 1px rgba(255,255,255,.96) !important;
+}
+.fbl-brand-mark-couture > img {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  object-fit: cover !important;
+  object-position: 50% 50% !important;
+  padding: 0 !important;
+  transform: scale(1.31) !important;
+  transform-origin: center center !important;
+}
+
+/* A quieter editorial nav instead of another outlined card. */
+.fbl-header-layout {
+  min-height: 78px !important;
+  transition: min-height .24s ease, padding .24s ease;
+}
+.fbl-header-navigation {
+  gap: 5px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.fbl-header-navigation .fbl-header-nav-link {
+  display: inline-flex !important;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 13px !important;
+  border: 1px solid transparent;
+  border-radius: 13px !important;
+  color: #736373 !important;
+  font-size: 11px !important;
+  font-weight: 750 !important;
+  letter-spacing: -.012em;
+  transition: color .2s ease, background .2s ease, border-color .2s ease, transform .2s ease;
+}
+.fbl-header-navigation .fbl-header-nav-link:hover {
+  border-color: rgba(222, 190, 208, .46);
+  background: rgba(255, 246, 251, .86) !important;
+  color: #ae286c !important;
+}
+.fbl-header-navigation .fbl-header-nav-link[aria-current="page"] {
+  border-color: rgba(220, 173, 199, .38) !important;
+  background: linear-gradient(145deg, #fff, #fff4f9) !important;
+  color: #a92769 !important;
+  box-shadow: 0 3px 10px rgba(143, 62, 105, .065), inset 0 1px 0 #fff !important;
+}
+.fbl-header-navigation .fbl-header-nav-link::after { display: none !important; }
+
+/* Make the action island feel like one precision-made control, with three consistent targets. */
+.fbl-header-action-island {
+  gap: 4px !important;
+  padding: 4px !important;
+  border-radius: 999px !important;
+  border-color: rgba(222, 190, 208, .78) !important;
+  background: linear-gradient(145deg, rgba(255,255,255,.98), rgba(255,247,251,.94)) !important;
+  box-shadow: 0 7px 20px rgba(91, 43, 71, .065), inset 0 1px 0 #fff !important;
+}
+.fbl-header-action-island .fl-icon-button,
+.fbl-header-action-island .fbl-cart-action {
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  flex: 0 0 40px !important;
+  display: inline-grid !important;
+  place-items: center !important;
+  border: 1px solid transparent !important;
+  border-radius: 50% !important;
+  background: transparent !important;
+  color: #795d70 !important;
+}
+.fbl-header-action-island .fl-icon-button:hover,
+.fbl-header-action-island .fbl-cart-action:hover,
+.fbl-header-action-island .fl-icon-button[aria-expanded="true"] {
+  border-color: rgba(221, 175, 201, .48) !important;
+  background: linear-gradient(145deg, #fff, #ffeff7) !important;
+  color: #b62470 !important;
+  box-shadow: 0 3px 10px rgba(163, 47, 111, .075) !important;
+}
+.fbl-header-action-island .fbl-account-avatar,
+.fbl-header-action-island .fbl-account-avatar-skeleton {
+  width: 46px !important;
+  height: 46px !important;
+  min-width: 46px !important;
+  flex: 0 0 46px !important;
+  border-radius: 50% !important;
+  box-shadow: 0 0 0 2px #fff, 0 0 0 3px rgba(219, 173, 199, .86), 0 4px 12px rgba(94, 49, 75, .14) !important;
+}
+.fbl-header-action-island .fbl-account-avatar-image {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center 42% !important;
+  border-radius: 50% !important;
+}
+.fbl-menu-trigger {
+  border-radius: 50% !important;
+  transition: background .2s ease, color .2s ease, box-shadow .2s ease;
+}
+.fbl-menu-trigger:focus-visible,
+.fbl-header-navigation a:focus-visible,
+.fbl-header-action-island a:focus-visible,
+.fbl-header-action-island button:focus-visible,
+.fbl-brand-link:focus-visible {
+  outline: 3px solid rgba(198, 29, 112, .32) !important;
+  outline-offset: 3px !important;
+}
+
+.dark .fbl-header-couture { background: rgba(36, 28, 37, .96) !important; }
+.dark .fbl-header-couture[data-scrolled="true"] { background: rgba(31, 24, 33, .985) !important; }
+.dark .fbl-brand-mark-couture { background: #fffdfd !important; }
+.dark .fbl-brand-mark-couture > img { mix-blend-mode: normal; }
+.dark .fbl-header-navigation .fbl-header-nav-link { color: #d8c7d2 !important; }
+.dark .fbl-header-navigation .fbl-header-nav-link:hover,
+.dark .fbl-header-navigation .fbl-header-nav-link[aria-current="page"] { color: #ffd5e8 !important; }
+.dark .fbl-header-action-island { background: linear-gradient(145deg, #382d3a, #2b222e) !important; }
+
+@media (max-width: 900px) {
+  .fbl-header-layout { min-height: 66px !important; }
+  .fbl-header-navigation { display: none !important; }
+  .fbl-brand-mark-couture { width: 43px !important; height: 43px !important; flex-basis: 43px !important; }
+  .fbl-header-action-island .fl-icon-button,
+  .fbl-header-action-island .fbl-cart-action { width: 38px !important; height: 38px !important; min-width: 38px !important; flex-basis: 38px !important; }
+  .fbl-header-action-island .fbl-account-avatar,
+  .fbl-header-action-island .fbl-account-avatar-skeleton { width: 43px !important; height: 43px !important; min-width: 43px !important; flex-basis: 43px !important; }
+}
+@media (max-width: 380px) {
+  .fbl-header-layout { min-height: 60px !important; width: calc(100% - 18px) !important; }
+  .fbl-brand-mark-couture { width: 37px !important; height: 37px !important; flex-basis: 37px !important; }
+  .fbl-header-action-island { gap: 1px !important; padding: 3px !important; }
+  .fbl-header-action-island .fl-icon-button,
+  .fbl-header-action-island .fbl-cart-action { width: 34px !important; height: 34px !important; min-width: 34px !important; flex-basis: 34px !important; }
+  .fbl-header-action-island .fbl-account-avatar,
+  .fbl-header-action-island .fbl-account-avatar-skeleton { width: 38px !important; height: 38px !important; min-width: 38px !important; flex-basis: 38px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fbl-header-couture,
+  .fbl-header-couture *,
+  .fbl-header-couture *::before,
+  .fbl-header-couture *::after { transition: none !important; animation: none !important; }
+}

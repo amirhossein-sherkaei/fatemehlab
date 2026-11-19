@@ -23,8 +23,20 @@ export default function Header() {
   const openCart = useCartStore((state) => state.openCart);
   const [isMounted, setIsMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => setIsMounted(true), []);
+
+  useEffect(() => {
+    const updateScrollState = () => {
+      const next = window.scrollY > 10;
+      setIsScrolled((current) => (current === next ? current : next));
+    };
+
+    updateScrollState();
+    window.addEventListener('scroll', updateScrollState, { passive: true });
+    return () => window.removeEventListener('scroll', updateScrollState);
+  }, []);
 
   useEffect(() => {
     if (!mobileMenuOpen) return;
@@ -44,7 +56,11 @@ export default function Header() {
 
   return (
     <>
-      <header className="fbl-store-header fbl-header-couture sticky top-0 z-50 w-full border-b border-[#e9e5eb] bg-white/90 backdrop-blur-xl">
+      <header
+        data-fbl-header-scroll="true"
+        data-scrolled={isScrolled ? 'true' : 'false'}
+        className="fbl-store-header fbl-header-couture sticky top-0 z-50 w-full border-b border-[#e9e5eb] bg-white/90 backdrop-blur-xl"
+      >
         <div className="fbl-store-header-inner fbl-header-layout container-custom flex h-16 items-center justify-between gap-2 md:h-[74px]">
           
           {/* لوگو */}
