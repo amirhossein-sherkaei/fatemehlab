@@ -78,13 +78,15 @@ export default function Header() {
             <UserMenuButton />
             
             <button
+              type="button"
               onClick={openCart}
-              className="relative p-2 rounded-xl text-[#625c66] hover:bg-[#fff0f7] hover:text-[#c61d70] transition-colors"
+              className="fbl-cart-action relative"
               aria-label="سبد خرید"
+              title="سبد خرید"
             >
-              <ShoppingBag size={20} strokeWidth={2} />
+              <ShoppingBag size={19} strokeWidth={1.8} />
               {cartCount > 0 && !isCartPage && (
-                <span className="absolute top-0.5 right-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#c61d70] px-1 text-[9px] font-black text-white ring-2 ring-white">
+                <span className="fbl-cart-badge">
                   {cartCount.toLocaleString('fa-IR')}
                 </span>
               )}

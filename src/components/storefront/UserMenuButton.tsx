@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { User } from 'lucide-react';
+import { UserRound } from 'lucide-react';
 
 export default function UserMenuButton() {
   const [customer, setCustomer] = useState<{ name: string; avatar?: string | null } | null>(null);
@@ -11,36 +11,50 @@ export default function UserMenuButton() {
 
   useEffect(() => {
     fetch('/api/account/me')
-      .then(r => r.ok ? r.json() : null)
-      .then(data => {
-        if (data?.success) setCustomer(data.customer);
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data) => {
+        if (data?.success && data.customer) setCustomer(data.customer);
       })
       .catch(() => {})
       .finally(() => setChecked(true));
   }, []);
 
-  if (!checked) return <div className="w-10 h-10" />;
+  if (!checked) {
+    return <span className="fbl-account-avatar-skeleton" aria-hidden="true" />;
+  }
 
   if (customer) {
+    const displayName = customer.name?.trim() || 'کاربر';
+    const initial = displayName.charAt(0);
+
     return (
       <Link
         href="/account"
-        className="flex items-center justify-center w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-[#c61d70] to-[#e84e9e] text-white font-black text-sm shadow-md hover:scale-105 transition-transform ring-2 ring-white"
-        aria-label={`حساب ${customer.name}`}
-        title={customer.name}
+        className="fbl-account-avatar"
+        aria-label={`حساب ${displayName}`}
+        title={displayName}
       >
         {customer.avatar ? (
-          <Image src={customer.avatar} alt={customer.name} width={40} height={40} className="w-full h-full object-cover" />
+          <Image
+            src={customer.avatar}
+            alt=""
+            fill
+            sizes="44px"
+            quality={90}
+            className="fbl-account-avatar-image"
+          />
         ) : (
-          customer.name.charAt(0)
+          <span className="fbl-account-avatar-initial" aria-hidden="true">
+            {initial || <UserRound size={19} strokeWidth={1.8} />}
+          </span>
         )}
       </Link>
     );
   }
 
   return (
-    <Link href="/account" className="fl-icon-button" aria-label="حساب کاربری">
-      <User size={18} strokeWidth={1.8} />
+    <Link href="/account" className="fl-icon-button" aria-label="حساب کاربری" title="حساب کاربری">
+      <UserRound size={19} strokeWidth={1.8} />
     </Link>
   );
 }

@@ -3873,3 +3873,164 @@ html {
     width: min(286px, calc(100vw - 28px)) !important;
   }
 }
+
+/* FBL_PREMIUM_HEADER_ACTIONS_20261119 */
+/* A single, quiet visual language for search, account and cart controls. */
+.fbl-store-actions {
+  align-items: center !important;
+  gap: 8px !important;
+}
+.fbl-store-actions .fl-icon-button,
+.fbl-store-actions .fbl-cart-action {
+  position: relative;
+  display: inline-flex !important;
+  width: 42px !important;
+  height: 42px !important;
+  min-width: 42px;
+  flex: 0 0 42px;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  border: 1px solid rgba(232, 205, 220, .92) !important;
+  border-radius: 14px !important;
+  background: linear-gradient(145deg, #fff 0%, #fffafd 100%) !important;
+  color: #76566a !important;
+  box-shadow: 0 3px 11px rgba(89, 39, 68, .055), inset 0 1px 0 rgba(255,255,255,.96) !important;
+  transition: transform .2s ease, border-color .2s ease, background .2s ease, box-shadow .2s ease, color .2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.fbl-store-actions .fl-icon-button svg,
+.fbl-store-actions .fbl-cart-action svg {
+  width: 19px;
+  height: 19px;
+  stroke-width: 1.8;
+}
+.fbl-store-actions .fl-icon-button:hover,
+.fbl-store-actions .fbl-cart-action:hover {
+  transform: translateY(-1px);
+  border-color: rgba(212, 91, 153, .42) !important;
+  background: linear-gradient(145deg, #fff 0%, #fff2f8 100%) !important;
+  color: #bd286f !important;
+  box-shadow: 0 6px 15px rgba(176, 49, 111, .11), inset 0 1px 0 #fff !important;
+}
+.fbl-store-actions .fl-icon-button:active,
+.fbl-store-actions .fbl-cart-action:active {
+  transform: scale(.96);
+}
+.fbl-store-actions .fl-icon-button:focus-visible,
+.fbl-store-actions .fbl-cart-action:focus-visible,
+.fbl-account-avatar:focus-visible {
+  outline: 3px solid rgba(198, 29, 112, .22);
+  outline-offset: 3px;
+}
+.fbl-cart-action { cursor: pointer; }
+.fbl-cart-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  display: grid;
+  min-width: 18px;
+  height: 18px;
+  place-items: center;
+  padding: 0 4px;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  background: #c61d70;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 900;
+  line-height: 1;
+  box-shadow: 0 2px 6px rgba(157, 25, 88, .2);
+}
+.fbl-account-avatar,
+.fbl-account-avatar-skeleton {
+  position: relative;
+  display: inline-flex;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  flex: 0 0 44px;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: #fff5fa;
+  box-shadow: 0 0 0 1px rgba(215, 154, 187, .65), 0 4px 13px rgba(94, 38, 69, .12);
+  transition: transform .2s ease, box-shadow .2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.fbl-account-avatar:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 1px rgba(198, 29, 112, .48), 0 7px 17px rgba(153, 39, 94, .16);
+}
+.fbl-account-avatar-image {
+  z-index: 0;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: 50% 36%;
+}
+.fbl-account-avatar-initial {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #d93688 0%, #a91d63 100%);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 850;
+}
+.fbl-account-avatar-skeleton {
+  border-color: #fff;
+  background: linear-gradient(100deg, #f9edf4 20%, #fff8fb 42%, #f9edf4 64%);
+  background-size: 220% 100%;
+  animation: fbl-avatar-shimmer 1.5s ease-in-out infinite;
+}
+@keyframes fbl-avatar-shimmer {
+  to { background-position-x: -220%; }
+}
+@media (max-width: 767px) {
+  .fbl-store-actions { gap: 5px !important; }
+  .fbl-store-actions .fl-icon-button,
+  .fbl-store-actions .fbl-cart-action {
+    width: 39px !important;
+    height: 39px !important;
+    min-width: 39px;
+    flex-basis: 39px;
+    border-radius: 13px !important;
+  }
+  .fbl-account-avatar,
+  .fbl-account-avatar-skeleton {
+    width: 41px;
+    height: 41px;
+    min-width: 41px;
+    flex-basis: 41px;
+  }
+}
+@media (max-width: 380px) {
+  .fbl-store-actions { gap: 3px !important; }
+  .fbl-store-actions .fl-icon-button,
+  .fbl-store-actions .fbl-cart-action {
+    width: 37px !important;
+    height: 37px !important;
+    min-width: 37px;
+    flex-basis: 37px;
+  }
+  .fbl-account-avatar,
+  .fbl-account-avatar-skeleton {
+    width: 39px;
+    height: 39px;
+    min-width: 39px;
+    flex-basis: 39px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fbl-store-actions .fl-icon-button,
+  .fbl-store-actions .fbl-cart-action,
+  .fbl-account-avatar,
+  .fbl-account-avatar-skeleton {
+    animation: none !important;
+    transition: none !important;
+  }
+}
