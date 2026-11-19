@@ -44,27 +44,27 @@ export default function Header() {
 
   return (
     <>
-      <header className="fbl-store-header sticky top-0 z-50 w-full border-b border-[#e9e5eb] bg-white/90 backdrop-blur-xl">
-        <div className="fbl-store-header-inner container-custom flex h-16 items-center justify-between gap-2 md:h-[74px]">
+      <header className="fbl-store-header fbl-header-couture sticky top-0 z-50 w-full border-b border-[#e9e5eb] bg-white/90 backdrop-blur-xl">
+        <div className="fbl-store-header-inner fbl-header-layout container-custom flex h-16 items-center justify-between gap-2 md:h-[74px]">
           
           {/* لوگو */}
-          <Link href="/" className="fbl-store-brand flex items-center gap-2 shrink-0" aria-label="صفحه اصلی فاطمه بیوتی لند">
-            <span className="fbl-store-brand-mark relative w-9 h-9 overflow-hidden rounded-full border border-[#f1dce7] bg-white shrink-0">
+          <Link href="/" className="fbl-store-brand fbl-brand-link flex items-center gap-2 shrink-0" aria-label="صفحه اصلی فاطمه بیوتی لند">
+            <span className="fbl-store-brand-mark fbl-brand-mark-couture relative w-9 h-9 overflow-hidden rounded-full border border-[#f1dce7] bg-white shrink-0">
               <Image src="/logo.png" alt="نشان فاطمه بیوتی لند" fill sizes="48px" priority />
             </span>
-            <span className="fbl-store-brand-copy flex flex-col whitespace-nowrap">
+            <span className="fbl-store-brand-copy fbl-brand-copy-couture flex flex-col whitespace-nowrap">
               <span className="text-sm font-black text-[#28242b] leading-tight">فاطمه بیوتی لند</span>
               <span className="text-[8px] font-bold tracking-widest text-[#a49ba5]" dir="ltr">FATEMEH BEAUTY LAND</span>
             </span>
           </Link>
 
           {/* ناوبری دسکتاپ */}
-          <nav className="fbl-store-nav hidden md:flex items-center gap-6" aria-label="ناوبری اصلی">
+          <nav className="fbl-store-nav fbl-header-navigation hidden md:flex items-center gap-6" aria-label="ناوبری اصلی">
             {navigation.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="text-xs font-bold text-[#625c66] hover:text-[#c61d70] transition-colors"
+                className="fbl-header-nav-link text-xs font-bold text-[#625c66] hover:text-[#c61d70] transition-colors"
                 aria-current={pathname === item.href ? 'page' : undefined}
               >
                 {item.label}
@@ -109,18 +109,18 @@ export default function Header() {
 
       {/* منوی موبایل */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-[100] md:hidden" role="dialog" aria-modal="true">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={closeOverlays} />
-          <div className="relative flex h-full w-[280px] max-w-[80vw] flex-col bg-white shadow-2xl animate-in slide-in-from-right duration-300 ml-auto">
-            <div className="flex h-16 shrink-0 items-center justify-between border-b border-[#e9e5eb] px-4">
+        <div className="fbl-mobile-menu-overlay fixed inset-0 z-[100] md:hidden" role="dialog" aria-modal="true">
+          <div className="fbl-mobile-menu-backdrop absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={closeOverlays} />
+          <div className="fbl-mobile-menu-panel relative flex h-full w-[280px] max-w-[80vw] flex-col bg-white shadow-2xl animate-in slide-in-from-right duration-300 ml-auto">
+            <div className="fbl-mobile-menu-head flex h-16 shrink-0 items-center justify-between border-b border-[#e9e5eb] px-4">
               <span className="text-sm font-black text-[#28242b]">منوی سایت</span>
               <button onClick={closeOverlays} className="p-2 bg-[#f8f7fa] rounded-xl text-[#77717b]" aria-label="بستن منو">
                 <X size={20} />
               </button>
             </div>
-            <nav className="flex-1 overflow-y-auto p-4 space-y-1" aria-label="ناوبری موبایل">
+            <nav className="fbl-mobile-menu-nav flex-1 overflow-y-auto p-4 space-y-1" aria-label="ناوبری موبایل">
               {navigation.map((item) => (
-                <Link key={item.href} href={item.href} onClick={closeOverlays} className="block px-4 py-3 text-sm font-bold text-[#28242b] hover:bg-[#f8f7fa] rounded-xl transition-colors">
+                <Link key={item.href} href={item.href} onClick={closeOverlays} aria-current={pathname === item.href ? 'page' : undefined} className="fbl-mobile-menu-link block px-4 py-3 text-sm font-bold text-[#28242b] hover:bg-[#f8f7fa] rounded-xl transition-colors">
                   {item.label}
                 </Link>
               ))}

@@ -4271,3 +4271,392 @@ html {
   .fbl-account-avatar-skeleton,
   .fbl-menu-trigger { animation: none !important; transition: none !important; }
 }
+
+/* FBL_HEADER_COUTURE_20261119
+   Complete storefront header redesign: editorial brand lockup, refined nav,
+   balanced action island, responsive composition and a premium mobile drawer. */
+.fbl-header-couture {
+  --fbl-header-ink: #332631;
+  --fbl-header-muted: #806c7a;
+  --fbl-header-rose: #be397c;
+  --fbl-header-line: rgba(222, 190, 208, .62);
+  position: sticky !important;
+  top: 0;
+  z-index: 50;
+  isolation: isolate;
+  overflow: visible;
+  border-bottom: 1px solid rgba(230, 211, 223, .78) !important;
+  background: linear-gradient(180deg, rgba(255,255,255,.96) 0%, rgba(255,252,254,.91) 100%) !important;
+  box-shadow: 0 9px 30px rgba(69, 37, 57, .055), 0 1px 0 rgba(255,255,255,.86) inset !important;
+  -webkit-backdrop-filter: blur(24px) saturate(1.22);
+  backdrop-filter: blur(24px) saturate(1.22);
+}
+.fbl-header-couture::before {
+  position: absolute;
+  z-index: 2;
+  inset: 0 0 auto;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 2%, rgba(228,174,202,.68) 20%, rgba(190,57,124,.58) 50%, rgba(228,174,202,.68) 80%, transparent 98%);
+  content: "";
+  pointer-events: none;
+}
+.fbl-header-couture::after {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% -70%, rgba(248,220,235,.24), transparent 66%);
+  content: "";
+  pointer-events: none;
+}
+.fbl-header-layout {
+  position: relative;
+  display: grid !important;
+  grid-template-columns: minmax(195px, 1fr) auto minmax(190px, 1fr) !important;
+  align-items: center !important;
+  justify-content: initial !important;
+  gap: clamp(12px, 2vw, 28px) !important;
+  width: calc(100% - 48px) !important;
+  max-width: 1440px !important;
+  min-height: 82px !important;
+  height: auto !important;
+  margin-inline: auto;
+  padding-block: 8px !important;
+}
+.fbl-brand-link {
+  justify-self: start;
+  min-width: 0;
+  gap: 12px !important;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.fbl-brand-mark-couture {
+  position: relative;
+  width: 49px !important;
+  height: 49px !important;
+  flex: 0 0 49px !important;
+  border: 1px solid rgba(222, 190, 208, .86) !important;
+  border-radius: 17px !important;
+  background: linear-gradient(145deg, #fff 0%, #fff9fc 60%, #f9edf3 100%) !important;
+  box-shadow: 0 0 0 4px rgba(250, 238, 245, .78), 0 5px 15px rgba(106, 56, 82, .095), inset 0 1px 0 #fff !important;
+  transition: transform .24s cubic-bezier(.2,.8,.2,1), box-shadow .24s ease !important;
+}
+.fbl-brand-mark-couture img { object-fit: contain; padding: 4px; }
+.fbl-brand-link:hover .fbl-brand-mark-couture {
+  transform: translateY(-1px) rotate(-2deg);
+  box-shadow: 0 0 0 5px rgba(250, 232, 242, .92), 0 8px 19px rgba(106, 56, 82, .13), inset 0 1px 0 #fff !important;
+}
+.fbl-brand-copy-couture {
+  gap: 4px !important;
+  line-height: 1.25;
+}
+.fbl-brand-copy-couture > span:first-child {
+  color: #382a35 !important;
+  font-size: 15px !important;
+  font-weight: 900 !important;
+  letter-spacing: -.035em;
+}
+.fbl-brand-copy-couture > span:last-child {
+  color: #a27791 !important;
+  font-size: 7.5px !important;
+  font-weight: 800 !important;
+  letter-spacing: .17em !important;
+  line-height: 1.2;
+}
+.fbl-header-navigation {
+  justify-self: center;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 3px !important;
+  max-width: 100%;
+  padding: 5px !important;
+  border: 1px solid rgba(228, 213, 223, .72);
+  border-radius: 18px;
+  background: rgba(255,255,255,.54);
+  box-shadow: 0 3px 13px rgba(83, 48, 69, .035), inset 0 1px 0 rgba(255,255,255,.9);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+.fbl-header-navigation .fbl-header-nav-link {
+  position: relative;
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 clamp(10px, 1vw, 15px) !important;
+  border: 1px solid transparent;
+  border-radius: 13px;
+  color: #756471 !important;
+  font-size: 11.5px !important;
+  font-weight: 750 !important;
+  letter-spacing: -.015em;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: color .2s ease, background .2s ease, border-color .2s ease, transform .2s ease;
+}
+.fbl-header-navigation .fbl-header-nav-link::after {
+  position: absolute;
+  right: 50%;
+  bottom: 5px;
+  width: 0;
+  height: 2px;
+  border-radius: 9px;
+  background: linear-gradient(90deg, #e5a8c7, #bd397d);
+  content: "";
+  transform: translateX(50%);
+  transition: width .22s ease;
+}
+.fbl-header-navigation .fbl-header-nav-link:hover {
+  border-color: rgba(225, 190, 209, .4);
+  background: linear-gradient(145deg, rgba(255,255,255,.96), rgba(255,244,249,.92));
+  color: #b52e73 !important;
+  transform: translateY(-1px);
+}
+.fbl-header-navigation .fbl-header-nav-link:hover::after,
+.fbl-header-navigation .fbl-header-nav-link[aria-current="page"]::after { width: 18px; }
+.fbl-header-navigation .fbl-header-nav-link[aria-current="page"] {
+  border-color: rgba(222, 174, 199, .34);
+  background: linear-gradient(145deg, rgba(255,255,255,.98), rgba(251,235,244,.88));
+  color: #a92e6e !important;
+  box-shadow: 0 2px 8px rgba(154, 63, 109, .055), inset 0 1px 0 #fff;
+}
+.fbl-header-controls {
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px !important;
+  direction: rtl;
+}
+.fbl-header-action-island {
+  gap: 3px !important;
+  padding: 4px !important;
+  border-color: rgba(224, 195, 212, .76) !important;
+  border-radius: 18px !important;
+  background: linear-gradient(145deg, rgba(255,255,255,.97), rgba(255,248,252,.9) 60%, rgba(255,242,248,.86)) !important;
+  box-shadow: 0 7px 22px rgba(91, 43, 71, .075), 0 1px 2px rgba(91,43,71,.035), inset 0 1px 0 #fff !important;
+}
+.fbl-header-action-island .fl-icon-button,
+.fbl-header-action-island .fbl-cart-action {
+  width: 41px !important;
+  height: 41px !important;
+  min-width: 41px !important;
+  flex-basis: 41px !important;
+  border-radius: 13px !important;
+  color: #775a6d !important;
+}
+.fbl-header-action-island .fl-icon-button svg,
+.fbl-header-action-island .fbl-cart-action svg { width: 19px; height: 19px; stroke-width: 1.75; }
+.fbl-header-action-island .fl-icon-button:hover,
+.fbl-header-action-island .fbl-cart-action:hover,
+.fbl-header-action-island .fl-icon-button[aria-expanded="true"] {
+  border-color: rgba(220,143,181,.25) !important;
+  background: linear-gradient(145deg, #fff, #fff0f7) !important;
+  color: #b62470 !important;
+}
+.fbl-header-action-island .fbl-cart-badge {
+  top: -4px !important;
+  inset-inline-start: -4px !important;
+  min-width: 18px !important;
+  height: 18px !important;
+  border: 2px solid #fff !important;
+  border-radius: 99px !important;
+  background: linear-gradient(145deg, #e34a9a, #ae1f68) !important;
+  box-shadow: 0 2px 8px rgba(157,25,88,.2) !important;
+  font-size: 9px !important;
+}
+.fbl-header-action-island .fbl-account-avatar,
+.fbl-header-action-island .fbl-account-avatar-skeleton {
+  width: 45px !important;
+  height: 45px !important;
+  min-width: 45px !important;
+  flex: 0 0 45px !important;
+}
+.fbl-menu-trigger {
+  width: 41px !important;
+  height: 41px !important;
+  min-width: 41px !important;
+  border-radius: 14px !important;
+  border-color: rgba(224,190,210,.72) !important;
+  background: linear-gradient(145deg, #fff, #fff7fb) !important;
+  color: #795d70 !important;
+  box-shadow: 0 5px 15px rgba(91,43,71,.06), inset 0 1px 0 #fff !important;
+}
+.fbl-menu-trigger:hover { color: #b62470 !important; }
+.fbl-mobile-menu-backdrop {
+  background: rgba(39, 24, 35, .39) !important;
+  -webkit-backdrop-filter: blur(8px) saturate(.82);
+  backdrop-filter: blur(8px) saturate(.82);
+}
+.fbl-mobile-menu-panel {
+  width: min(360px, 88vw) !important;
+  max-width: 88vw !important;
+  border-left: 1px solid rgba(222,190,208,.72);
+  background: linear-gradient(180deg, #fff 0%, #fffafd 54%, #fff6fa 100%) !important;
+  box-shadow: -18px 0 54px rgba(48,27,42,.16) !important;
+  direction: rtl;
+}
+.fbl-mobile-menu-head {
+  min-height: 78px !important;
+  padding-inline: 20px !important;
+  border-bottom-color: rgba(228,211,223,.76) !important;
+  background: rgba(255,255,255,.72);
+}
+.fbl-mobile-menu-head > span {
+  color: #392a36 !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+}
+.fbl-mobile-menu-head button {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(224,190,210,.62);
+  border-radius: 13px;
+  background: #fff;
+  color: #876b7b;
+  box-shadow: 0 3px 10px rgba(91,43,71,.055);
+}
+.fbl-mobile-menu-nav {
+  display: grid;
+  align-content: start;
+  gap: 6px !important;
+  padding: 17px 15px !important;
+}
+.fbl-mobile-menu-nav a,
+.fbl-mobile-menu-nav > button {
+  position: relative;
+  display: flex !important;
+  min-height: 49px;
+  align-items: center;
+  padding: 12px 15px !important;
+  border: 1px solid transparent;
+  border-radius: 14px !important;
+  color: #574653 !important;
+  font-size: 12.5px !important;
+  font-weight: 750 !important;
+  transition: background .2s ease, color .2s ease, border-color .2s ease, transform .2s ease;
+}
+.fbl-mobile-menu-nav a:hover,
+.fbl-mobile-menu-nav > button:hover {
+  cursor: pointer;
+  border-color: rgba(224,190,210,.55);
+  background: linear-gradient(145deg, #fff, #fff0f7) !important;
+  color: #b62470 !important;
+  transform: translateX(-2px);
+}
+.fbl-mobile-menu-nav a[aria-current="page"] {
+  border-color: rgba(224,190,210,.58);
+  background: linear-gradient(145deg, #fff, #fff0f7) !important;
+  color: #b62470 !important;
+}
+.fbl-mobile-menu-nav > div {
+  margin-block: 8px !important;
+  background: rgba(226,207,219,.8) !important;
+}
+.dark .fbl-header-couture {
+  --fbl-header-ink: #f5eaf1;
+  --fbl-header-muted: #c9aebf;
+  --fbl-header-line: rgba(226,190,212,.16);
+  border-bottom-color: rgba(226,190,212,.15) !important;
+  background: linear-gradient(180deg, rgba(36,28,37,.96), rgba(31,24,33,.91)) !important;
+  box-shadow: 0 9px 30px rgba(0,0,0,.2), 0 1px 0 rgba(255,255,255,.035) inset !important;
+}
+.dark .fbl-header-couture::after { background: radial-gradient(ellipse at 50% -70%, rgba(164,73,121,.13), transparent 66%); }
+.dark .fbl-brand-mark-couture {
+  border-color: rgba(226,190,212,.28) !important;
+  background: linear-gradient(145deg, #382b38, #2c222e) !important;
+  box-shadow: 0 0 0 4px rgba(255,255,255,.025), 0 5px 15px rgba(0,0,0,.24) !important;
+}
+.dark .fbl-brand-copy-couture > span:first-child { color: #f7edf3 !important; }
+.dark .fbl-brand-copy-couture > span:last-child { color: #c79bb5 !important; }
+.dark .fbl-header-navigation {
+  border-color: rgba(226,190,212,.13);
+  background: rgba(255,255,255,.035);
+  box-shadow: 0 3px 13px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.045);
+}
+.dark .fbl-header-navigation .fbl-header-nav-link { color: #d8c7d2 !important; }
+.dark .fbl-header-navigation .fbl-header-nav-link:hover,
+.dark .fbl-header-navigation .fbl-header-nav-link[aria-current="page"] {
+  border-color: rgba(226,160,195,.16);
+  background: rgba(194,51,124,.12);
+  color: #ffd5e8 !important;
+  box-shadow: none;
+}
+.dark .fbl-header-action-island {
+  border-color: rgba(226,190,212,.16) !important;
+  background: linear-gradient(145deg, rgba(50,39,51,.97), rgba(35,27,39,.95)) !important;
+  box-shadow: 0 7px 22px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.055) !important;
+}
+.dark .fbl-header-action-island .fl-icon-button,
+.dark .fbl-header-action-island .fbl-cart-action,
+.dark .fbl-menu-trigger { color: #eadde6 !important; }
+.dark .fbl-header-action-island .fl-icon-button:hover,
+.dark .fbl-header-action-island .fbl-cart-action:hover,
+.dark .fbl-menu-trigger:hover { background: rgba(198,29,112,.14) !important; color: #ffd5e8 !important; }
+.dark .fbl-mobile-menu-panel { border-left-color: rgba(226,190,212,.16); background: linear-gradient(180deg, #211b25, #2b202c) !important; }
+.dark .fbl-mobile-menu-head { border-bottom-color: rgba(226,190,212,.13) !important; background: rgba(255,255,255,.025); }
+.dark .fbl-mobile-menu-head > span,
+.dark .fbl-mobile-menu-nav a,
+.fbl-mobile-menu-nav > button { color: #eee1ea !important; }
+.dark .fbl-mobile-menu-head button { border-color: rgba(226,190,212,.16); background: #342838; color: #e7cddd; }
+.dark .fbl-mobile-menu-nav a:hover,
+.fbl-mobile-menu-nav > button:hover {
+  cursor: pointer; border-color: rgba(226,190,212,.16); background: rgba(198,29,112,.13) !important; color: #ffd5e8 !important; }
+
+@media (max-width: 1100px) and (min-width: 901px) {
+  .fbl-header-layout { grid-template-columns: minmax(165px,1fr) auto minmax(165px,1fr) !important; gap: 10px !important; width: calc(100% - 32px) !important; }
+  .fbl-brand-mark-couture { width: 43px !important; height: 43px !important; flex-basis: 43px !important; border-radius: 15px !important; }
+  .fbl-brand-link { gap: 9px !important; }
+  .fbl-brand-copy-couture > span:first-child { font-size: 13px !important; }
+  .fbl-header-navigation { gap: 0 !important; padding: 4px !important; }
+  .fbl-header-navigation .fbl-header-nav-link { min-height: 37px; padding-inline: 9px !important; font-size: 10.5px !important; }
+  .fbl-header-controls { gap: 7px !important; }
+  .fbl-header-action-island .fl-icon-button, .fbl-header-action-island .fbl-cart-action { width: 38px !important; height: 38px !important; min-width: 38px !important; flex-basis: 38px !important; }
+  .fbl-header-action-island .fbl-account-avatar, .fbl-header-action-island .fbl-account-avatar-skeleton { width: 42px !important; height: 42px !important; min-width: 42px !important; flex-basis: 42px !important; }
+}
+@media (max-width: 900px) {
+  .fbl-header-layout {
+    grid-template-columns: minmax(0,1fr) auto !important;
+    min-height: 68px !important;
+    width: calc(100% - 28px) !important;
+    gap: 8px !important;
+    padding-block: 7px !important;
+  }
+  .fbl-header-navigation { display: none !important; }
+  .fbl-menu-trigger { display: inline-flex !important; }
+  .fbl-brand-link { gap: 8px !important; }
+  .fbl-brand-mark-couture { width: 42px !important; height: 42px !important; flex-basis: 42px !important; border-radius: 15px !important; }
+  .fbl-brand-copy-couture > span:first-child { font-size: 12.5px !important; }
+  .fbl-brand-copy-couture > span:last-child { font-size: 6.5px !important; letter-spacing: .12em !important; }
+  .fbl-header-controls { gap: 7px !important; }
+  .fbl-header-action-island { gap: 2px !important; padding: 3px !important; }
+  .fbl-header-action-island .fl-icon-button, .fbl-header-action-island .fbl-cart-action { width: 38px !important; height: 38px !important; min-width: 38px !important; flex-basis: 38px !important; border-radius: 12px !important; }
+  .fbl-header-action-island .fbl-account-avatar, .fbl-header-action-island .fbl-account-avatar-skeleton { width: 42px !important; height: 42px !important; min-width: 42px !important; flex-basis: 42px !important; }
+  .fbl-menu-trigger { width: 38px !important; height: 38px !important; min-width: 38px !important; border-radius: 13px !important; }
+}
+@media (max-width: 380px) {
+  .fbl-header-layout { width: calc(100% - 20px) !important; gap: 5px !important; min-height: 62px !important; }
+  .fbl-brand-link { gap: 6px !important; }
+  .fbl-brand-mark-couture { width: 36px !important; height: 36px !important; flex-basis: 36px !important; border-radius: 13px !important; }
+  .fbl-brand-copy-couture > span:first-child { max-width: 88px; overflow: hidden; font-size: 10.5px !important; text-overflow: ellipsis; }
+  .fbl-brand-copy-couture > span:last-child { display: none !important; }
+  .fbl-header-controls { gap: 5px !important; }
+  .fbl-header-action-island { gap: 0 !important; padding: 2px !important; border-radius: 15px !important; }
+  .fbl-header-action-island .fl-icon-button, .fbl-header-action-island .fbl-cart-action { width: 33px !important; height: 33px !important; min-width: 33px !important; flex-basis: 33px !important; border-radius: 10px !important; }
+  .fbl-header-action-island .fl-icon-button svg, .fbl-header-action-island .fbl-cart-action svg { width: 17px; height: 17px; }
+  .fbl-header-action-island .fbl-account-avatar, .fbl-header-action-island .fbl-account-avatar-skeleton { width: 36px !important; height: 36px !important; min-width: 36px !important; flex-basis: 36px !important; }
+  .fbl-menu-trigger { width: 33px !important; height: 33px !important; min-width: 33px !important; border-radius: 11px !important; }
+}
+@media (hover: none) {
+  .fbl-brand-link:hover .fbl-brand-mark-couture { transform: none; }
+  .fbl-header-navigation .fbl-header-nav-link:hover,
+  .fbl-mobile-menu-nav a:hover,
+.fbl-mobile-menu-nav > button:hover {
+  cursor: pointer; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fbl-header-couture *, .fbl-header-couture *::before, .fbl-mobile-menu-panel,
+  .fbl-mobile-menu-panel *, .fbl-mobile-menu-backdrop { animation: none !important; transition: none !important; }
+}
