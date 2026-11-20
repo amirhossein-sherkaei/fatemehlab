@@ -9,7 +9,7 @@ const Barcode = dynamic(() => import('react-barcode'), { ssr: false });
 
 const SETTLED_STATUSES = ['paid', 'processing', 'shipped', 'delivered'];
 
-export default function InvoiceTemplate({ order, items, isAdmin = false }: { order: any; items: any[]; isAdmin?: boolean }) {
+export default function InvoiceTemplate({ order, items, isAdmin = false, refund = null }: { order: any; items: any[]; isAdmin?: boolean; refund?: { reference: string; reason: string | null; amount: number; createdAt: Date | string } | null }) {
   const orderDate = new Date(order.createdAt).toLocaleDateString('fa-IR');
   const isSettled = SETTLED_STATUSES.includes(order.status);
   const isPending = order.status === 'pending';
@@ -77,6 +77,18 @@ export default function InvoiceTemplate({ order, items, isAdmin = false }: { ord
             <p className="text-sm font-black">این سفارش لغو شده است</p>
             <p className="mt-1 text-xs leading-6">این سند، تأییدیه پرداخت یا ارسال سفارش نیست. وضعیت هرگونه بازپرداخت باید جداگانه از سوابق مالی فروشگاه بررسی شود.</p>
           </div>
+        </div>
+      )}
+      {isCancelled && refund && (
+        <div className="mb-7 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-900 print:bg-white">
+          <p className="text-sm font-black">بازپرداخت دستی در سوابق فروشگاه ثبت شده است</p>
+          <div className="mt-2 grid gap-2 text-xs sm:grid-cols-2">
+            <p>مبلغ ثبت‌شده: <strong>{formatToman(refund.amount)}</strong></p>
+            <p>شناسه بازپرداخت: <strong className="font-mono" dir="ltr">{refund.reference}</strong></p>
+            <p>تاریخ ثبت: <strong>{new Date(refund.createdAt).toLocaleDateString('fa-IR')}</strong></p>
+            {isAdmin && refund.reason && <p className="sm:col-span-2">علت ثبت: <strong>{refund.reason}</strong></p>}
+          </div>
+          <p className="mt-2 text-[10px] leading-5">این سند، ثبت داخلی بازپرداخت را نشان می‌دهد؛ تأیید نهایی انتقال وجه باید با سوابق درگاه تطبیق داده شود.</p>
         </div>
       )}
 
@@ -153,9 +165,10 @@ export default function InvoiceTemplate({ order, items, isAdmin = false }: { ord
             </div>
           )}
           <div className="mt-2 flex justify-between gap-4 border-t border-gray-200 pt-3 text-base font-black text-[#c61d70]">
-            <span>{isSettled ? 'مبلغ نهایی سفارش:' : 'مبلغ قابل پرداخت:'}</span>
+            <span>{isSettled ? 'مبلغ نهایی سفارش:' : isPending ? 'مبلغ قابل پرداخت:' : 'مبلغ سفارش هنگام ثبت:'}</span>
             <span className="whitespace-nowrap">{formatToman(order.totalAmount)}</span>
           </div>
+          <p className="rounded-lg bg-slate-50 px-3 py-2 text-[10px] leading-5 text-slate-600">هزینه ارسال در این سند محاسبه نشده و در مبلغ فوق لحاظ نیست.</p>
           {!isSettled && <p className="rounded-lg bg-amber-50 px-3 py-2 text-[10px] leading-5 text-amber-800">مبالغ این پیش‌فاکتور تا زمان تأیید پرداخت قطعی نیستند.</p>}
         </div>
       </div>

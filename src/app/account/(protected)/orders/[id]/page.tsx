@@ -1,7 +1,7 @@
 import { formatPersianDate } from '@/lib/format';
 import { db } from '@/lib/db';
-import { orders, orderItems } from '@/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { orders, orderItems, orderEvents } from '@/db/schema';
+import { eq, and, desc } from 'drizzle-orm';
 import { getCurrentCustomer } from '@/lib/customer-auth';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { formatToman } from '@/lib/currency';
 import PaymentActionButton from '@/components/account/PaymentActionButton';
+import OrderActivityTimeline from '@/components/order/OrderActivityTimeline';
 
 const steps = [
   { id: 'paid', title: 'پرداخت تأیید شد', icon: CreditCard },
@@ -34,10 +35,15 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
 
   if (!order) notFound();
 
-  const items = await db.select().from(orderItems).where(eq(orderItems.orderId, id));
+  const [items, events] = await Promise.all([
+    db.select().from(orderItems).where(eq(orderItems.orderId, id)),
+    db.select({ id: orderEvents.id, eventType: orderEvents.eventType, summary: orderEvents.summary, fromStatus: orderEvents.fromStatus, toStatus: orderEvents.toStatus, createdAt: orderEvents.createdAt })
+      .from(orderEvents).where(eq(orderEvents.orderId, id)).orderBy(desc(orderEvents.createdAt)).limit(40),
+  ]);
   const currentStep = steps.findIndex((step) => step.id === order.status);
   const isPending = order.status === 'pending';
   const isCancelled = order.status === 'cancelled';
+  const isZeroAmountOrder = order.totalAmount === 0 && ['paid', 'processing', 'shipped', 'delivered'].includes(order.status);
   const totalDiscount = Math.max(0, Number(order.discountAmount) || 0);
   const pointsDiscount = Math.min(totalDiscount, Math.max(0, Number(order.usedPoints) || 0) * 10000);
   const couponDiscount = Math.max(0, totalDiscount - pointsDiscount);
@@ -69,7 +75,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
             <p className="text-sm font-bold">{formatPersianDate(order.createdAt)}</p>
           </div>
           <div className="text-left">
-            <p className="mb-1 text-xs text-[#77717b]">مبلغ سفارش</p>
+            <p className="mb-1 text-xs text-[#77717b]">{isZeroAmountOrder ? 'مبلغ نهایی (بدون پرداخت آنلاین)' : 'مبلغ سفارش'}</p>
             <p className="text-lg font-black text-[#c61d70]">{formatToman(order.totalAmount)}</p>
           </div>
         </div>
@@ -114,7 +120,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                         <step.icon size={18} />
                       </div>
                       <span className={`text-center text-[10px] font-bold md:text-xs ${isActive ? 'text-[#c61d70]' : isCompleted ? 'text-[#28242b]' : 'text-[#918a95]'}`}>
-                        {step.title}
+                        {index === 0 && isZeroAmountOrder ? 'بدون نیاز به پرداخت' : step.title}
                       </span>
                     </div>
                   );
@@ -130,6 +136,11 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
         ) : (
           <p className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">وضعیت سفارش نیازمند بررسی پشتیبانی است.</p>
         )}
+      </div>
+
+      <div className="rounded-3xl border border-[#e9e5eb] bg-white p-6 shadow-sm md:p-8">
+        <h2 className="mb-5 flex items-center gap-2 text-lg font-black text-[#28242b]"><Clock size={19} className="text-[#c61d70]" /> تاریخچه سفارش</h2>
+        <OrderActivityTimeline events={events} />
       </div>
 
       <div className="rounded-3xl border border-[#e9e5eb] bg-white p-6 shadow-sm md:p-8">

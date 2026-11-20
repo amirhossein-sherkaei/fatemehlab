@@ -48,7 +48,7 @@ export default function CheckoutPage() {
   const [loyaltyPoints, setLoyaltyPoints] = useState(0);
   const [usePoints, setUsePoints] = useState(false);
   const [pointsToUse, setPointsToUse] = useState(0);
-  
+
   const [formData, setFormData] = useState({
     firstName: '', lastName: '', phone: '', address: '', city: '', postalCode: '', notes: '',
   });
@@ -58,13 +58,15 @@ export default function CheckoutPage() {
     loyaltyPoints,
     Math.floor(Math.max(0, getTotalPrice() - couponDiscountAmount) / 10000)
   );
+  const effectiveUsedPoints = usePoints ? Math.min(Math.max(0, pointsToUse), maxRedeemablePoints) : 0;
+  const effectivePointsDiscount = effectiveUsedPoints * 10000;
   const totalPayableBeforeShipping = Math.max(
     0,
-    getTotalPrice() - couponDiscountAmount - (pointsToUse * 10000)
+    getTotalPrice() - couponDiscountAmount - effectivePointsDiscount
   );
 
-  useEffect(() => { 
-    setIsMounted(true); 
+  useEffect(() => {
+    setIsMounted(true);
     // پاکسازی state تخفیف هنگام ورود تازه به تسویه‌حساب
     setAppliedCoupon(null);
     setCouponCode('');
@@ -78,7 +80,7 @@ export default function CheckoutPage() {
   // 🛡️ اعتبارسنجی مجدد کد تخفیف وقتی سبد خرید تغییر می‌کند
   useEffect(() => {
     if (!appliedCoupon) return;
-    
+
     const revalidate = async () => {
       try {
         const res = await fetch('/api/coupons/validate', {
@@ -87,7 +89,7 @@ export default function CheckoutPage() {
           body: JSON.stringify({ code: appliedCoupon.code, orderAmount: getTotalPrice() }),
         });
         const data = await res.json();
-        
+
         if (!res.ok || !data.success) {
           setAppliedCoupon(null);
           setCouponCode('');
@@ -112,13 +114,13 @@ export default function CheckoutPage() {
           router.replace('/account/login?redirect=/checkout');
         } else {
           setCheckingAuth(false);
-          
+
           // ✅ پر کردن خودکار فرم با اطلاعات ثبت‌نام کاربر
           if (data.customer) {
             const nameParts = (data.customer.name || '').trim().split(' ');
             const firstName = nameParts[0] || '';
             const lastName = nameParts.slice(1).join(' ') || '';
-            
+
             setFormData(prev => ({
               ...prev,
               firstName: prev.firstName || firstName,
@@ -212,7 +214,7 @@ export default function CheckoutPage() {
 const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (items.length === 0 || loading || isSubmitting) return;
-    
+
     setLoading(true);
     setIsSubmitting(true);
     const toastId = toast.loading('در حال ثبت سفارش و اتصال به درگاه...');
@@ -235,7 +237,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         credentials: 'same-origin',
         cache: 'no-store',
-        body: JSON.stringify({ idempotencyKey, customer: formData, cartItems: items, couponCode: appliedCoupon?.code || null, usedPoints: usePoints ? pointsToUse : 0 }),
+        body: JSON.stringify({ idempotencyKey, customer: formData, cartItems: items, couponCode: appliedCoupon?.code || null, usedPoints: effectiveUsedPoints }),
       });
       const data = await res.json();
 
@@ -328,17 +330,35 @@ const handleSubmit = async (e: React.FormEvent) => {
     <div className="min-h-screen bg-[#fafafc] flex flex-col">
       <CheckoutBrand />
       <main className="flex-1 container-custom py-6 md:py-10 pb-32 md:pb-10">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl md:text-3xl font-black text-[#28242b]">تسویه‌حساب</h1>
-          <Link href="/cart" className="flex items-center gap-1 text-sm font-medium text-[#77717b] hover:text-[#c61d70] transition-colors">
+        <div className="mb-6 flex items-center justify-between gap-3">
+          <div>
+            <p className="mb-1 text-[10px] font-bold tracking-[.14em] text-[#a77c94]">SECURE CHECKOUT</p>
+            <h1 className="text-2xl font-black text-[#28242b] md:text-3xl">تسویه‌حساب</h1>
+          </div>
+          <Link href="/cart" className="inline-flex min-h-10 items-center gap-1 rounded-xl border border-[#e9e5eb] bg-white px-3 text-xs font-bold text-[#77717b] transition-colors hover:border-[#c61d70]/40 hover:text-[#c61d70]">
             <ArrowRight size={16} /> بازگشت به سبد
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-10">
+        <ol className="mb-6 grid grid-cols-3 overflow-hidden rounded-2xl border border-[#eadfe7] bg-white shadow-[0_5px_22px_rgba(68,38,58,.035)]" aria-label="مراحل خرید">
+          <li className="flex items-center gap-2 border-l border-[#eee5ec] bg-[#fff8fb] px-3 py-3 text-[#a92768] sm:px-4">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#a92768] text-xs font-black text-white">۱</span>
+            <span className="min-w-0"><strong className="block text-[11px]">اطلاعات ارسال</strong><small className="block text-[9px] text-[#977b8f]">گیرنده و آدرس</small></span>
+          </li>
+          <li className="flex items-center gap-2 border-l border-[#eee5ec] px-3 py-3 text-[#77717b] sm:px-4">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#f5eff4] text-xs font-black">۲</span>
+            <span className="min-w-0"><strong className="block text-[11px]">بررسی سفارش</strong><small className="block text-[9px] text-[#a69aa5]">مبلغ و تخفیف‌ها</small></span>
+          </li>
+          <li className="flex items-center gap-2 px-3 py-3 text-[#77717b] sm:px-4">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#f5eff4] text-xs font-black">۳</span>
+            <span className="min-w-0"><strong className="block text-[11px]">پرداخت امن</strong><small className="block text-[9px] text-[#a69aa5]">تأیید درگاه</small></span>
+          </li>
+        </ol>
+
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-5 lg:gap-10">
           <div className="lg:col-span-3">
             <form id="checkout-form" onSubmit={handleSubmit} className="bg-white rounded-3xl border border-[#e9e5eb] p-5 md:p-8 space-y-6">
-              
+
               {/* انتخاب آدرس ذخیره‌شده */}
               {savedAddresses.length > 0 && (
                 <div className="space-y-3">
@@ -347,7 +367,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                       <MapPin size={20} className="text-[#c61d70]" /> آدرس ارسال
                     </h2>
                   </div>
-                  
+
                   <div className="grid gap-2">
                     {savedAddresses.map(addr => (
                       <button
@@ -364,7 +384,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                         <p className="text-[10px] text-[#918a95] line-clamp-1 mt-1">{addr.address}</p>
                       </button>
                     ))}
-                    
+
                     <button
                       type="button"
                       onClick={() => setUseNewAddress(true)}
@@ -380,7 +400,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               {useNewAddress && (
                 <div className="space-y-4 pt-4 border-t border-[#e9e5eb]">
                   {savedAddresses.length > 0 && <h3 className="font-black text-sm text-[#28242b]">اطلاعات آدرس جدید</h3>}
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-[#28242b]">نام *</label>
@@ -446,8 +466,11 @@ const handleSubmit = async (e: React.FormEvent) => {
                 </div>
                 <div className="flex justify-between text-[#77717b]">
                   <span>هزینه ارسال</span>
-                  <span className="text-[#c61d70] font-bold">در مرحله بعد</span>
+                  <span className="text-[#8a6d7d] font-bold">در این مبلغ محاسبه نشده</span>
                 </div>
+                <p className="rounded-lg bg-[#faf7f9] px-3 py-2 text-[10px] leading-5 text-[#806f7b]">
+                  در نسخه فعلی، سامانه هزینه ارسال را به‌صورت خودکار محاسبه نمی‌کند؛ مبلغ نمایش‌داده‌شده شامل هزینه احتمالی ارسال نیست.
+                </p>
               </div>
 
               {/* Coupon Section */}
@@ -482,8 +505,8 @@ const handleSubmit = async (e: React.FormEvent) => {
                 <div className="border-t border-[#e9e5eb] mt-4 pt-4 space-y-3">
                   <label className="flex items-center justify-between cursor-pointer group">
                     <div className="flex items-center gap-2">
-                      <input 
-                        type="checkbox" 
+                      <input
+                        type="checkbox"
                         checked={usePoints}
                         onChange={(e) => {
                           setUsePoints(e.target.checked);
@@ -500,17 +523,17 @@ const handleSubmit = async (e: React.FormEvent) => {
                     <div className="bg-[#fff0f7] rounded-xl p-3 border border-[#f2d7e5] animate-in slide-in-from-top-2">
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-xs font-bold text-[#28242b]">تعداد امتیاز برای استفاده:</span>
-                        <span className="text-xs font-black text-[#c61d70]">{pointsToUse.toLocaleString('fa-IR')} امتیاز</span>
+                        <span className="text-xs font-black text-[#c61d70]">{effectiveUsedPoints.toLocaleString('fa-IR')} امتیاز</span>
                       </div>
-                      <input 
-                        type="range" 
-                        min={0} 
+                      <input
+                        type="range"
+                        min={0}
                         max={maxRedeemablePoints}
                         value={pointsToUse}
                         onChange={(e) => setPointsToUse(parseInt(e.target.value))}
                         className="w-full accent-[#c61d70]"
                       />
-                      <p className="text-[10px] text-[#77717b] mt-2">تخفیف امتیاز: {formatToman(pointsToUse * 10000)}</p>
+                      <p className="text-[10px] text-[#77717b] mt-2">تخفیف امتیاز: {formatToman(effectivePointsDiscount)}</p>
                     </div>
                   )}
                 </div>
@@ -524,7 +547,7 @@ const handleSubmit = async (e: React.FormEvent) => {
 
               <div className="border-t border-[#e9e5eb] mt-4 pt-4 flex justify-between items-center mb-6">
                 <span className="font-bold text-[#28242b]">مبلغ قابل پرداخت</span>
-                <span className="font-black text-xl text-[#c61d70]">
+                <span className="font-black text-xl text-[#c61d70]" aria-live="polite">
                   {formatToman(totalPayableBeforeShipping)}
                 </span>
               </div>
@@ -541,7 +564,7 @@ const handleSubmit = async (e: React.FormEvent) => {
           </div>
         </div>
       </main>
-      
+
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-[60] bg-white/95 backdrop-blur-xl border-t border-[#e9e5eb] px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] shadow-[0_-8px_30px_rgba(40,36,43,.06)]">
         <div className="flex items-center justify-between gap-4">
           <div>
@@ -553,7 +576,7 @@ const handleSubmit = async (e: React.FormEvent) => {
           </button>
         </div>
       </div>
-      
+
       <div className="hidden md:block"><Footer /></div>
     </div>
   );

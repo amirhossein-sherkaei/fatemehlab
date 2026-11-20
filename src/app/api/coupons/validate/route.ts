@@ -8,7 +8,7 @@ import { rateLimit } from '@/lib/rate-limit';
 
 const schema = z.object({
   code: z.string().trim().min(1).max(100),
-  orderAmount: z.number().finite().min(0),
+  orderAmount: z.number().int().min(0).max(2_147_483_647),
 });
 
 export async function POST(req: Request) {
@@ -16,7 +16,10 @@ export async function POST(req: Request) {
   if (!valid) return rejectCsrf(req);
   try {
     const ip = getClientIp(req);
-    const rl = await rateLimit('coupon-validate:' + ip);
+    const rl = await rateLimit('coupon-validate:' + ip, { failClosedOnStoreError: true });
+    if (rl.unavailable) {
+      return NextResponse.json({ success: false, message: 'سامانه کنترل امنیتی کد تخفیف موقتاً در دسترس نیست.' }, { status: 503 });
+    }
     if (!rl.success) {
       return NextResponse.json({ success: false, message: 'تعداد تلاش‌ها زیاد است. لطفاً کمی بعد تلاش کنید.' }, { status: 429 });
     }

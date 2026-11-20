@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
-import { customers, orders } from '@/db/schema';
 import { and, eq, sql } from 'drizzle-orm';
-import { isSettledOrderStatus } from '@/lib/order-payment';
-import { inquireZarinpalAuthority, verifyZarinpalAuthority } from '@/lib/zarinpal';
+import { db } from '@/lib/db';
+import { orders, paymentAttempts } from '@/db/schema';
+import { appendOrderEvent, finalizeVerifiedOrder, isSettledOrderStatus } from '@/lib/order-payment';
+import { inquireZarinpalAuthority, verifyZarinpalAuthority, type ZarinpalInquiryState } from '@/lib/zarinpal';
+import { getClientIp } from '@/lib/security';
 import { rateLimit } from '@/lib/rate-limit';
 
 function failureRedirect(baseUrl: string, reason: string, orderId?: string | null) {
@@ -20,6 +21,103 @@ function successRedirect(baseUrl: string, orderId: string, trackingCode: string)
   return NextResponse.redirect(target);
 }
 
+async function recordGatewayState(
+  orderId: string,
+  authority: string,
+  state: ZarinpalInquiryState,
+): Promise<boolean> {
+  const status = state.status === 'FAILED' ? 'failed'
+    : state.status === 'REVERSED' ? 'reversed'
+      : state.status === 'IN_BANK' ? 'in_bank'
+        : 'unknown';
+
+  return db.transaction(async (tx) => {
+    await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext('fatemehlab:payment'), hashtext(${orderId}))`);
+    const [order] = await tx.select({ status: orders.status, paymentAuthority: orders.paymentAuthority })
+      .from(orders).where(eq(orders.id, orderId)).limit(1);
+    if (!order || order.status !== 'pending' || order.paymentAuthority !== authority) return false;
+
+    const [attempt] = await tx.select({ id: paymentAttempts.id, status: paymentAttempts.status })
+      .from(paymentAttempts)
+      .where(and(eq(paymentAttempts.orderId, orderId), eq(paymentAttempts.authority, authority)))
+      .limit(1);
+
+    if (attempt) {
+      await tx.update(paymentAttempts).set({
+        status,
+        gatewayCode: Number.isFinite(state.code) ? state.code : null,
+        gatewayMessage: state.status || 'Unknown gateway state',
+        lastCheckedAt: new Date(),
+        updatedAt: new Date(),
+      }).where(eq(paymentAttempts.id, attempt.id));
+    }
+
+    if (status === 'failed' || status === 'reversed') {
+      await appendOrderEvent(tx, {
+        orderId,
+        actorType: 'gateway',
+        eventType: status === 'failed' ? 'payment.failed' : 'payment.reversed',
+        summary: status === 'failed' ? 'زرین‌پال تراکنش را ناموفق اعلام کرد؛ سفارش برای تلاش مجدد حفظ شد.' : 'زرین‌پال تراکنش را برگشت‌خورده اعلام کرد؛ سفارش برای تلاش مجدد حفظ شد.',
+        metadata: { gatewayCode: state.code },
+      });
+    } else if (status === 'in_bank') {
+      await appendOrderEvent(tx, {
+        orderId,
+        actorType: 'gateway',
+        eventType: 'payment.in_bank',
+        summary: 'درگاه اعلام کرد تراکنش هنوز در بانک در حال انجام است؛ پرداخت جدیدی ساخته نمی‌شود.',
+        metadata: { gatewayCode: state.code },
+      });
+    }
+    return true;
+  });
+}
+
+async function reconcileInquiry(
+  merchantId: string,
+  orderId: string,
+  amount: number,
+  authority: string,
+  trackingCode: string,
+  baseUrl: string,
+  inquiry: Awaited<ReturnType<typeof inquireZarinpalAuthority>>,
+) {
+  const state = inquiry.result;
+  if (!inquiry.response.ok || state.code !== 100 || !state.status) {
+    console.error('[Zarinpal Inquiry Response]', inquiry.data);
+    return failureRedirect(baseUrl, 'verify_failed', orderId);
+  }
+
+  if (state.status === 'VERIFIED') {
+    const finalized = await finalizeVerifiedOrder(orderId, authority, state.refId);
+    return finalized ? successRedirect(baseUrl, orderId, trackingCode) : failureRedirect(baseUrl, 'verification_conflict', orderId);
+  }
+
+  if (state.status === 'PAID') {
+    let verification;
+    try {
+      verification = await verifyZarinpalAuthority(merchantId, amount, authority);
+    } catch (error) {
+      console.error('[Zarinpal verify after inquiry PAID]', error);
+      return failureRedirect(baseUrl, 'payment_processing', orderId);
+    }
+    if (verification.response.ok && [100, 101].includes(verification.result.code)) {
+      const finalized = await finalizeVerifiedOrder(orderId, authority, verification.result.refId ?? state.refId);
+      return finalized ? successRedirect(baseUrl, orderId, trackingCode) : failureRedirect(baseUrl, 'verification_conflict', orderId);
+    }
+    await recordGatewayState(orderId, authority, { ...state, status: 'PAID', code: verification.result.code });
+    return failureRedirect(baseUrl, 'payment_processing', orderId);
+  }
+
+  if (state.status === 'FAILED' || state.status === 'REVERSED' || state.status === 'IN_BANK') {
+    await recordGatewayState(orderId, authority, state);
+    return failureRedirect(baseUrl, state.status === 'IN_BANK' ? 'payment_processing' : 'payment_not_completed', orderId);
+  }
+
+  await recordGatewayState(orderId, authority, state);
+  return failureRedirect(baseUrl, 'verify_failed', orderId);
+}
+
 export async function GET(req: Request) {
   const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'https://fatemehbeautyland.ir').replace(/\/+$/, '');
   const params = new URL(req.url).searchParams;
@@ -33,138 +131,66 @@ export async function GET(req: Request) {
     }
     if (callbackStatus !== 'OK' && callbackStatus !== 'NOK') return failureRedirect(baseUrl, 'invalid_callback', orderId);
 
+    const callbackLimit = await rateLimit('payment-callback:' + getClientIp(req) + ':' + orderId, { failClosedOnStoreError: true });
+    if (callbackLimit.unavailable) return failureRedirect(baseUrl, 'server_error', orderId);
+    if (!callbackLimit.success) return failureRedirect(baseUrl, 'verify_failed', orderId);
+
     const merchantId = process.env.ZARINPAL_MERCHANT_ID;
     if (!merchantId) return failureRedirect(baseUrl, 'server_error', orderId);
 
-    // Serialize callback verification with customer retries and expired-order cleanup.
-    // This prevents a late callback for an old authority racing a newly issued authority.
-    return await db.transaction(async (tx) => {
-      await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext('fatemehlab:payment'), hashtext(${orderId}))`);
+    // Read first, perform network calls outside the DB transaction, then use the
+    // shared advisory lock only for the atomic state transition. This prevents
+    // holding a database connection/lock while waiting on the remote gateway.
+    const [order] = await db.select({
+      id: orders.id,
+      status: orders.status,
+      totalAmount: orders.totalAmount,
+      paymentAuthority: orders.paymentAuthority,
+      trackingCode: orders.trackingCode,
+    }).from(orders).where(eq(orders.id, orderId)).limit(1);
 
-      const [order] = await tx.select().from(orders).where(eq(orders.id, orderId)).limit(1);
-      if (!order) return failureRedirect(baseUrl, 'order_not_found', orderId);
-      if (order.paymentAuthority !== authority) {
-        console.error('[SECURITY] Authority mismatch for order ' + orderId);
-        return failureRedirect(baseUrl, 'security_error', orderId);
-      }
+    if (!order) return failureRedirect(baseUrl, 'order_not_found', orderId);
+    if (order.paymentAuthority !== authority) {
+      console.error('[SECURITY] Zarinpal authority mismatch for order ' + orderId);
+      return failureRedirect(baseUrl, 'security_error', orderId);
+    }
+    if (order.status === 'cancelled') return failureRedirect(baseUrl, 'cancelled', orderId);
+    if (isSettledOrderStatus(order.status)) return successRedirect(baseUrl, orderId, order.trackingCode);
+    if (order.status !== 'pending') return failureRedirect(baseUrl, 'invalid_order_state', orderId);
 
-      const callbackLimit = await rateLimit('payment-callback:' + orderId, { failClosedOnStoreError: true });
-      if (callbackLimit.unavailable) return failureRedirect(baseUrl, 'server_error', orderId);
-      if (!callbackLimit.success) return failureRedirect(baseUrl, 'verify_failed', orderId);
-      if (order.status === 'cancelled') return failureRedirect(baseUrl, 'cancelled', orderId);
-      if (isSettledOrderStatus(order.status)) return successRedirect(baseUrl, orderId, order.trackingCode);
-      if (order.status !== 'pending') return failureRedirect(baseUrl, 'invalid_order_state', orderId);
-
-      const finalizeInsideTransaction = async (refId: string | null): Promise<boolean> => {
-        const [current] = await tx.select({
-          status: orders.status,
-          paymentAuthority: orders.paymentAuthority,
-          customerId: orders.customerId,
-          totalAmount: orders.totalAmount,
-        }).from(orders).where(eq(orders.id, orderId)).limit(1);
-
-        if (!current) return false;
-        if (isSettledOrderStatus(current.status)) return true;
-        if (current.status !== 'pending' || current.paymentAuthority !== authority) return false;
-
-        const [updated] = await tx.update(orders)
-          .set({ status: 'paid', ...(refId ? { paymentRefId: refId } : {}) })
-          .where(and(eq(orders.id, orderId), eq(orders.status, 'pending'), eq(orders.paymentAuthority, authority)))
-          .returning({ id: orders.id });
-
-        if (!updated) {
-          const [latest] = await tx.select({ status: orders.status }).from(orders).where(eq(orders.id, orderId)).limit(1);
-          return isSettledOrderStatus(latest?.status);
-        }
-
-        if (current.customerId && current.totalAmount > 0) {
-          const earnedPoints = Math.floor(current.totalAmount / 100000);
-          if (earnedPoints > 0) {
-            const [updatedCustomer] = await tx.update(customers)
-              .set({ loyaltyPoints: sql`${customers.loyaltyPoints} + ${earnedPoints}` })
-              .where(eq(customers.id, current.customerId))
-              .returning({ loyaltyPoints: customers.loyaltyPoints });
-            if (updatedCustomer) {
-              const tier = updatedCustomer.loyaltyPoints >= 1500 ? 'gold' : updatedCustomer.loyaltyPoints >= 500 ? 'silver' : 'bronze';
-              await tx.update(customers).set({ tier }).where(eq(customers.id, current.customerId));
-            }
-          }
-        }
-        return true;
-      };
-
-      let shouldVerify = callbackStatus === 'OK';
-      let inquiryRefId: string | null = null;
-
-      // A NOK callback is not proof that no money moved. Inquiry is non-destructive.
-      if (callbackStatus === 'NOK') {
-        let inquiry;
-        try {
-          inquiry = await inquireZarinpalAuthority(merchantId, authority);
-        } catch (error) {
-          console.error('[Zarinpal NOK Inquiry Error]', error);
-          return failureRedirect(baseUrl, 'verify_failed', orderId);
-        }
-        const { code, status, refId } = inquiry.result;
-        inquiryRefId = refId;
-        if (!inquiry.response.ok || code !== 100 || !status) {
-          console.error('[Zarinpal NOK Inquiry Response]', inquiry.data);
-          return failureRedirect(baseUrl, 'verify_failed', orderId);
-        }
-        if (status === 'VERIFIED') {
-          const finalized = await finalizeInsideTransaction(refId);
-          return finalized ? successRedirect(baseUrl, orderId, order.trackingCode) : failureRedirect(baseUrl, 'verification_conflict', orderId);
-        }
-        if (status === 'FAILED' || status === 'REVERSED') {
-          // Retain authority here. Only the retry endpoint may clear it after a fresh
-          // inquiry under the same lock, preventing callback/retry races.
-          return failureRedirect(baseUrl, 'cancelled', orderId);
-        }
-        if (status === 'IN_BANK') return failureRedirect(baseUrl, 'payment_processing', orderId);
-        if (status !== 'PAID') return failureRedirect(baseUrl, 'verify_failed', orderId);
-        shouldVerify = true;
-      }
-
-      if (!shouldVerify) return failureRedirect(baseUrl, 'invalid_callback', orderId);
-
-      // Verify only after an OK callback or an Inquiry result that independently says PAID.
-      let verification;
+    if (callbackStatus === 'NOK') {
+      let inquiry;
       try {
-        verification = await verifyZarinpalAuthority(merchantId, order.totalAmount, authority);
+        inquiry = await inquireZarinpalAuthority(merchantId, authority);
       } catch (error) {
-        console.error('[Zarinpal Verify Request Error]', error);
+        console.error('[Zarinpal NOK Inquiry Error]', error);
         return failureRedirect(baseUrl, 'verify_failed', orderId);
       }
+      return reconcileInquiry(merchantId, orderId, order.totalAmount, authority, order.trackingCode, baseUrl, inquiry);
+    }
 
-      if (verification.response.ok && (verification.result.code === 100 || verification.result.code === 101)) {
-        const finalized = await finalizeInsideTransaction(verification.result.refId ?? inquiryRefId);
-        return finalized ? successRedirect(baseUrl, orderId, order.trackingCode) : failureRedirect(baseUrl, 'verification_conflict', orderId);
-      }
+    let verification;
+    try {
+      verification = await verifyZarinpalAuthority(merchantId, order.totalAmount, authority);
+    } catch (error) {
+      console.error('[Zarinpal Verify Request Error]', error);
+      return failureRedirect(baseUrl, 'payment_processing', orderId);
+    }
 
-      console.error('[Zarinpal Verify Error]', verification.data);
+    if (verification.response.ok && [100, 101].includes(verification.result.code)) {
+      const finalized = await finalizeVerifiedOrder(orderId, authority, verification.result.refId);
+      return finalized ? successRedirect(baseUrl, orderId, order.trackingCode) : failureRedirect(baseUrl, 'verification_conflict', orderId);
+    }
 
-      // Recover by Inquiry without destroying an active or unknown authority.
-      let fallbackInquiry;
-      try {
-        fallbackInquiry = await inquireZarinpalAuthority(merchantId, authority);
-      } catch (error) {
-        console.error('[Zarinpal Verify Fallback Inquiry Error]', error);
-        return failureRedirect(baseUrl, 'verify_failed', orderId);
-      }
-      const fallback = fallbackInquiry.result;
-      if (!fallbackInquiry.response.ok || fallback.code !== 100 || !fallback.status) {
-        return failureRedirect(baseUrl, 'verify_failed', orderId);
-      }
-      if (fallback.status === 'VERIFIED') {
-        const finalized = await finalizeInsideTransaction(fallback.refId ?? inquiryRefId);
-        return finalized ? successRedirect(baseUrl, orderId, order.trackingCode) : failureRedirect(baseUrl, 'verification_conflict', orderId);
-      }
-      if (fallback.status === 'FAILED' || fallback.status === 'REVERSED') {
-        return failureRedirect(baseUrl, 'cancelled', orderId);
-      }
-      if (fallback.status === 'IN_BANK') return failureRedirect(baseUrl, 'payment_processing', orderId);
-      return failureRedirect(baseUrl, 'verify_failed', orderId);
-    });
+    console.error('[Zarinpal Verify Error]', verification.data);
+    let fallbackInquiry;
+    try {
+      fallbackInquiry = await inquireZarinpalAuthority(merchantId, authority);
+    } catch (error) {
+      console.error('[Zarinpal Verify Fallback Inquiry Error]', error);
+      return failureRedirect(baseUrl, 'payment_processing', orderId);
+    }
+    return reconcileInquiry(merchantId, orderId, order.totalAmount, authority, order.trackingCode, baseUrl, fallbackInquiry);
   } catch (error) {
     console.error('[Payment Verify Error]', error);
     return failureRedirect(baseUrl, 'server_error', orderId);

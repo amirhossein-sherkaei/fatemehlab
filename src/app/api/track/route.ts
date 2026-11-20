@@ -16,13 +16,17 @@ export async function POST(req: Request) {
   if (!valid) return rejectCsrf(req);
   try {
     const ip = getClientIp(req);
-    const limit = await rateLimit('track-order:' + ip);
+    const limit = await rateLimit('track-order:' + ip, { failClosedOnStoreError: true });
+    if (limit.unavailable) return NextResponse.json({ message: 'سامانه کنترل امنیتی رهگیری موقتاً در دسترس نیست.' }, { status: 503 });
     if (!limit.success) return NextResponse.json({ message: 'تعداد تلاش‌های شما برای رهگیری زیاد بوده است. لطفاً یک دقیقه دیگر تلاش کنید.' }, { status: 429 });
 
     const parsed = schema.safeParse(await req.json());
     if (!parsed.success) return NextResponse.json({ message: 'کد رهگیری یا شماره تماس معتبر نیست.' }, { status: 400 });
     const trackingCode = parsed.data.trackingCode.toUpperCase();
     const phone = parsed.data.phone;
+    const phoneLimit = await rateLimit('track-order-phone:' + phone, { failClosedOnStoreError: true });
+    if (phoneLimit.unavailable) return NextResponse.json({ message: 'سامانه کنترل امنیتی رهگیری موقتاً در دسترس نیست.' }, { status: 503 });
+    if (!phoneLimit.success) return NextResponse.json({ message: 'تعداد تلاش‌ها برای این شماره تماس زیاد بوده است. کمی بعد دوباره تلاش کنید.' }, { status: 429 });
 
     type TrackedOrder = {
       id: string;

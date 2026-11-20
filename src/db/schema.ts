@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, integer, boolean, uuid, jsonb, index } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, integer, boolean, uuid, jsonb, index, uniqueIndex } from "drizzle-orm/pg-core";
 
 export const categories = pgTable("categories", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -113,7 +113,9 @@ export const orders = pgTable("orders", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 }, (table) => ({
   customerIdx: index("orders_customer_idx").on(table.customerId),
+  customerCreatedIdx: index("orders_customer_created_idx").on(table.customerId, table.createdAt),
   statusIdx: index("orders_status_idx").on(table.status),
+  statusCreatedIdx: index("orders_status_created_idx").on(table.status, table.createdAt),
   trackingCodeIdx: index("orders_tracking_idx").on(table.trackingCode),
 }));
 
@@ -127,6 +129,58 @@ export const orderItems = pgTable("order_items", {
 }, (table) => ({
   orderIdx: index("order_items_order_idx").on(table.orderId),
   productIdx: index("order_items_product_idx").on(table.productId),
+}));
+
+/** Immutable record of each gateway attempt; orders.paymentAuthority remains the active pointer. */
+export const paymentAttempts = pgTable("payment_attempts", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  orderId: uuid("order_id").references(() => orders.id, { onDelete: "restrict" }).notNull(),
+  requestKey: uuid("request_key").defaultRandom().notNull().unique(),
+  attemptNumber: integer("attempt_number").notNull(),
+  provider: text("provider").notNull().default("zarinpal"),
+  amount: integer("amount").notNull(),
+  status: text("status").notNull().default("requesting"),
+  authority: text("authority"),
+  refId: text("ref_id"),
+  gatewayCode: integer("gateway_code"),
+  gatewayMessage: text("gateway_message"),
+  requestedAt: timestamp("requested_at").defaultNow().notNull(),
+  lastCheckedAt: timestamp("last_checked_at"),
+  verifiedAt: timestamp("verified_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  orderIdx: index("payment_attempts_order_idx").on(table.orderId, table.createdAt),
+  statusIdx: index("payment_attempts_status_idx").on(table.status, table.createdAt),
+  authorityUnique: uniqueIndex("payment_attempts_authority_unique").on(table.authority),
+  attemptNumberUnique: uniqueIndex("payment_attempts_order_number_unique").on(table.orderId, table.attemptNumber),
+}));
+
+/** Append-only business/audit timeline. Metadata must never contain secrets or payment credentials. */
+export const orderEvents = pgTable("order_events", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  orderId: uuid("order_id").references(() => orders.id, { onDelete: "restrict" }).notNull(),
+  actorType: text("actor_type").notNull(),
+  actorId: text("actor_id"),
+  eventType: text("event_type").notNull(),
+  fromStatus: text("from_status"),
+  toStatus: text("to_status"),
+  summary: text("summary").notNull(),
+  metadata: jsonb("metadata").$type<Record<string, string | number | boolean | null>>().notNull().default({}),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  orderCreatedIdx: index("order_events_order_created_idx").on(table.orderId, table.createdAt),
+  typeCreatedIdx: index("order_events_type_created_idx").on(table.eventType, table.createdAt),
+}));
+
+/** Hashed, database-backed fixed-window rate-limit buckets for multi-instance deployments. */
+export const rateLimitBuckets = pgTable("rate_limit_buckets", {
+  keyHash: text("key_hash").primaryKey(),
+  windowStart: timestamp("window_start", { withTimezone: true }).notNull(),
+  requestCount: integer("request_count").notNull().default(1),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  updatedIdx: index("rate_limit_buckets_updated_idx").on(table.updatedAt),
 }));
 
 export const articles = pgTable("articles", {

@@ -229,7 +229,7 @@ export default async function Home() {
           </section>
         )}
 
-        {discountedProducts.length > 0 && (
+        {homepageDiscountedProducts.length > 0 && (
           <HomeProductShelf
             eyebrow="SPECIAL OFFERS"
             title="پیشنهادهای تخفیف‌دار"
@@ -241,7 +241,7 @@ export default async function Home() {
           />
         )}
 
-        {bestSellerProducts.length > 0 && (
+        {homepageBestSellerProducts.length > 0 && (
           <HomeProductShelf
             eyebrow="CUSTOMER FAVORITES"
             title="پرفروش‌های فروشگاه"

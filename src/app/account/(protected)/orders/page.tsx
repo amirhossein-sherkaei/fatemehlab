@@ -53,7 +53,10 @@ export default async function CustomerOrdersPage() {
       ) : (
         <div className="grid gap-4">
           {myOrders.map((order) => {
-            const status = statusMap[order.status] || { label: order.status, color: 'bg-gray-50 text-gray-700', icon: Package };
+            const baseStatus = statusMap[order.status] || { label: order.status, color: 'bg-gray-50 text-gray-700', icon: Package };
+            const status = order.status === 'paid' && order.totalAmount === 0
+              ? { ...baseStatus, label: 'تکمیل‌شده؛ بدون نیاز به پرداخت' }
+              : baseStatus;
             const StatusIcon = status.icon;
             return (
               <div

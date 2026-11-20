@@ -1,12 +1,11 @@
 'use client';
-import { formatPersianDate, formatPersianDateTime } from '@/lib/format';
+import { formatPersianDate } from '@/lib/format';
 
-import { useState, useEffect } from 'react';
-import { Search, Eye, Trash2, Loader2, Filter, Download } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Search, Eye, Loader2, Download, ChevronDown, RefreshCw } from 'lucide-react';
 import { formatToman } from '@/lib/currency';
 import Link from 'next/link';
 import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
 
 
 const statusMap: Record<string, { label: string, color: string, dot: string }> = {
@@ -19,40 +18,33 @@ const statusMap: Record<string, { label: string, color: string, dot: string }> =
 };
 
 export default function AdminOrdersPage() {
-  const router = useRouter();
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState({ page: 1, pageSize: 40, total: 0, totalPages: 1 });
 
-  const fetchOrders = () => {
-    fetch('/api/admin/orders')
-      .then(res => res.json())
-      .then(data => { if (data.success) setOrders(data.orders); })
+  const fetchOrders = useCallback(() => {
+    setLoading(true);
+    const params = new URLSearchParams({ page: String(page), search: searchTerm.trim(), status: statusFilter });
+    fetch(`/api/admin/orders?${params.toString()}`, { cache: 'no-store', credentials: 'same-origin' })
+      .then(async (res) => {
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.success) throw new Error(data.message || 'دریافت سفارش‌ها ناموفق بود.');
+        setOrders(Array.isArray(data.orders) ? data.orders : []);
+        if (data.pagination) setPagination(data.pagination);
+      })
+      .catch((error) => toast.error(error instanceof Error ? error.message : 'خطا در دریافت سفارش‌ها'))
       .finally(() => setLoading(false));
-  };
+  }, [page, searchTerm, statusFilter]);
 
-  useEffect(() => { fetchOrders(); }, []);
+  useEffect(() => {
+    const timer = window.setTimeout(fetchOrders, 220);
+    return () => window.clearTimeout(timer);
+  }, [fetchOrders]);
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('آیا از حذف این سفارش مطمئن هستید؟ این عمل قابل بازگشت نیست.')) return;
-    setDeletingId(id);
-    try {
-      const res = await fetch(`/api/admin/orders/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        toast.success('سفارش حذف شد');
-        setOrders(orders.filter(o => o.id !== id));
-        router.refresh();
-      } else toast.error('خطا در حذف سفارش');
-    } catch { toast.error('خطا در ارتباط با سرور'); }
-    finally { setDeletingId(null); }
-  };
-
-  const filteredOrders = orders.filter(o =>
-    o.trackingCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    o.phone.includes(searchTerm) ||
-    o.firstName.includes(searchTerm)
-  );
+  const filteredOrders = orders;
 
   if (loading) return <div className="p-12 text-center text-[#77717b] flex flex-col items-center"><Loader2 className="w-8 h-8 animate-spin text-[#c61d70] mb-4" /><span>در حال بارگذاری...</span></div>;
 
@@ -61,18 +53,18 @@ export default function AdminOrdersPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-xl font-black text-[#28242b] md:text-2xl">مدیریت سفارشات</h1>
-          <p className="mt-1 text-xs text-[#77717b] md:text-sm">همه سفارشات فروشگاه را در یک نگاه ببینید و مدیریت کنید.</p>
+          <p className="mt-1 text-xs text-[#77717b] md:text-sm">وضعیت مالی و عملیاتی سفارش‌ها را بررسی کنید؛ سوابق مالی از این صفحه حذف نمی‌شوند.</p>
         </div>
-        <a 
-          href="/api/admin/orders/export" 
+        <a
+          href="/api/admin/orders/export"
           download
           className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 text-white text-xs font-bold rounded-xl hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-600/20"
         >
           <Download size={16} /> دانلود اکسل (CSV)
         </a>
         <div className="px-4 py-2 bg-white rounded-xl border border-[#e9e5eb] shadow-sm flex items-center gap-2">
-          <span className="text-xs text-[#77717b]">کل سفارشات:</span>
-          <span className="font-black text-[#28242b]">{orders.length.toLocaleString('fa-IR')}</span>
+          <span className="text-xs text-[#77717b]">نتایج:</span>
+          <span className="font-black text-[#28242b]">{pagination.total.toLocaleString('fa-IR')}</span>
         </div>
       </div>
 
@@ -80,10 +72,23 @@ export default function AdminOrdersPage() {
         <div className="border-b border-[#e9e5eb] p-4 flex gap-3">
           <div className="relative flex-1 max-w-md">
             <Search className="absolute right-3 top-3 h-4 w-4 text-[#918a95]" />
-            <input type="text" placeholder="جستجوی کد رهگیری، نام یا موبایل..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full rounded-xl border border-[#e9e5eb] bg-[#f8f7fa] py-2.5 pl-4 pr-9 text-sm outline-none transition-colors focus:border-[#c61d70] focus:bg-white" />
+            <input type="text" placeholder="جستجوی کد رهگیری، نام یا موبایل..." value={searchTerm} onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }} className="w-full rounded-xl border border-[#e9e5eb] bg-[#f8f7fa] py-2.5 pl-4 pr-9 text-sm outline-none transition-colors focus:border-[#c61d70] focus:bg-white" />
           </div>
-          <button className="flex items-center gap-2 px-4 rounded-xl border border-[#e9e5eb] bg-white text-xs font-bold text-[#28242b] hover:bg-[#f8f7fa]">
-            <Filter size={16} /> فیلتر
+          <label className="relative flex min-w-40 items-center gap-2 rounded-xl border border-[#e9e5eb] bg-white px-3 text-xs font-bold text-[#28242b]">
+            <span className="sr-only">فیلتر وضعیت سفارش</span>
+            <select value={statusFilter} onChange={(event) => { setStatusFilter(event.target.value); setPage(1); }} className="min-h-10 w-full appearance-none bg-transparent pl-5 outline-none">
+              <option value="all">همه وضعیت‌ها</option>
+              <option value="pending">در انتظار پرداخت</option>
+              <option value="paid">پرداخت تأیید شده</option>
+              <option value="processing">در حال پردازش</option>
+              <option value="shipped">ارسال شده</option>
+              <option value="delivered">تحویل شده</option>
+              <option value="cancelled">لغو شده</option>
+            </select>
+            <ChevronDown size={14} className="pointer-events-none absolute left-3 text-[#918a95]" />
+          </label>
+          <button type="button" onClick={fetchOrders} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-[#e9e5eb] bg-white px-3 text-xs font-bold text-[#28242b] hover:bg-[#f8f7fa]" title="به‌روزرسانی فهرست">
+            <RefreshCw size={15} /> <span className="hidden sm:inline">به‌روزرسانی</span>
           </button>
         </div>
 
@@ -112,7 +117,7 @@ export default function AdminOrdersPage() {
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-bold ${statusMap[order.status]?.color}`}>
                         <span className={`h-1.5 w-1.5 rounded-full ${statusMap[order.status]?.dot}`} />
-                        {statusMap[order.status]?.label}
+                        {order.status === 'paid' && order.totalAmount === 0 ? 'تکمیل‌شده بدون پرداخت آنلاین' : statusMap[order.status]?.label || 'وضعیت نامشخص'}
                       </span>
                     </td>
                     <td className="px-6 py-4">
@@ -120,9 +125,7 @@ export default function AdminOrdersPage() {
                         <Link href={`/admin/orders/${order.id}`} className="rounded-lg bg-[#f8f7fa] p-2 text-[#28242b] transition-colors hover:bg-[#e9e5eb]" title="مشاهده">
                           <Eye size={16} />
                         </Link>
-                        <button onClick={() => handleDelete(order.id)} disabled={deletingId === order.id} className="rounded-lg bg-rose-50 p-2 text-rose-600 transition-colors hover:bg-rose-100 disabled:opacity-50" title="حذف">
-                          {deletingId === order.id ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
-                        </button>
+
                       </div>
                     </td>
                   </tr>
@@ -140,7 +143,7 @@ export default function AdminOrdersPage() {
                   <span className="font-mono text-xs font-bold text-[#28242b]" dir="ltr">{order.trackingCode}</span>
                   <span className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-bold ${statusMap[order.status]?.color}`}>
                     <span className={`h-1.5 w-1.5 rounded-full ${statusMap[order.status]?.dot}`} />
-                    {statusMap[order.status]?.label}
+                    {order.status === 'paid' && order.totalAmount === 0 ? 'تکمیل‌شده بدون پرداخت آنلاین' : statusMap[order.status]?.label || 'وضعیت نامشخص'}
                   </span>
                 </div>
                 <div className="mb-4 grid grid-cols-2 gap-2 text-xs">
@@ -149,11 +152,18 @@ export default function AdminOrdersPage() {
                 </div>
                 <div className="flex gap-2">
                   <Link href={`/admin/orders/${order.id}`} className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-[#f8f7fa] py-2.5 text-xs font-bold text-[#28242b] border border-[#e9e5eb]"><Eye size={14} /> جزئیات</Link>
-                  <button onClick={() => handleDelete(order.id)} disabled={deletingId === order.id} className="flex items-center justify-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-xs font-bold text-rose-600 disabled:opacity-50">{deletingId === order.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}</button>
+
                 </div>
               </div>
             ))
           )}
+        </div>
+        <div className="flex flex-col gap-3 border-t border-[#e9e5eb] bg-[#fcfbfc] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-[11px] text-[#77717b]">صفحه {pagination.page.toLocaleString('fa-IR')} از {pagination.totalPages.toLocaleString('fa-IR')} · {pagination.total.toLocaleString('fa-IR')} سفارش</p>
+          <div className="flex items-center gap-2">
+            <button type="button" onClick={() => setPage((value) => Math.max(1, value - 1))} disabled={page <= 1 || loading} className="min-h-9 rounded-lg border border-[#e9e5eb] bg-white px-4 text-xs font-bold text-[#4b414b] disabled:cursor-not-allowed disabled:opacity-40">قبلی</button>
+            <button type="button" onClick={() => setPage((value) => Math.min(pagination.totalPages, value + 1))} disabled={page >= pagination.totalPages || loading} className="min-h-9 rounded-lg border border-[#e9e5eb] bg-white px-4 text-xs font-bold text-[#4b414b] disabled:cursor-not-allowed disabled:opacity-40">بعدی</button>
+          </div>
         </div>
       </div>
     </div>

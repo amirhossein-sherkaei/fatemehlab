@@ -1,6 +1,6 @@
 import { db } from '@/lib/db';
-import { orders, orderItems } from '@/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { orders, orderItems, orderEvents } from '@/db/schema';
+import { eq, and, desc } from 'drizzle-orm';
 import { getCurrentCustomer } from '@/lib/customer-auth';
 import { notFound } from 'next/navigation';
 import InvoiceTemplate from '@/components/shared/InvoiceTemplate';
@@ -12,12 +12,27 @@ export default async function CustomerPrintPage({ params }: { params: Promise<{ 
   const { id } = await params;
   const customer = await getCurrentCustomer();
   if (!customer) notFound();
-  
+
   const orderData = await db.select().from(orders).where(and(eq(orders.id, id), eq(orders.customerId, customer.id))).limit(1);
   if (orderData.length === 0) notFound();
 
   const order = orderData[0];
-  const items = await db.select().from(orderItems).where(eq(orderItems.orderId, id));
+  const [items, refundEvent] = await Promise.all([
+    db.select().from(orderItems).where(eq(orderItems.orderId, id)),
+    db.select({ metadata: orderEvents.metadata, createdAt: orderEvents.createdAt })
+      .from(orderEvents)
+      .where(and(eq(orderEvents.orderId, id), eq(orderEvents.eventType, 'order.refund_recorded_and_cancelled')))
+      .orderBy(desc(orderEvents.createdAt)).limit(1),
+  ]);
+  const refundMetadata = refundEvent[0]?.metadata;
+  const refund = refundMetadata && typeof refundMetadata.refundReference === 'string'
+    ? {
+        reference: refundMetadata.refundReference,
+        reason: null,
+        amount: typeof refundMetadata.refundAmount === 'number' ? refundMetadata.refundAmount : Number(order.totalAmount),
+        createdAt: refundEvent[0].createdAt,
+      }
+    : null;
 
   return (
     <div className="min-h-screen bg-gray-100 py-8 px-4">
@@ -27,7 +42,7 @@ export default async function CustomerPrintPage({ params }: { params: Promise<{ 
         </Link>
         <PrintButton />
       </div>
-      <InvoiceTemplate order={order} items={items} />
+      <InvoiceTemplate order={order} items={items} refund={refund} />
     </div>
   );
 }

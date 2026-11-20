@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -37,6 +37,47 @@ type HomeProductShelfProps = {
   actionLabel?: string;
 };
 
+type RtlScrollType = "negative" | "reverse" | "default";
+let cachedRtlScrollType: RtlScrollType | null = null;
+
+function getRtlScrollType(): RtlScrollType {
+  if (cachedRtlScrollType) return cachedRtlScrollType;
+  const outer = document.createElement("div");
+  const inner = document.createElement("div");
+  outer.dir = "rtl";
+  outer.style.cssText = "position:absolute;top:-9999px;width:4px;height:1px;overflow:scroll;visibility:hidden;";
+  inner.style.cssText = "width:8px;height:1px;";
+  outer.appendChild(inner);
+  document.body.appendChild(outer);
+  if (outer.scrollLeft > 0) cachedRtlScrollType = "default";
+  else {
+    outer.scrollLeft = 1;
+    cachedRtlScrollType = outer.scrollLeft === 0 ? "negative" : "reverse";
+  }
+  outer.remove();
+  return cachedRtlScrollType;
+}
+
+function getLogicalScrollOffset(element: HTMLElement): number {
+  const max = Math.max(0, element.scrollWidth - element.clientWidth);
+  if (getComputedStyle(element).direction !== "rtl") return Math.max(0, Math.min(max, element.scrollLeft));
+  const raw = element.scrollLeft;
+  const type = getRtlScrollType();
+  const logical = type === "negative" ? -raw : type === "reverse" ? raw : max - raw;
+  return Math.max(0, Math.min(max, logical));
+}
+
+function setLogicalScrollOffset(element: HTMLElement, logicalOffset: number, behavior: ScrollBehavior = "auto") {
+  const max = Math.max(0, element.scrollWidth - element.clientWidth);
+  const logical = Math.max(0, Math.min(max, logicalOffset));
+  let physical = logical;
+  if (getComputedStyle(element).direction === "rtl") {
+    const type = getRtlScrollType();
+    physical = type === "negative" ? -logical : type === "reverse" ? logical : max - logical;
+  }
+  element.scrollTo({ left: physical, behavior });
+}
+
 /** One canonical card per product. Autoplay loops by resetting scroll, never by cloning DOM. */
 export default function HomeProductShelf({
   eyebrow,
@@ -56,6 +97,8 @@ export default function HomeProductShelf({
   const [isFocused, setIsFocused] = useState(false);
   const [isInView, setIsInView] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const pendingRecenterRef = useRef<number | null>(null);
+  const cycleTimerRef = useRef<number | null>(null);
 
   const uniqueProducts = useMemo(() => {
     const seen = new Set<string>();
@@ -65,6 +108,19 @@ export default function HomeProductShelf({
       return true;
     });
   }, [products]);
+  const [displayProducts, setDisplayProducts] = useState<HomeShelfProduct[]>(() => uniqueProducts);
+
+  useEffect(() => {
+    setDisplayProducts(uniqueProducts);
+    pendingRecenterRef.current = null;
+  }, [uniqueProducts]);
+
+  useLayoutEffect(() => {
+    if (pendingRecenterRef.current == null) return;
+    const rail = railRef.current;
+    if (rail) setLogicalScrollOffset(rail, pendingRecenterRef.current, "auto");
+    pendingRecenterRef.current = null;
+  }, [displayProducts]);
 
   const updateOverflow = useCallback(() => {
     const rail = railRef.current;
@@ -111,56 +167,85 @@ export default function HomeProductShelf({
 
   const scrollRail = useCallback((direction: "next" | "previous") => {
     const rail = railRef.current;
-    if (!rail) return;
+    if (!rail || displayProducts.length < 2) return;
     setIsPaused(true);
+    if (cycleTimerRef.current != null) window.clearTimeout(cycleTimerRef.current);
     const firstCard = rail.querySelector<HTMLElement>("[data-rail-card='true']");
     const computedGap = Number.parseFloat(window.getComputedStyle(rail).columnGap || "12") || 12;
     const distance = firstCard
       ? Math.round(firstCard.getBoundingClientRect().width + computedGap)
       : Math.max(180, Math.round(rail.clientWidth * 0.55));
-    rail.scrollBy({
-      left: direction === "next" ? -distance : distance,
-      behavior: prefersReducedMotion ? "auto" : "smooth",
-    });
-  }, [prefersReducedMotion]);
+    const current = getLogicalScrollOffset(rail);
+    const max = Math.max(0, rail.scrollWidth - rail.clientWidth);
+
+    if (direction === "next") {
+      const target = Math.min(max, current + distance);
+      if (target <= current + 2 && current >= max - 2) {
+        pendingRecenterRef.current = Math.max(0, max - distance);
+        setDisplayProducts((items) => items.length > 1 ? [...items.slice(1), items[0]] : items);
+        return;
+      }
+      setLogicalScrollOffset(rail, target, prefersReducedMotion ? "auto" : "smooth");
+      cycleTimerRef.current = window.setTimeout(() => {
+        pendingRecenterRef.current = Math.max(0, target - distance);
+        setDisplayProducts((items) => items.length > 1 ? [...items.slice(1), items[0]] : items);
+        cycleTimerRef.current = null;
+      }, prefersReducedMotion ? 0 : 520);
+      return;
+    }
+
+    if (current > 2) {
+      setLogicalScrollOffset(rail, Math.max(0, current - distance), prefersReducedMotion ? "auto" : "smooth");
+    } else {
+      // At the logical RTL start, rotate the tail to the head. React keeps
+      // keyed cards mounted, so the previous product appears without a clone.
+      pendingRecenterRef.current = 0;
+      setDisplayProducts((items) => items.length > 1 ? [items[items.length - 1], ...items.slice(0, -1)] : items);
+    }
+  }, [displayProducts.length, prefersReducedMotion]);
+
+  useEffect(() => () => {
+    if (cycleTimerRef.current != null) window.clearTimeout(cycleTimerRef.current);
+  }, []);
+
 
   useEffect(() => {
-    if (!canScroll || isPaused || isHovered || isFocused || !isInView || prefersReducedMotion) return;
+    if (!canScroll || displayProducts.length < 3 || isPaused || isHovered || isFocused || !isInView || prefersReducedMotion) return;
 
     const timer = window.setInterval(() => {
       const rail = railRef.current;
       if (!rail || document.visibilityState !== "visible") return;
       const firstCard = rail.querySelector<HTMLElement>("[data-rail-card='true']");
-      if (!firstCard) return;
+      if (!firstCard || cycleTimerRef.current != null) return;
 
       const gap = Number.parseFloat(window.getComputedStyle(rail).columnGap || "12") || 12;
       const step = Math.round(firstCard.getBoundingClientRect().width + gap);
       const maxOffset = Math.max(0, rail.scrollWidth - rail.clientWidth);
-      const currentOffset = Math.max(0, Math.abs(rail.scrollLeft));
-      if (maxOffset <= 8) return;
+      if (maxOffset < step * 0.75) return;
 
-      // Move through the real cards once; at the far end, jump back to the
-      // logical RTL start with snapping and smooth scrolling briefly disabled.
-      if (currentOffset >= Math.max(0, maxOffset - step * 0.45)) {
-        const oldBehavior = rail.style.scrollBehavior;
-        const oldSnap = rail.style.scrollSnapType;
-        rail.style.scrollBehavior = "auto";
-        rail.style.scrollSnapType = "none";
-        rail.scrollLeft = 0;
-        window.requestAnimationFrame(() => {
-          if (!rail.isConnected) return;
-          rail.style.scrollBehavior = oldBehavior;
-          rail.style.scrollSnapType = oldSnap;
-        });
-      } else {
-        rail.scrollBy({ left: -step, behavior: "smooth" });
-      }
-    }, 4800);
+      const currentOffset = getLogicalScrollOffset(rail);
+      const targetOffset = Math.min(maxOffset, currentOffset + step);
+      // Move one real card, then recycle that exact keyed node behind the tail.
+      // Re-centering by one step keeps the visible cards in the same positions;
+      // no duplicated product cards are rendered at any time.
+      setLogicalScrollOffset(rail, targetOffset, "smooth");
+      cycleTimerRef.current = window.setTimeout(() => {
+        pendingRecenterRef.current = Math.max(0, targetOffset - step);
+        setDisplayProducts((items) => items.length > 1 ? [...items.slice(1), items[0]] : items);
+        cycleTimerRef.current = null;
+      }, 560);
+    }, 4200);
 
     return () => window.clearInterval(timer);
-  }, [canScroll, isPaused, isHovered, isFocused, isInView, prefersReducedMotion]);
+  }, [canScroll, displayProducts.length, isPaused, isHovered, isFocused, isInView, prefersReducedMotion]);
 
   if (!uniqueProducts.length) return null;
+
+  const pauseForInteraction = () => {
+    setIsPaused(true);
+    if (cycleTimerRef.current != null) window.clearTimeout(cycleTimerRef.current);
+    cycleTimerRef.current = null;
+  };
 
   const renderProductCard = (product: HomeShelfProduct, index: number) => {
     const hasPrice = Number.isFinite(product.price) && product.price > 0;
@@ -238,11 +323,19 @@ export default function HomeProductShelf({
       className="container-custom fl-section fl-home-shelf fbl-luxe-shelf fbl-luxe-shelf--autoplay"
       data-shelf-variant={variant}
       aria-label={title}
-      onMouseEnter={() => setIsHovered(true)}
+      onMouseEnter={() => {
+        setIsHovered(true);
+        if (cycleTimerRef.current != null) window.clearTimeout(cycleTimerRef.current);
+        cycleTimerRef.current = null;
+      }}
       onMouseLeave={() => setIsHovered(false)}
       onFocusCapture={(event) => {
         const target = event.target as HTMLElement;
-        if (!target.closest(".fbl-luxe-shelf__controls")) setIsFocused(true);
+        if (!target.closest(".fbl-luxe-shelf__controls")) {
+          setIsFocused(true);
+          if (cycleTimerRef.current != null) window.clearTimeout(cycleTimerRef.current);
+          cycleTimerRef.current = null;
+        }
       }}
       onBlurCapture={(event) => {
         const nextTarget = event.relatedTarget as HTMLElement | null;
@@ -298,9 +391,11 @@ export default function HomeProductShelf({
           aria-label={`نوار افقی محصولات: ${title}`}
           aria-roledescription="نوار محصولات"
           aria-live="off"
-          onPointerDown={() => setIsPaused(true)}
+          onPointerDown={pauseForInteraction}
+          onWheel={pauseForInteraction}
+          onTouchStart={pauseForInteraction}
         >
-          {uniqueProducts.map(renderProductCard)}
+          {displayProducts.map(renderProductCard)}
         </div>
       </div>
       <div className="fbl-luxe-shelf__hint" aria-hidden="true">
