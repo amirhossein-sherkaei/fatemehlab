@@ -6,6 +6,7 @@ import { getCurrentCustomer } from '@/lib/customer-auth';
 import Link from 'next/link';
 import { Package, Heart, MapPin, ArrowLeft, Clock, Truck, ShoppingBag, Sparkles, CheckCircle2, ChevronLeft, X, ShieldAlert, Award, Calendar, Crown } from 'lucide-react';
 import { formatToman } from '@/lib/currency';
+import PaymentActionButton from '@/components/account/PaymentActionButton';
 
 export const instant = false;
 
@@ -141,22 +142,25 @@ export default async function AccountDashboard() {
               const status = statusMap[order.status] || { label: order.status, color: 'bg-gray-50 text-gray-700 border-gray-200', icon: Package };
               const StatusIcon = status.icon;
               return (
-                <Link key={order.id} href={`/account/orders/${order.id}`} className="group flex items-center justify-between p-4 md:p-5 transition-colors hover:bg-[#fafafc]">
-                  <div className="min-w-0 flex-1">
-                    <div className="mb-2 flex flex-wrap items-center gap-2">
-                      <p className="font-mono text-xs font-bold text-[#28242b] md:text-sm bg-[#f8f7fa] px-2 py-0.5 rounded border border-[#e9e5eb]" dir="ltr">{order.trackingCode}</p>
-                      <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-bold ${status.color}`}>
-                        <StatusIcon size={12} /> {status.label}
-                      </span>
+                <div key={order.id} className="flex flex-col gap-3 p-4 transition-colors hover:bg-[#fafafc] md:flex-row md:items-center md:justify-between md:p-5">
+                  <Link href={`/account/orders/${order.id}`} className="group flex min-w-0 flex-1 items-center justify-between gap-3 rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c61d70]">
+                    <div className="min-w-0 flex-1">
+                      <div className="mb-2 flex flex-wrap items-center gap-2">
+                        <p className="rounded border border-[#e9e5eb] bg-[#f8f7fa] px-2 py-0.5 font-mono text-xs font-bold text-[#28242b] md:text-sm" dir="ltr">{order.trackingCode}</p>
+                        <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-bold ${status.color}`}>
+                          <StatusIcon size={12} /> {status.label}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3 text-[11px] text-[#918a95] md:text-xs">
+                        <span className="flex items-center gap-1"><Calendar size={12}/> {formatPersianDate(order.createdAt)}</span>
+                        <span className="h-1 w-1 rounded-full bg-[#e9e5eb]"></span>
+                        <span className="font-black text-[#28242b]">{formatToman(order.totalAmount)}</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-3 text-[11px] text-[#918a95] md:text-xs">
-                      <span className="flex items-center gap-1"><Calendar size={12}/> {formatPersianDate(order.createdAt)}</span>
-                      <span className="w-1 h-1 rounded-full bg-[#e9e5eb]"></span>
-                      <span className="font-black text-[#28242b]">{formatToman(order.totalAmount)}</span>
-                    </div>
-                  </div>
-                  <ChevronLeft size={20} className="shrink-0 text-[#c61d70] opacity-50 transition-opacity group-hover:opacity-100" />
-                </Link>
+                    <ChevronLeft size={20} className="shrink-0 text-[#c61d70] opacity-50 transition-opacity group-hover:opacity-100" />
+                  </Link>
+                  {order.status === 'pending' && <PaymentActionButton orderId={order.id} compact />}
+                </div>
               );
             })}
           </div>

@@ -9,6 +9,7 @@ import { rateLimit } from '@/lib/rate-limit';
 import { randomBytes } from 'node:crypto';
 
 const orderSchema = z.object({
+  idempotencyKey: z.string().uuid(),
   customer: z.object({
     firstName: z.string().trim().min(1).max(100),
     lastName: z.string().trim().min(1).max(100),
@@ -28,6 +29,8 @@ const orderSchema = z.object({
 });
 
 export async function POST(req: Request) {
+  let requestOrderId: string | null = null;
+  let requestCustomerId: string | null = null;
   try {
     const { valid: originValid } = validateOrigin(req);
     if (!originValid) return rejectCsrf(req);
@@ -46,7 +49,41 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: parsed.error.issues[0]?.message || 'اطلاعات سفارش معتبر نیست.' }, { status: 400 });
     }
 
-    const { customer, cartItems, couponCode, usedPoints } = parsed.data;
+    const { customer, cartItems, couponCode, usedPoints, idempotencyKey } = parsed.data;
+    requestOrderId = idempotencyKey;
+    requestCustomerId = currentCustomer.id;
+
+    // The client reuses this UUID when a network response is lost. Re-reading an
+    // existing owned order prevents a duplicate order, stock reservation or coupon use.
+    const [existingOrder] = await db.select({
+      id: orders.id,
+      trackingCode: orders.trackingCode,
+      totalAmount: orders.totalAmount,
+      status: orders.status,
+    }).from(orders)
+      .where(and(eq(orders.id, idempotencyKey), eq(orders.customerId, currentCustomer.id)))
+      .limit(1);
+
+    if (existingOrder) {
+      const settled = ['paid', 'processing', 'shipped', 'delivered'].includes(existingOrder.status);
+      if (existingOrder.status === 'cancelled') {
+        return NextResponse.json({
+          success: false,
+          code: 'ORDER_ATTEMPT_EXPIRED',
+          message: 'درخواست قبلی به سفارش لغوشده مربوط است. سبد خرید شما حفظ شده؛ دوباره ثبت سفارش را انجام دهید.',
+        }, { status: 409 });
+      }
+      return NextResponse.json({
+        success: true,
+        orderId: existingOrder.id,
+        trackingCode: existingOrder.trackingCode,
+        paymentRequired: existingOrder.totalAmount > 0 && !settled,
+        alreadyPaid: existingOrder.totalAmount > 0 && settled,
+        status: existingOrder.status,
+        reused: true,
+      });
+    }
+
     const [customerData] = await db.select().from(customers).where(eq(customers.id, currentCustomer.id)).limit(1);
     if (!customerData) return NextResponse.json({ message: 'کاربر یافت نشد.' }, { status: 404 });
     if (usedPoints > customerData.loyaltyPoints) {
@@ -121,7 +158,7 @@ export async function POST(req: Request) {
     const pointsDiscount = actualUsedPoints * 10000;
     const finalAmount = Math.max(0, subtotal - discountAmount - pointsDiscount);
 
-    const orderId = crypto.randomUUID();
+    const orderId = idempotencyKey;
     const trackingCode = 'FL-' + randomBytes(8).toString('hex').toUpperCase();
 
     const newOrder = await db.transaction(async (tx) => {
@@ -179,8 +216,50 @@ export async function POST(req: Request) {
       return order;
     });
 
-    return NextResponse.json({ success: true, orderId: newOrder.id, trackingCode: newOrder.trackingCode });
+    return NextResponse.json({
+      success: true,
+      orderId: newOrder.id,
+      trackingCode: newOrder.trackingCode,
+      paymentRequired: newOrder.totalAmount > 0,
+      alreadyPaid: false,
+      status: newOrder.status,
+    });
   } catch (error: any) {
+    // A concurrent duplicate may hit stock/coupon/primary-key checks before the
+    // first request returns. Once that transaction commits, return its order.
+    if (requestOrderId && requestCustomerId) {
+      try {
+        const [existingOrder] = await db.select({
+          id: orders.id,
+          trackingCode: orders.trackingCode,
+          totalAmount: orders.totalAmount,
+          status: orders.status,
+        }).from(orders)
+          .where(and(eq(orders.id, requestOrderId), eq(orders.customerId, requestCustomerId)))
+          .limit(1);
+        if (existingOrder) {
+          const settled = ['paid', 'processing', 'shipped', 'delivered'].includes(existingOrder.status);
+          if (existingOrder.status === 'cancelled') {
+            return NextResponse.json({
+              success: false,
+              code: 'ORDER_ATTEMPT_EXPIRED',
+              message: 'درخواست قبلی به سفارش لغوشده مربوط است. سبد خرید شما حفظ شده؛ دوباره ثبت سفارش را انجام دهید.',
+            }, { status: 409 });
+          }
+          return NextResponse.json({
+            success: true,
+            orderId: existingOrder.id,
+            trackingCode: existingOrder.trackingCode,
+            paymentRequired: existingOrder.totalAmount > 0 && !settled,
+            alreadyPaid: existingOrder.totalAmount > 0 && settled,
+            status: existingOrder.status,
+            reused: true,
+          });
+        }
+      } catch (lookupError) {
+        console.error('[orders/idempotency-lookup]', lookupError);
+      }
+    }
     if (error instanceof z.ZodError) {
       return NextResponse.json({ message: error.issues[0]?.message || 'اطلاعات سفارش معتبر نیست.' }, { status: 400 });
     }

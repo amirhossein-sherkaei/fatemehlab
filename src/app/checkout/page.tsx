@@ -211,27 +211,62 @@ export default function CheckoutPage() {
   };
 const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (items.length === 0) return;
+    if (items.length === 0 || loading || isSubmitting) return;
     
     setLoading(true);
     setIsSubmitting(true);
     const toastId = toast.loading('در حال ثبت سفارش و اتصال به درگاه...');
     let createdOrderId: string | null = null;
+    const idempotencyStorageKey = 'fatemehlab:checkout-order-attempt';
+    let idempotencyKey = '';
+    try {
+      const existingKey = sessionStorage.getItem(idempotencyStorageKey);
+      idempotencyKey = existingKey && /^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(existingKey)
+        ? existingKey
+        : crypto.randomUUID();
+      sessionStorage.setItem(idempotencyStorageKey, idempotencyKey);
+    } catch {
+      idempotencyKey = crypto.randomUUID();
+    }
 
     try {
       const res = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ customer: formData, cartItems: items, couponCode: appliedCoupon?.code || null, usedPoints: usePoints ? pointsToUse : 0 }),
+        body: JSON.stringify({ idempotencyKey, customer: formData, cartItems: items, couponCode: appliedCoupon?.code || null, usedPoints: usePoints ? pointsToUse : 0 }),
       });
       const data = await res.json();
 
-      if (!res.ok) throw new Error(data.message || 'خطا در ثبت سفارش');
+      if (!res.ok) {
+        if (data?.code === 'ORDER_ATTEMPT_EXPIRED') {
+          try { sessionStorage.removeItem(idempotencyStorageKey); } catch {}
+        }
+        throw new Error(data.message || 'خطا در ثبت سفارش');
+      }
       createdOrderId = typeof data.orderId === 'string' ? data.orderId : null;
+      if (!createdOrderId || typeof data.trackingCode !== 'string') {
+        throw new Error('پاسخ ثبت سفارش معتبر نیست. لطفاً وضعیت سفارش‌های خود را بررسی کنید.');
+      }
+
+      // The server has confirmed which order belongs to this checkout attempt.
+      // Remove the retry key only after receiving that durable order identity.
+      try { sessionStorage.removeItem(idempotencyStorageKey); } catch {}
+
+      if (data.alreadyPaid === true) {
+        clearCart();
+        try { localStorage.removeItem('checkout-draft'); } catch {}
+        toast.success('این سفارش قبلاً پرداخت و تأیید شده است.', { id: toastId });
+        router.replace(`/order/success?id=${encodeURIComponent(data.orderId)}&code=${encodeURIComponent(data.trackingCode)}`);
+        return;
+      }
+
+      // Once the order exists, the basket is no longer the source of truth.
+      // Clear it before contacting the gateway so a gateway outage cannot leave
+      // the same items ready for an accidental second order.
+      clearCart();
+      try { localStorage.removeItem('checkout-draft'); } catch {}
 
       if (data.paymentRequired === false) {
-        clearCart();
-        localStorage.removeItem('checkout-draft');
         toast.success('سفارش بدون نیاز به پرداخت آنلاین ثبت شد.', { id: toastId });
         router.replace(`/order/success?id=${encodeURIComponent(data.orderId)}&code=${encodeURIComponent(data.trackingCode)}`);
         return;
@@ -246,10 +281,17 @@ const handleSubmit = async (e: React.FormEvent) => {
 
       if (!payRes.ok) throw new Error(payData.message || 'خطا در اتصال به درگاه');
 
-      toast.success('در حال انتقال به درگاه پرداخت...', { id: toastId });
-      clearCart();
-        localStorage.removeItem('checkout-draft');
-      window.location.href = payData.redirectUrl;
+      if (typeof payData.redirectUrl !== 'string') {
+        throw new Error('نشانی امن درگاه معتبر نیست. سفارش شما ثبت شده و از بخش سفارش‌های حساب کاربری قابل ادامه است.');
+      }
+      const paymentDestination = new URL(payData.redirectUrl, window.location.origin);
+      const isTrustedGateway = paymentDestination.origin === 'https://payment.zarinpal.com' && paymentDestination.pathname.startsWith('/pg/StartPay/');
+      const isOwnSuccessPage = paymentDestination.origin === window.location.origin && paymentDestination.pathname === '/order/success';
+      if (!isTrustedGateway && !isOwnSuccessPage) {
+        throw new Error('نشانی مقصد پرداخت معتبر نیست. سفارش شما در حساب کاربری باقی مانده است.');
+      }
+      toast.success('در حال انتقال به مقصد امن پرداخت...', { id: toastId });
+      window.location.assign(paymentDestination.toString());
 
     } catch (err: any) {
       toast.error(err.message || 'خطا در ارتباط با سرور', { id: toastId });

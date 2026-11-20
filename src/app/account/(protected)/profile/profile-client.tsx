@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatToman } from '@/lib/currency';
+import PaymentActionButton from '@/components/account/PaymentActionButton';
 
 function normalizeDigits(str: string): string {
   return str
@@ -48,7 +49,7 @@ interface ProfileClientProps {
 }
 
 const ORDER_STATUS: Record<string, { label: string; cls: string; icon: any }> = {
-  pending: { label: 'در انتظار', cls: 'bg-amber-50 text-amber-700 border-amber-200', icon: Clock },
+  pending: { label: 'در انتظار پرداخت', cls: 'bg-amber-50 text-amber-700 border-amber-200', icon: Clock },
   paid: { label: 'پرداخت شده', cls: 'bg-sky-50 text-sky-700 border-sky-200', icon: CheckCircle2 },
   processing: { label: 'در حال پردازش', cls: 'bg-blue-50 text-blue-700 border-blue-200', icon: Package },
   shipped: { label: 'ارسال شده', cls: 'bg-purple-50 text-purple-700 border-purple-200', icon: Truck },
@@ -558,22 +559,25 @@ export default function ProfileClient({ customer, stats, recentOrders, isOtpUser
               const st = ORDER_STATUS[order.status] || ORDER_STATUS.pending;
               const Icon = st.icon;
               return (
-                <Link key={order.id} href={`/account/orders/${order.id}`} className="flex items-center justify-between gap-3 rounded-xl border border-[#e9e5eb] bg-white p-3 transition-all hover:border-[#c61d70]/40 hover:bg-[#fffafd] md:p-4">
-                  <div className="min-w-0 flex-1">
-                    <div className="mb-1 flex flex-wrap items-center gap-2">
-                      <span className="font-mono text-xs font-bold text-[#28242b] md:text-sm" dir="ltr">{order.trackingCode}</span>
-                      <span className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[10px] font-bold ${st.cls}`}>
-                        <Icon size={10} /> {st.label}
-                      </span>
+                <div key={order.id} className="flex flex-col gap-3 rounded-xl border border-[#e9e5eb] bg-white p-3 md:flex-row md:items-center md:justify-between md:p-4">
+                  <Link href={`/account/orders/${order.id}`} className="flex min-w-0 flex-1 items-center justify-between gap-3 rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c61d70]">
+                    <div className="min-w-0 flex-1">
+                      <div className="mb-1 flex flex-wrap items-center gap-2">
+                        <span className="font-mono text-xs font-bold text-[#28242b] md:text-sm" dir="ltr">{order.trackingCode}</span>
+                        <span className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[10px] font-bold ${st.cls}`}>
+                          <Icon size={10} /> {st.label}
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-[#918a95]">
+                        <span>{formatPersianDate(order.createdAt)}</span>
+                        <span>·</span>
+                        <span className="font-bold text-[#28242b]">{formatToman(order.totalAmount)}</span>
+                      </div>
                     </div>
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-[#918a95]">
-                      <span>{formatPersianDate(order.createdAt)}</span>
-                      <span>·</span>
-                      <span className="font-bold text-[#28242b]">{formatToman(order.totalAmount)}</span>
-                    </div>
-                  </div>
-                  <ChevronLeft size={16} className="shrink-0 text-[#c61d70]" />
-                </Link>
+                    <ChevronLeft size={16} className="shrink-0 text-[#c61d70]" />
+                  </Link>
+                  {order.status === 'pending' && <PaymentActionButton orderId={order.id} compact />}
+                </div>
               );
             })}
           </div>

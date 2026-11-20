@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { orders, orderItems, products, customers, coupons } from '@/db/schema';
-import { and, eq, lt, sql, isNull, isNotNull } from 'drizzle-orm';
+import { and, asc, eq, lt, sql, isNull, isNotNull } from 'drizzle-orm';
 
 export async function GET(req: Request) {
   try {
@@ -15,16 +15,25 @@ export async function GET(req: Request) {
     }
 
     const cutoff = new Date(Date.now() - 30 * 60 * 1000);
+
+    // Never verify or clear a live authority from a scheduled job using order.createdAt:
+    // a customer may have resumed payment long after the order was created. The customer
+    // retry endpoint and gateway callback perform authoritative reconciliation instead.
     const candidates = await db.select({ id: orders.id })
       .from(orders)
-      .where(and(eq(orders.status, 'pending'), lt(orders.createdAt, cutoff), isNull(orders.paymentAuthority)));
+      .where(and(eq(orders.status, 'pending'), lt(orders.createdAt, cutoff), isNull(orders.paymentAuthority)))
+      .orderBy(asc(orders.createdAt))
+      .limit(100);
 
     let cleanedCount = 0;
     let skippedCount = 0;
 
     for (const candidate of candidates) {
       const cleaned = await db.transaction(async (tx) => {
-        // Claim the order first. This conditional transition is the idempotency boundary.
+        // Share the same transaction-scoped lock with /api/payment/request. If a retry
+        // is obtaining/saving an authority, cleanup waits and then observes that authority.
+        await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext('fatemehlab:payment'), hashtext(${candidate.id}))`);
+
         const [claimed] = await tx.update(orders)
           .set({ status: 'cancelled' })
           .where(and(
@@ -68,7 +77,7 @@ export async function GET(req: Request) {
       cleanedCount,
       skippedCount,
       awaitingPaymentReconciliation: awaitingPayment?.count || 0,
-      message: `تعداد ${cleanedCount} سفارش بدون تراکنش فعال آزاد شد.`,
+      message: `سفارش‌های بدون شناسه تراکنش آزادشده: ${cleanedCount}؛ سفارش‌های دارای تراکنش فعال برای بررسی امن در زمان بازگشت مشتری نگه داشته شدند.`,
     });
   } catch (error) {
     console.error('[cron/cleanup]', error);

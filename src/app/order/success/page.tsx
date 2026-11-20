@@ -13,10 +13,10 @@ const CONFIRMED_STATUSES = ['paid', 'processing', 'shipped', 'delivered'];
 
 export default async function OrderSuccessPage({ searchParams }: { searchParams: Promise<{ id?: string; code?: string }> }) {
   const { id, code } = await searchParams;
-  let confirmedOrder: { trackingCode: string; status: string } | undefined;
+  let confirmedOrder: { trackingCode: string; status: string; totalAmount: number } | undefined;
 
   if (id && code && /^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(id) && code.length <= 40) {
-    const [order] = await db.select({ trackingCode: orders.trackingCode, status: orders.status })
+    const [order] = await db.select({ trackingCode: orders.trackingCode, status: orders.status, totalAmount: orders.totalAmount })
       .from(orders)
       .where(and(eq(orders.id, id), eq(orders.trackingCode, code)))
       .limit(1);
@@ -24,6 +24,7 @@ export default async function OrderSuccessPage({ searchParams }: { searchParams:
   }
 
   const trackingCode = confirmedOrder?.trackingCode;
+  const noPaymentRequired = Boolean(confirmedOrder && confirmedOrder.totalAmount === 0);
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
@@ -33,11 +34,13 @@ export default async function OrderSuccessPage({ searchParams }: { searchParams:
             {confirmedOrder ? <CheckCircle2 className="w-10 h-10 text-sage" /> : <Clock3 className="w-10 h-10 text-amber-600" />}
           </div>
           <h1 className="text-2xl md:text-3xl font-extrabold text-ink mb-3">
-            {confirmedOrder ? 'پرداخت و ثبت سفارش تأیید شد' : 'در انتظار تأیید سفارش'}
+            {noPaymentRequired ? 'سفارش بدون نیاز به پرداخت ثبت شد' : confirmedOrder ? 'پرداخت و ثبت سفارش تأیید شد' : 'در انتظار تأیید سفارش'}
           </h1>
           <p className="text-sm text-muted leading-relaxed mb-8">
-            {confirmedOrder
-              ? 'از خرید شما سپاسگزاریم. سفارش شما در سیستم ثبت شده است؛ کد رهگیری را نزد خود نگه دارید.'
+            {noPaymentRequired
+              ? 'مبلغ نهایی سفارش صفر بوده و نیازی به پرداخت آنلاین نداشته است. سفارش شما ثبت شده است.'
+              : confirmedOrder
+              ? 'از خرید شما سپاسگزاریم. پرداخت از طرف درگاه تأیید شده و سفارش شما در سیستم ثبت شده است؛ کد رهگیری را نزد خود نگه دارید.'
               : 'وضعیت سفارش هنوز به‌عنوان پرداخت‌شده تأیید نشده است. اگر مبلغ از حساب شما کسر شده، برای بررسی وضعیت با پشتیبانی تماس بگیرید.'}
           </p>
 

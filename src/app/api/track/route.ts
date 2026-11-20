@@ -24,7 +24,15 @@ export async function POST(req: Request) {
     const trackingCode = parsed.data.trackingCode.toUpperCase();
     const phone = parsed.data.phone;
 
-    let order = await db.select({
+    type TrackedOrder = {
+      id: string;
+      trackingCode: string;
+      status: string;
+      totalAmount: number;
+      createdAt: Date;
+    };
+
+    let order: TrackedOrder | undefined = await db.select({
       id: orders.id,
       trackingCode: orders.trackingCode,
       status: orders.status,

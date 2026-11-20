@@ -26,7 +26,7 @@ async function Content({ params }: { params: Promise<{ id: string }> }) {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center gap-4">
-        <Link href={`/admin/orders/${order.id}/print`} target="_blank" className="flex items-center gap-2 px-4 py-2 bg-[#c61d70] text-white text-sm font-bold rounded-xl shadow-sm hover:bg-[#a9155d]"><Printer size={16} /> پرینت فاکتور</Link>
+        <Link href={`/admin/orders/${order.id}/print`} target="_blank" className="flex items-center gap-2 px-4 py-2 bg-[#c61d70] text-white text-sm font-bold rounded-xl shadow-sm hover:bg-[#a9155d]"><Printer size={16} /> {order.status === 'pending' ? 'چاپ پیش‌فاکتور' : 'چاپ سند سفارش'}</Link>
         <Link href="/admin/orders" prefetch={false} className="p-2 bg-white border border-border rounded-xl hover:bg-[#F8F9FA] transition-colors shadow-sm">
           <ArrowRight className="w-5 h-5 text-foreground" />
         </Link>
@@ -34,6 +34,12 @@ async function Content({ params }: { params: Promise<{ id: string }> }) {
           <h1 className="text-2xl font-bold text-foreground">جزئیات سفارش</h1>
           <p className="text-sm text-muted-foreground mt-1 font-mono" dir="ltr">{order.trackingCode}</p>
         </div>
+      </div>
+
+      <div className={`rounded-2xl border p-4 ${order.status === 'pending' ? 'border-amber-200 bg-amber-50' : ['paid', 'processing', 'shipped', 'delivered'].includes(order.status) ? 'border-emerald-200 bg-emerald-50' : 'border-[#e9e5eb] bg-white'}`}>
+        <p className="text-sm font-black text-[#28242b]">{order.status === 'pending' ? 'پرداخت این سفارش هنوز تأیید نشده است' : ['paid', 'processing', 'shipped', 'delivered'].includes(order.status) ? 'پرداخت این سفارش در سامانه تأیید شده است' : order.status === 'cancelled' ? 'این سفارش لغو شده است' : 'وضعیت مالی سفارش نیازمند بررسی است'}</p>
+        {order.paymentRefId && ['paid', 'processing', 'shipped', 'delivered'].includes(order.status) && <p className="mt-2 text-xs text-[#77717b]">شناسه مرجع زرین‌پال: <span className="font-mono font-bold" dir="ltr">{order.paymentRefId}</span></p>}
+        {order.status === 'pending' && <p className="mt-1 text-xs leading-6 text-amber-800">تا دریافت تأیید سروری درگاه، سفارش را پرداخت‌شده یا آماده ارسال در نظر نگیرید.</p>}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

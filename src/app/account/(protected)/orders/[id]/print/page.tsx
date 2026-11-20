@@ -11,8 +11,9 @@ import { ArrowRight } from 'lucide-react';
 export default async function CustomerPrintPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const customer = await getCurrentCustomer();
+  if (!customer) notFound();
   
-  const orderData = await db.select().from(orders).where(and(eq(orders.id, id), eq(orders.customerId, customer!.id))).limit(1);
+  const orderData = await db.select().from(orders).where(and(eq(orders.id, id), eq(orders.customerId, customer.id))).limit(1);
   if (orderData.length === 0) notFound();
 
   const order = orderData[0];
