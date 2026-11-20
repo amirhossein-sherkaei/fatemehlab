@@ -1,18 +1,17 @@
 'use client';
 
-import { Suspense, useState } from 'react';
+import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { XCircle, RefreshCcw, ShieldAlert, HeadphonesIcon, Loader2 } from 'lucide-react';
+import { XCircle, ShieldAlert, HeadphonesIcon } from 'lucide-react';
 import Header from '@/components/storefront/Header';
 import Footer from '@/components/storefront/Footer';
+import PaymentActionButton from '@/components/account/PaymentActionButton';
 
 function FailureContent() {
   const searchParams = useSearchParams();
   const reason = searchParams.get('reason');
   const orderId = searchParams.get('orderId');
-  const [retrying, setRetrying] = useState(false);
-  const [retryError, setRetryError] = useState('');
 
   const errorMessages: Record<string, string> = {
     cancelled: 'تراکنش قبلی در درگاه ناموفق یا برگشت‌خورده گزارش شده است. سفارش شما حذف نشده و با بررسی دوباره می‌توانید پرداخت همین سفارش را ادامه دهید.',
@@ -40,31 +39,6 @@ function FailureContent() {
   // resumes or creates a transaction, so every owned order can safely use this action.
   const canCheckAndContinue = Boolean(orderId);
 
-  const retryPayment = async () => {
-    if (!orderId || retrying) return;
-    setRetrying(true);
-    setRetryError('');
-    try {
-      const response = await fetch('/api/payment/request', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderId }),
-      });
-      const data = await response.json();
-      if (!response.ok || !data?.success || !data?.redirectUrl) {
-        throw new Error(data?.message || 'امکان شروع مجدد پرداخت وجود ندارد.');
-      }
-      const destination = new URL(data.redirectUrl, window.location.origin);
-      const isSuccessPage = destination.origin === window.location.origin && destination.pathname === '/order/success';
-      const isZarinpal = destination.origin === 'https://payment.zarinpal.com' && destination.pathname.startsWith('/pg/StartPay/');
-      if (!isSuccessPage && !isZarinpal) throw new Error('نشانی مقصد پرداخت معتبر نیست.');
-      window.location.assign(destination.toString());
-    } catch (error) {
-      setRetryError(error instanceof Error ? error.message : 'خطا در شروع مجدد پرداخت');
-      setRetrying(false);
-    }
-  };
-
   return (
     <div className='glass-panel p-8 md:p-12 max-w-lg w-full text-center bg-white/80 animate-in zoom-in-95 duration-500'>
       <div className='w-24 h-24 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner'>
@@ -82,14 +56,9 @@ function FailureContent() {
         </p>
       </div>
 
-      {retryError && <p role='alert' className='text-sm text-rose-600 mb-4'>{retryError}</p>}
-
       <div className='flex flex-col gap-3'>
         {canCheckAndContinue ? (
-          <button type='button' onClick={retryPayment} disabled={retrying} className='btn-primary w-full justify-center disabled:opacity-60'>
-            {retrying ? <Loader2 size={16} className='animate-spin' /> : <RefreshCcw size={16} />}
-            {retrying ? 'در حال استعلام و اتصال امن...' : 'بررسی وضعیت و ادامه پرداخت'}
-          </button>
+          <PaymentActionButton orderId={orderId!} label="بررسی وضعیت و ادامه پرداخت" />
         ) : (
           <Link href='/cart' className='btn-primary w-full justify-center'>بازگشت به سبد خرید</Link>
         )}

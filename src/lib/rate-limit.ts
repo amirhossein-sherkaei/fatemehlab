@@ -28,17 +28,25 @@ const memoryBuckets = new Map<string, { count: number; resetAt: number }>();
 const MEMORY_WINDOW_MS = 60_000;
 const MEMORY_MAX = 10;
 
-export async function rateLimit(key: string): Promise<{ success: boolean; remaining: number }> {
+export type RateLimitResult = { success: boolean; remaining: number; unavailable?: boolean };
+export type RateLimitOptions = { failClosedOnStoreError?: boolean };
+
+export async function rateLimit(key: string, options: RateLimitOptions = {}): Promise<RateLimitResult> {
   if (limiter) {
     try {
       const { success, remaining } = await limiter.limit(key);
       return { success, remaining };
     } catch (e) {
-      console.warn('[rate-limit] Upstash failed, falling back to memory', e);
+      console.error('[rate-limit] Upstash request failed', e);
+      if (options.failClosedOnStoreError) {
+        return { success: false, remaining: 0, unavailable: true };
+      }
     }
   }
 
-  // Fallback path
+  // If Upstash is configured but currently down, critical callers can fail closed.
+  // With no Upstash configuration, the bounded per-process fallback keeps local
+  // development and existing small deployments functional (but is not distributed).
   const now = Date.now();
   const bucket = memoryBuckets.get(key);
   if (!bucket || now > bucket.resetAt) {

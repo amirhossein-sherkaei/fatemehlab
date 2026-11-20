@@ -26,10 +26,9 @@ export async function POST(req: Request) {
 
   try {
     const ip = getClientIp(req);
-    const limit = await rateLimit('payment-request:' + ip);
-    if (!limit.success) {
-      return NextResponse.json({ success: false, message: 'تعداد درخواست‌ها زیاد است. لطفاً کمی صبر کنید.' }, { status: 429 });
-    }
+    const limit = await rateLimit('payment-request:' + ip, { failClosedOnStoreError: true });
+    if (limit.unavailable) return NextResponse.json({ success: false, message: 'سامانه کنترل درخواست‌های پرداخت موقتاً در دسترس نیست. هیچ پرداخت تازه‌ای آغاز نشد؛ کمی بعد دوباره تلاش کنید.' }, { status: 503 });
+    if (!limit.success) return NextResponse.json({ success: false, message: 'تعداد درخواست‌ها زیاد است. لطفاً کمی صبر کنید.' }, { status: 429 });
 
     const customer = await getCurrentCustomer();
     if (!customer) return NextResponse.json({ success: false, message: 'برای پرداخت ابتدا وارد شوید.' }, { status: 401 });
@@ -37,10 +36,9 @@ export async function POST(req: Request) {
     const parsed = bodySchema.safeParse(await req.json());
     if (!parsed.success) return NextResponse.json({ success: false, message: 'شناسه سفارش معتبر نیست.' }, { status: 400 });
     const { orderId } = parsed.data;
-    const orderLimit = await rateLimit('payment-request-order:' + customer.id + ':' + orderId);
-    if (!orderLimit.success) {
-      return NextResponse.json({ success: false, message: 'برای این سفارش درخواست‌های زیادی ثبت شده است. لطفاً کمی بعد دوباره تلاش کنید.' }, { status: 429 });
-    }
+    const orderLimit = await rateLimit('payment-request-order:' + customer.id + ':' + orderId, { failClosedOnStoreError: true });
+    if (orderLimit.unavailable) return NextResponse.json({ success: false, message: 'سامانه کنترل درخواست‌های پرداخت موقتاً در دسترس نیست. وضعیت تراکنش حفظ شده و پرداخت تازه‌ای آغاز نشد.' }, { status: 503 });
+    if (!orderLimit.success) return NextResponse.json({ success: false, message: 'برای این سفارش درخواست‌های زیادی ثبت شده است. لطفاً کمی بعد دوباره تلاش کنید.' }, { status: 429 });
 
     const merchantId = process.env.ZARINPAL_MERCHANT_ID;
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
@@ -250,7 +248,7 @@ export async function POST(req: Request) {
 
       const data = await response.json().catch(() => null);
       const authority = data?.data?.authority;
-      if (!response.ok || Number(data?.data?.code) !== 100 || typeof authority !== 'string' || authority.length < 8) {
+      if (!response.ok || Number(data?.data?.code) !== 100 || typeof authority !== 'string' || !/^[A-Za-z0-9_-]{8,128}$/.test(authority)) {
         console.error('[Zarinpal Request Error]', data);
         return NextResponse.json({ success: false, message: data?.errors?.message || 'در ایجاد تراکنش خطایی رخ داد. سفارش شما حذف نشده و می‌توانید دوباره تلاش کنید.' }, { status: 502 });
       }

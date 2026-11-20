@@ -36,20 +36,35 @@ export async function POST(req: Request) {
     if (!originValid) return rejectCsrf(req);
 
     const ip = getClientIp(req);
-    const rl = await rateLimit('order-submit:' + ip);
-    if (!rl.success) {
-      return NextResponse.json({ message: 'تعداد درخواست‌ها زیاد است. لطفاً بعداً تلاش کنید.' }, { status: 429 });
-    }
+    const rl = await rateLimit('order-submit:' + ip, { failClosedOnStoreError: true });
+    if (rl.unavailable) return NextResponse.json({ message: 'سامانه کنترل درخواست‌ها موقتاً در دسترس نیست. لطفاً کمی بعد دوباره تلاش کنید.' }, { status: 503 });
+    if (!rl.success) return NextResponse.json({ message: 'تعداد درخواست‌ها زیاد است. لطفاً بعداً تلاش کنید.' }, { status: 429 });
 
     const currentCustomer = await getCurrentCustomer();
     if (!currentCustomer) return NextResponse.json({ message: 'برای ثبت سفارش ابتدا وارد شوید.' }, { status: 401 });
+    const customerLimit = await rateLimit('order-submit-customer:' + currentCustomer.id, { failClosedOnStoreError: true });
+    if (customerLimit.unavailable) return NextResponse.json({ message: 'سامانه کنترل درخواست‌ها موقتاً در دسترس نیست. لطفاً کمی بعد دوباره تلاش کنید.' }, { status: 503 });
+    if (!customerLimit.success) return NextResponse.json({ message: 'تعداد سفارش‌های ارسالی شما در این بازه زیاد است. کمی بعد دوباره تلاش کنید.' }, { status: 429 });
 
     const parsed = orderSchema.safeParse(await req.json());
     if (!parsed.success) {
       return NextResponse.json({ message: parsed.error.issues[0]?.message || 'اطلاعات سفارش معتبر نیست.' }, { status: 400 });
     }
 
-    const { customer, cartItems, couponCode, usedPoints, idempotencyKey } = parsed.data;
+    const { customer, cartItems: submittedCartItems, couponCode, usedPoints, idempotencyKey } = parsed.data;
+    // A client can submit the same product more than once (for example after
+    // merging guest and authenticated carts). Normalize it before every stock,
+    // price, discount and order-item calculation so quantity is never split.
+    const mergedQuantities = new Map<string, number>();
+    for (const item of submittedCartItems) {
+      const combined = (mergedQuantities.get(item.id) ?? 0) + item.quantity;
+      if (combined > 99) {
+        return NextResponse.json({ message: 'تعداد یک محصول در سفارش نمی‌تواند بیشتر از ۹۹ عدد باشد.' }, { status: 400 });
+      }
+      mergedQuantities.set(item.id, combined);
+    }
+    const cartItems = [...mergedQuantities.entries()].map(([id, quantity]) => ({ id, quantity }));
+
     requestOrderId = idempotencyKey;
     requestCustomerId = currentCustomer.id;
 
@@ -169,7 +184,7 @@ export async function POST(req: Request) {
           .where(and(
             eq(coupons.id, couponId),
             eq(coupons.isActive, true),
-            sql`(${coupons.startsAt} <= ${couponCheckTime})`,
+            sql`(${coupons.startsAt} IS NULL OR ${coupons.startsAt} <= ${couponCheckTime})`,
             sql`(${coupons.expiresAt} IS NULL OR ${coupons.expiresAt} > ${couponCheckTime})`,
             sql`(${coupons.usageLimit} IS NULL OR ${coupons.usedCount} < ${coupons.usageLimit})`
           ))

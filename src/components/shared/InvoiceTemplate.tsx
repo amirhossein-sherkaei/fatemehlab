@@ -15,6 +15,15 @@ export default function InvoiceTemplate({ order, items, isAdmin = false }: { ord
   const isPending = order.status === 'pending';
   const isCancelled = order.status === 'cancelled';
   const isZeroAmountOrder = isSettled && Number(order.totalAmount) === 0;
+  const totalDiscount = Math.max(0, Number(order.discountAmount) || 0);
+  const pointsDiscount = Math.min(totalDiscount, Math.max(0, Number(order.usedPoints) || 0) * 10000);
+  const couponDiscount = Math.max(0, totalDiscount - pointsDiscount);
+  const itemSubtotal = items.reduce((sum, item) => {
+    const price = Number(item.price) || 0;
+    const quantity = Number(item.quantity) || 0;
+    return sum + price * quantity;
+  }, 0);
+  const safeSubtotal = Number.isSafeInteger(itemSubtotal) ? itemSubtotal : Number(order.totalAmount) + totalDiscount;
 
   const documentTitle = isSettled ? 'فاکتور فروش' : isPending ? 'پیش‌فاکتور' : 'سند سفارش';
   const paymentLabel = isZeroAmountOrder
@@ -29,7 +38,7 @@ export default function InvoiceTemplate({ order, items, isAdmin = false }: { ord
 
   return (
     <div id="print-area" className="mx-auto max-w-4xl border border-gray-100 bg-white p-8 text-[#28242b] shadow-sm print:border-none print:p-0 print:shadow-none md:p-12">
-      <div className="mb-6 flex items-start justify-between border-b-2 border-[#c61d70]/20 pb-6">
+      <div className="mb-6 flex flex-col gap-4 border-b-2 border-[#c61d70]/20 pb-6 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="mb-2 text-2xl font-black text-[#c61d70]">فاطمه بیوتی لند</h1>
           <p className="text-xs text-gray-500">فروشگاه محصولات آرایشی و بهداشتی</p>
@@ -78,7 +87,7 @@ export default function InvoiceTemplate({ order, items, isAdmin = false }: { ord
         </div>
       )}
 
-      <div className="mb-8 grid grid-cols-2 gap-8">
+      <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-8">
         <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
           <h2 className="mb-3 border-b border-gray-200 pb-2 text-sm font-bold">اطلاعات خریدار</h2>
           <p className="mb-1 text-xs"><span className="inline-block w-16 text-gray-500">نام:</span> <span className="font-bold">{order.firstName} {order.lastName}</span></p>
@@ -92,7 +101,8 @@ export default function InvoiceTemplate({ order, items, isAdmin = false }: { ord
         </div>
       </div>
 
-      <table className="mb-8 w-full text-right">
+      <div className="mb-8 overflow-x-auto print:overflow-visible">
+      <table className="w-full min-w-[620px] text-right print:min-w-0">
         <thead>
           <tr className="bg-[#28242b] text-xs text-white">
             <th className="rounded-r-xl px-4 py-3 font-medium">ردیف</th>
@@ -114,9 +124,10 @@ export default function InvoiceTemplate({ order, items, isAdmin = false }: { ord
           ))}
         </tbody>
       </table>
+      </div>
 
-      <div className="flex items-end justify-between border-t-2 border-gray-200 pt-6">
-        <div className="w-1/2">
+      <div className="flex flex-col gap-6 border-t-2 border-gray-200 pt-6 sm:flex-row sm:items-end sm:justify-between">
+        <div className="w-full sm:flex-1">
           {order.notes && (
             <div className="rounded-lg border border-amber-100 bg-amber-50 p-3 text-xs">
               <span className="mb-1 block font-bold text-amber-800">یادداشت:</span>
@@ -124,21 +135,28 @@ export default function InvoiceTemplate({ order, items, isAdmin = false }: { ord
             </div>
           )}
         </div>
-        <div className="w-1/2 max-w-xs space-y-2 text-xs">
-          <div className="flex justify-between text-gray-500">
+        <div className="w-full space-y-2 text-xs sm:max-w-sm">
+          <div className="flex justify-between gap-4 text-gray-500">
             <span>جمع کل کالاها:</span>
-            <span>{formatToman(order.totalAmount + order.discountAmount)}</span>
+            <span className="font-bold">{formatToman(safeSubtotal)}</span>
           </div>
-          {order.discountAmount > 0 && (
-            <div className="flex justify-between text-rose-500">
-              <span>تخفیف {order.couponCode ? `(${order.couponCode})` : ''}:</span>
-              <span>{formatToman(order.discountAmount)}</span>
+          {couponDiscount > 0 && (
+            <div className="flex justify-between gap-4 text-rose-600">
+              <span>تخفیف کد {order.couponCode ? `(${order.couponCode})` : 'تخفیف'}:</span>
+              <span>{formatToman(couponDiscount)}</span>
             </div>
           )}
-          <div className="mt-2 flex justify-between border-t border-gray-200 pt-2 text-base font-black text-[#c61d70]">
+          {pointsDiscount > 0 && (
+            <div className="flex justify-between gap-4 text-rose-600">
+              <span>تخفیف امتیاز باشگاه ({Number(order.usedPoints).toLocaleString('fa-IR')} امتیاز):</span>
+              <span>{formatToman(pointsDiscount)}</span>
+            </div>
+          )}
+          <div className="mt-2 flex justify-between gap-4 border-t border-gray-200 pt-3 text-base font-black text-[#c61d70]">
             <span>{isSettled ? 'مبلغ نهایی سفارش:' : 'مبلغ قابل پرداخت:'}</span>
-            <span>{formatToman(order.totalAmount)}</span>
+            <span className="whitespace-nowrap">{formatToman(order.totalAmount)}</span>
           </div>
+          {!isSettled && <p className="rounded-lg bg-amber-50 px-3 py-2 text-[10px] leading-5 text-amber-800">مبالغ این پیش‌فاکتور تا زمان تأیید پرداخت قطعی نیستند.</p>}
         </div>
       </div>
 

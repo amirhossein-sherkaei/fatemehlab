@@ -7854,13 +7854,9 @@ body {
   .fbl-support-float.is-product-detail-page { display: none !important; }
 }
 @media (prefers-reduced-motion: reduce) {
+  .fbl-luxe-shelf--autoplay .fbl-luxe-rail { scroll-behavior: auto !important; scroll-snap-type: x proximity !important; }
   .fbl-luxe-shelf--autoplay .fbl-luxe-product-card,
   .fbl-luxe-shelf--autoplay .fbl-luxe-product-card__media img,
   .fbl-luxe-shelf--autoplay .fbl-luxe-shelf__motion,
   .fbl-luxe-shelf--autoplay .fbl-luxe-shelf__arrows button { transition: none !important; }
-}
-
-/* Duplicate cards form the seamless loop track. Keep their visual state identical. */
-.fbl-luxe-shelf--autoplay .fbl-luxe-product-card[data-rail-clone="true"] {
-  pointer-events: none;
 }

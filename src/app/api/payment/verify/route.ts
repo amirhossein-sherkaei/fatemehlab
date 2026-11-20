@@ -48,7 +48,8 @@ export async function GET(req: Request) {
         return failureRedirect(baseUrl, 'security_error', orderId);
       }
 
-      const callbackLimit = await rateLimit('payment-callback:' + orderId);
+      const callbackLimit = await rateLimit('payment-callback:' + orderId, { failClosedOnStoreError: true });
+      if (callbackLimit.unavailable) return failureRedirect(baseUrl, 'server_error', orderId);
       if (!callbackLimit.success) return failureRedirect(baseUrl, 'verify_failed', orderId);
       if (order.status === 'cancelled') return failureRedirect(baseUrl, 'cancelled', orderId);
       if (isSettledOrderStatus(order.status)) return successRedirect(baseUrl, orderId, order.trackingCode);

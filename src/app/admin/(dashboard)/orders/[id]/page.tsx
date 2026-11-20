@@ -22,6 +22,10 @@ async function Content({ params }: { params: Promise<{ id: string }> }) {
   if (orderData.length === 0) notFound();
   const order = orderData[0];
   const items = await db.select().from(orderItems).where(eq(orderItems.orderId, id));
+  const itemSubtotal = items.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 0), 0);
+  const totalDiscount = Math.max(0, Number(order.discountAmount) || 0);
+  const pointsDiscount = Math.min(totalDiscount, Math.max(0, Number(order.usedPoints) || 0) * 10000);
+  const couponDiscount = Math.max(0, totalDiscount - pointsDiscount);
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -71,9 +75,14 @@ async function Content({ params }: { params: Promise<{ id: string }> }) {
                 </div>
               ))}
             </div>
-            <div className="border-t border-border pt-4 flex justify-between items-center">
-              <span className="font-bold text-foreground">مبلغ کل</span>
-              <span className="font-black text-xl text-sage">{formatToman(order.totalAmount)}</span>
+            <div className="space-y-2 border-t border-border pt-4 text-xs">
+              <div className="flex justify-between gap-3 text-muted-foreground"><span>جمع کالاها</span><strong>{formatToman(itemSubtotal)}</strong></div>
+              {couponDiscount > 0 && <div className="flex justify-between gap-3 text-rose-600"><span>تخفیف {order.couponCode ? `(${order.couponCode})` : 'کد تخفیف'}</span><strong>{formatToman(couponDiscount)}</strong></div>}
+              {pointsDiscount > 0 && <div className="flex justify-between gap-3 text-rose-600"><span>تخفیف امتیاز باشگاه ({Number(order.usedPoints).toLocaleString('fa-IR')} امتیاز)</span><strong>{formatToman(pointsDiscount)}</strong></div>}
+              <div className="flex justify-between items-center gap-3 border-t border-border pt-3 text-sm">
+                <span className="font-bold text-foreground">{order.status === 'pending' ? 'مبلغ قابل پرداخت' : 'مبلغ نهایی سفارش'}</span>
+                <span className="font-black text-xl text-sage">{formatToman(order.totalAmount)}</span>
+              </div>
             </div>
           </div>
 

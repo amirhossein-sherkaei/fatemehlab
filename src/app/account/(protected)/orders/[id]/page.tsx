@@ -38,6 +38,10 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
   const currentStep = steps.findIndex((step) => step.id === order.status);
   const isPending = order.status === 'pending';
   const isCancelled = order.status === 'cancelled';
+  const totalDiscount = Math.max(0, Number(order.discountAmount) || 0);
+  const pointsDiscount = Math.min(totalDiscount, Math.max(0, Number(order.usedPoints) || 0) * 10000);
+  const couponDiscount = Math.max(0, totalDiscount - pointsDiscount);
+  const itemSubtotal = items.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 0), 0);
 
   return (
     <div className="space-y-6">
@@ -140,6 +144,13 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
               <span className="shrink-0 text-sm font-bold text-[#28242b]">{formatToman(item.price * item.quantity)}</span>
             </div>
           ))}
+        </div>
+        <div className="mt-4 space-y-2 border-t border-[#e9e5eb] pt-4 text-xs">
+          <div className="flex justify-between gap-3 text-[#77717b]"><span>جمع کالاها</span><strong>{formatToman(itemSubtotal)}</strong></div>
+          {couponDiscount > 0 && <div className="flex justify-between gap-3 text-rose-600"><span>تخفیف {order.couponCode ? `(${order.couponCode})` : 'کد تخفیف'}</span><strong>{formatToman(couponDiscount)}</strong></div>}
+          {pointsDiscount > 0 && <div className="flex justify-between gap-3 text-rose-600"><span>تخفیف امتیاز باشگاه</span><strong>{formatToman(pointsDiscount)}</strong></div>}
+          <div className="flex justify-between gap-3 border-t border-[#e9e5eb] pt-3 text-sm font-black text-[#28242b]"><span>{isPending ? 'مبلغ قابل پرداخت' : 'مبلغ نهایی سفارش'}</span><strong className="text-[#c61d70]">{formatToman(order.totalAmount)}</strong></div>
+          {isPending && <p className="rounded-lg bg-amber-50 px-3 py-2 text-[10px] leading-5 text-amber-800">این سفارش هنوز رسید پرداخت ندارد. پس از تأیید درگاه، وضعیت و سند سفارش به‌روزرسانی می‌شود.</p>}
         </div>
       </div>
 
