@@ -16,9 +16,9 @@ const updateSchema = z.object({
   brand: z.string().optional().nullable(),
   countryOfOrigin: z.string().optional().nullable(),
   description: z.string().optional().nullable(),
-  price: z.number().int().min(0),
-  compareAtPrice: z.union([z.number().int().positive(), z.null()]).optional(),
-  stock: z.number().int().min(0),
+  price: z.number().int().min(0).max(214748364),
+  compareAtPrice: z.union([z.number().int().positive().max(214748364), z.null()]).optional(),
+  stock: z.number().int().min(0).max(2147483647),
   status: z.enum(['draft', 'published']),
   mainImage: z.string().optional().nullable(),
   gallery: z.array(z.string()).optional().default([]),
@@ -90,11 +90,13 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
             const result = await sendBackInStockSms(notif.phoneOrEmail, updatedProduct.name);
             if (!result.success) continue;
           } else {
-            console.log('[Email Mock] Send email to ' + notif.phoneOrEmail);
+            // No email provider is configured. Keep the request pending instead of marking a mock as sent.
+            console.warn('[stock-notify] Email delivery is not configured; notification remains pending:', notif.id);
+            continue;
           }
           await db.update(stockNotifications)
             .set({ status: 'notified' })
-            .where(eq(stockNotifications.id, notif.id));
+            .where(and(eq(stockNotifications.id, notif.id), eq(stockNotifications.status, 'pending')));
         } catch (err) {
           console.error('[stock-notify] Failed:', err);
         }

@@ -1,4 +1,5 @@
 ﻿import { NextResponse } from 'next/server';
+import { validateOrigin, rejectCsrf } from '@/lib/security';
 import { db } from '@/lib/db';
 import { articles } from '@/db/schema';
 import { revalidatePath } from 'next/cache';
@@ -22,6 +23,8 @@ const articleSchema = z.object({
 });
 
 export async function POST(req: Request) {
+  const { valid: originValid } = validateOrigin(req);
+  if (!originValid) return rejectCsrf(req);
   try {
     await verifyAdmin();
     const body = await req.json();

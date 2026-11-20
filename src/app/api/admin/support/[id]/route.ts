@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server';
+import { validateOrigin, rejectCsrf, isAllowedVercelBlobUrl } from '@/lib/security';
 import { db } from '@/lib/db';
 import { supportTickets, supportMessages, customers } from '@/db/schema';
-import { eq, asc } from 'drizzle-orm';
+import { eq, asc, sql } from 'drizzle-orm';
 import { verifyAdmin } from '@/lib/auth';
 import { z } from 'zod';
 
 const replySchema = z.object({
   message: z.string().min(1).max(2000),
-  attachmentUrl: z.string().optional().nullable(),
+  attachmentUrl: z.string().url().max(2048).optional().nullable(),
   status: z.enum(['open', 'answered', 'closed']).optional(),
 });
 
@@ -28,30 +29,36 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 }
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { valid: originValid } = validateOrigin(req);
+  if (!originValid) return rejectCsrf(req);
   try {
     await verifyAdmin();
     const { id } = await params;
     const body = await req.json();
     const validated = replySchema.parse(body);
+    if (validated.attachmentUrl && !isAllowedVercelBlobUrl(validated.attachmentUrl)) return NextResponse.json({ message: 'فایل پیوست معتبر نیست.' }, { status: 400 });
     
-    const [ticket] = await db.select().from(supportTickets).where(eq(supportTickets.id, id)).limit(1);
-    if (!ticket) return NextResponse.json({ message: 'not found' }, { status: 404 });
-    
-    await db.insert(supportMessages).values({
-      ticketId: id,
-      senderType: 'admin',
-      senderName: 'تیم پشتیبانی',
-      message: validated.message,
-      attachmentUrl: validated.attachmentUrl || null,
+    const posted = await db.transaction(async (tx) => {
+      const [ticket] = await tx.select({ id: supportTickets.id }).from(supportTickets)
+        .where(eq(supportTickets.id, id)).limit(1);
+      if (!ticket) return false;
+      await tx.insert(supportMessages).values({
+        ticketId: id,
+        senderType: 'admin',
+        senderName: 'تیم پشتیبانی',
+        message: validated.message,
+        attachmentUrl: validated.attachmentUrl || null,
+      });
+      await tx.update(supportTickets).set({
+        status: validated.status || 'answered',
+        unreadByCustomer: sql`${supportTickets.unreadByCustomer} + 1`,
+        unreadByAdmin: 0,
+        lastMessageAt: new Date(),
+        updatedAt: new Date(),
+      }).where(eq(supportTickets.id, id));
+      return true;
     });
-    
-    await db.update(supportTickets).set({
-      status: validated.status || 'answered',
-      unreadByCustomer: (ticket.unreadByCustomer || 0) + 1,
-      unreadByAdmin: 0,
-      lastMessageAt: new Date(),
-      updatedAt: new Date(),
-    }).where(eq(supportTickets.id, id));
+    if (!posted) return NextResponse.json({ message: 'not found' }, { status: 404 });
     
     return NextResponse.json({ success: true });
   } catch (error: any) {
@@ -61,11 +68,14 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 }
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { valid: originValid } = validateOrigin(req);
+  if (!originValid) return rejectCsrf(req);
   try {
     await verifyAdmin();
     const { id } = await params;
-    const { status } = await req.json();
-    if (!['open', 'answered', 'closed'].includes(status)) return NextResponse.json({ message: 'invalid' }, { status: 400 });
+    const parsed = z.object({ status: z.enum(['open', 'answered', 'closed']) }).safeParse(await req.json());
+    if (!parsed.success) return NextResponse.json({ message: 'وضعیت تیکت معتبر نیست.' }, { status: 400 });
+    const { status } = parsed.data;
     await db.update(supportTickets).set({ status, updatedAt: new Date() }).where(eq(supportTickets.id, id));
     return NextResponse.json({ success: true });
   } catch { return NextResponse.json({ message: 'خطا' }, { status: 500 }); }

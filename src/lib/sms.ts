@@ -49,7 +49,7 @@ export async function sendOtpCode(mobile: string, code: string) {
     }
 
     const smsir = getSmsir();
-    console.log('[SMS OTP] Attempting send:', { mobile, templateId });
+    console.log('[SMS OTP] Attempting OTP delivery with template:', templateId);
 
     const result = await smsir.sendVerifyCode(mobile, templateId, [
       { name: 'Code', value: code },
@@ -117,9 +117,9 @@ export async function sendBackInStockSms(mobile: string, productName: string) {
     
     // استفاده از یک قالب فرضی یا لاگ کردن
     const templateId = Number(process.env.SMSIR_STOCK_TEMPLATE_ID);
-    if (!templateId) {
-      console.warn(`[SMS Stock Notify] SMSIR_STOCK_TEMPLATE_ID not set. Mock sending to ${mobile} for ${productName}`);
-      return { success: true };
+    if (!Number.isFinite(templateId) || templateId <= 0) {
+      console.warn('[SMS Stock Notify] SMSIR_STOCK_TEMPLATE_ID is not configured; notification remains pending.');
+      return { success: false, error: new Error('SMSIR_STOCK_TEMPLATE_ID is not configured') };
     }
 
     const smsir = getSmsir();

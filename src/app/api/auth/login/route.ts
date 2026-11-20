@@ -5,7 +5,7 @@ import { eq } from 'drizzle-orm';
 import * as argon2 from 'argon2';
 import { SignJWT } from 'jose';
 import { rateLimit } from '@/lib/rate-limit';
-import { validateOrigin, rejectCsrf } from '@/lib/security';
+import { validateOrigin, rejectCsrf, getClientIp } from '@/lib/security';
 
 export async function POST(req: Request) {
   try {
@@ -18,7 +18,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: 'تنظیمات امنیتی سرور کامل نیست.' }, { status: 500 });
     }
 
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    const ip = getClientIp(req);
     const rl = await rateLimit('admin-login:' + ip);
     if (!rl.success) {
       return NextResponse.json({ message: 'تلاش‌های ناموفق زیاد است. لطفاً کمی بعد تلاش کنید.' }, { status: 429 });

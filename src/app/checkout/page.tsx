@@ -229,6 +229,14 @@ const handleSubmit = async (e: React.FormEvent) => {
       if (!res.ok) throw new Error(data.message || 'خطا در ثبت سفارش');
       createdOrderId = typeof data.orderId === 'string' ? data.orderId : null;
 
+      if (data.paymentRequired === false) {
+        clearCart();
+        localStorage.removeItem('checkout-draft');
+        toast.success('سفارش بدون نیاز به پرداخت آنلاین ثبت شد.', { id: toastId });
+        router.replace(`/order/success?id=${encodeURIComponent(data.orderId)}&code=${encodeURIComponent(data.trackingCode)}`);
+        return;
+      }
+
       const payRes = await fetch('/api/payment/request', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

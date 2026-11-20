@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
+import { validateOrigin, rejectCsrf } from '@/lib/security';
 import { db } from '@/lib/db';
 import { reviews, products } from '@/db/schema';
 import { eq, desc, ilike, or, and } from 'drizzle-orm';
 import { verifyAdmin } from '@/lib/auth';
+import { z } from 'zod';
 
 export async function GET(req: Request) {
   try {
@@ -46,9 +48,13 @@ export async function GET(req: Request) {
 }
 
 export async function PUT(req: Request) {
+  const { valid: originValid } = validateOrigin(req);
+  if (!originValid) return rejectCsrf(req);
   try {
     await verifyAdmin();
-    const { id, action, adminReply } = await req.json();
+    const parsed = z.object({ id: z.string().uuid(), action: z.enum(['approve', 'reject', 'delete', 'reply']), adminReply: z.string().trim().max(2000).optional() }).safeParse(await req.json());
+    if (!parsed.success) return NextResponse.json({ message: 'درخواست مدیریت نظر معتبر نیست.' }, { status: 400 });
+    const { id, action, adminReply } = parsed.data;
     
     if (action === 'approve') {
       await db.update(reviews).set({ status: 'approved' }).where(eq(reviews.id, id));

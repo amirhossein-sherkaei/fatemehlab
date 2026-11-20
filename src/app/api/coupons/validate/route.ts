@@ -1,3 +1,4 @@
+import { getClientIp, validateOrigin, rejectCsrf } from '@/lib/security';
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { coupons } from '@/db/schema';
@@ -11,8 +12,10 @@ const schema = z.object({
 });
 
 export async function POST(req: Request) {
+  const { valid } = validateOrigin(req);
+  if (!valid) return rejectCsrf(req);
   try {
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    const ip = getClientIp(req);
     const rl = await rateLimit('coupon-validate:' + ip);
     if (!rl.success) {
       return NextResponse.json({ success: false, message: 'تعداد تلاش‌ها زیاد است. لطفاً کمی بعد تلاش کنید.' }, { status: 429 });

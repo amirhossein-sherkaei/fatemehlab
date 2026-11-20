@@ -6,7 +6,7 @@ import { Redis } from '@upstash/redis';
 import { db } from '@/lib/db';
 import { customers } from '@/db/schema';
 import { eq } from 'drizzle-orm';
-import { validateOrigin, rejectCsrf } from '@/lib/security';
+import { validateOrigin, rejectCsrf, getClientIp } from '@/lib/security';
 
 function getRedis(): Redis | null {
   try {
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, message: 'شماره موبایل معتبر نیست.' }, { status: 400 });
     }
 
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    const ip = getClientIp(req);
     const [ipLimit, mobileLimit] = await Promise.all([
       rateLimit('otp-send-ip:' + ip),
       rateLimit('otp-send-mobile:' + mobile),

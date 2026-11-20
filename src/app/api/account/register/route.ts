@@ -6,16 +6,19 @@ import * as argon2 from 'argon2';
 import { z } from 'zod';
 import { createCustomerToken } from '@/lib/customer-auth';
 import { rateLimit } from '@/lib/rate-limit';
+import { validateOrigin, rejectCsrf, getClientIp } from '@/lib/security';
 
 const registerSchema = z.object({
-  name: z.string().min(2, 'نام باید حداقل ۲ حرف باشد'),
-  email: z.string().email('ایمیل معتبر نیست'),
-  password: z.string().min(6, 'رمز عبور باید حداقل ۶ حرف باشد'),
+  name: z.string().trim().min(2, 'نام باید حداقل ۲ حرف باشد').max(100),
+  email: z.string().email('ایمیل معتبر نیست').max(254),
+  password: z.string().min(6, 'رمز عبور باید حداقل ۶ حرف باشد').max(128),
 });
 
 export async function POST(req: Request) {
+  const { valid: originValid } = validateOrigin(req);
+  if (!originValid) return rejectCsrf(req);
   try {
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
+    const ip = getClientIp(req);
     const rl = await rateLimit('customer-register:' + ip);
     if (!rl.success) {
       return NextResponse.json({ success: false, message: 'تعداد درخواست‌ها بیش از حد مجاز است.' }, { status: 429 });
@@ -39,14 +42,20 @@ export async function POST(req: Request) {
 
     const passwordHash = await argon2.hash(validated.password);
 
-    const [newCustomer] = await db
-      .insert(customers)
-      .values({
-        name: validated.name,
-        email: validated.email.toLowerCase(),
-        passwordHash,
-      })
-      .returning();
+    let newCustomer: typeof customers.$inferSelect | undefined;
+    try {
+      [newCustomer] = await db
+        .insert(customers)
+        .values({ name: validated.name, email: validated.email.toLowerCase(), passwordHash })
+        .returning();
+    } catch (insertError: any) {
+      if (insertError?.cause?.code === '23505' || insertError?.code === '23505') {
+        return NextResponse.json({ success: false, message: 'این ایمیل قبلاً ثبت شده است' }, { status: 409 });
+      }
+      throw insertError;
+    }
+
+    if (!newCustomer) return NextResponse.json({ success: false, message: 'ثبت‌نام کامل نشد.' }, { status: 500 });
 
     const token = await createCustomerToken({
       id: newCustomer.id,

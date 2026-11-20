@@ -1,20 +1,21 @@
 import { NextResponse } from 'next/server';
-import { validateOrigin, rejectCsrf } from '@/lib/security';
+import { validateOrigin, rejectCsrf, getClientIp } from '@/lib/security';
 import { db } from '@/lib/db';
 import { orders, orderItems, products, coupons, customers } from '@/db/schema';
 import { eq, inArray, and, gte, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { getCurrentCustomer } from '@/lib/customer-auth';
 import { rateLimit } from '@/lib/rate-limit';
+import { randomBytes } from 'node:crypto';
 
 const orderSchema = z.object({
   customer: z.object({
     firstName: z.string().trim().min(1).max(100),
     lastName: z.string().trim().min(1).max(100),
-    phone: z.string().min(10).max(15),
+    phone: z.string().regex(/^09\d{9}$/, 'شماره موبایل معتبر نیست'),
     address: z.string().trim().min(10).max(500),
     city: z.string().trim().min(2).max(100),
-    postalCode: z.string().min(10).max(10),
+    postalCode: z.string().regex(/^\d{10}$/, 'کد پستی باید ۱۰ رقم باشد'),
     notes: z.string().max(1000).optional().nullable(),
   }),
   cartItems: z.array(z.object({
@@ -31,7 +32,7 @@ export async function POST(req: Request) {
     const { valid: originValid } = validateOrigin(req);
     if (!originValid) return rejectCsrf(req);
 
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    const ip = getClientIp(req);
     const rl = await rateLimit('order-submit:' + ip);
     if (!rl.success) {
       return NextResponse.json({ message: 'تعداد درخواست‌ها زیاد است. لطفاً بعداً تلاش کنید.' }, { status: 429 });
@@ -76,6 +77,9 @@ export async function POST(req: Request) {
         quantity: item.quantity,
       });
     }
+    if (!Number.isSafeInteger(subtotal) || subtotal > 2_147_483_647) {
+      return NextResponse.json({ message: 'مبلغ سبد خرید از سقف مجاز سفارش بیشتر است.' }, { status: 400 });
+    }
 
     let discountAmount = 0;
     let validCouponCode: string | null = null;
@@ -118,7 +122,7 @@ export async function POST(req: Request) {
     const finalAmount = Math.max(0, subtotal - discountAmount - pointsDiscount);
 
     const orderId = crypto.randomUUID();
-    const trackingCode = 'FL-' + orderId.slice(0, 6).toUpperCase();
+    const trackingCode = 'FL-' + randomBytes(8).toString('hex').toUpperCase();
 
     const newOrder = await db.transaction(async (tx) => {
       if (couponIdToConsume) {
@@ -158,7 +162,7 @@ export async function POST(req: Request) {
         discountAmount: discountAmount + pointsDiscount,
         usedPoints: actualUsedPoints,
         couponCode: validCouponCode,
-        status: 'pending',
+        status: finalAmount === 0 ? 'paid' : 'pending',
         trackingCode,
       }).returning();
 

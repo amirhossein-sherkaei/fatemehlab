@@ -3,29 +3,63 @@ import { db } from '@/lib/db';
 import { orders, orderItems, products } from '@/db/schema';
 import { ShoppingBag, AlertCircle, Plus, Activity, DollarSign, TrendingUp, Clock, ArrowUpRight, Images } from 'lucide-react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { formatToman } from '@/lib/currency';
-import { desc, eq, sql } from 'drizzle-orm';
+import { desc, eq, sql, and, gte, inArray } from 'drizzle-orm';
 import ChartsClientWrapper from '@/components/admin/ChartsClientWrapper';
 
 export const instant = false;
+
+const ORDER_STATUS_LABELS: Record<string, string> = {
+  pending: 'در انتظار پرداخت',
+  paid: 'پرداخت‌شده',
+  processing: 'در حال پردازش',
+  shipped: 'ارسال‌شده',
+  delivered: 'تحویل‌شده',
+  cancelled: 'لغوشده',
+};
 
 function DashboardSkeleton() {
   return <div className="p-8 text-center text-[#77717b] animate-pulse">در حال بارگذاری داشبورد...</div>;
 }
 
 async function DashboardContent() {
-  let allProducts: any[] = [];
+  const SETTLED_STATUSES = ['paid', 'processing', 'shipped', 'delivered'];
+  let allProducts: Array<{ id: string; stock: number }> = [];
   let recentOrders: any[] = [];
   let topItems: any[] = [];
+  let totalRevenue = 0;
+  let totalOrders = 0;
 
-  try { allProducts = await db.select().from(products); } catch (e) {}
-  try { recentOrders = await db.select().from(orders).orderBy(desc(orders.createdAt)).limit(50); } catch (e) {}
-  
-  // محاسبه KPI ها
-  const validOrders = recentOrders.filter(o => o.status !== 'cancelled');
-  const totalRevenue = validOrders.reduce((sum, o) => sum + o.totalAmount, 0);
-  const avgOrderValue = validOrders.length > 0 ? Math.round(totalRevenue / validOrders.length) : 0;
+  try {
+    allProducts = await db.select({ id: products.id, stock: products.stock }).from(products);
+  } catch (error) {
+    console.error('[dashboard/products]', error);
+  }
+  try {
+    recentOrders = await db.select({
+      id: orders.id,
+      firstName: orders.firstName,
+      lastName: orders.lastName,
+      trackingCode: orders.trackingCode,
+      totalAmount: orders.totalAmount,
+      status: orders.status,
+      createdAt: orders.createdAt,
+    }).from(orders).orderBy(desc(orders.createdAt)).limit(50);
+  } catch (error) {
+    console.error('[dashboard/recent-orders]', error);
+  }
+
+  try {
+    const [summary] = await db.select({
+      totalRevenue: sql<number>`coalesce(sum(${orders.totalAmount}), 0)`.mapWith(Number),
+      totalOrders: sql<number>`count(*)`.mapWith(Number),
+    }).from(orders).where(inArray(orders.status, SETTLED_STATUSES));
+    totalRevenue = summary?.totalRevenue || 0;
+    totalOrders = summary?.totalOrders || 0;
+  } catch (error) {
+    console.error('[dashboard/settled-summary]', error);
+  }
+
   const lowStockProducts = allProducts.filter(p => p.stock > 0 && p.stock <= 5);
   const outOfStockProducts = allProducts.filter(p => p.stock === 0);
 
@@ -40,14 +74,21 @@ async function DashboardContent() {
       orders: 0
     };
   });
-  validOrders.forEach(order => {
-    const orderDate = new Date(order.createdAt).toISOString().split('T')[0];
-    const dayData = last7Days.find(d => d.fullDate === orderDate);
-    if (dayData) {
-      dayData.revenue += order.totalAmount;
-      dayData.orders += 1;
-    }
-  });
+  try {
+    const chartStart = new Date();
+    chartStart.setHours(0, 0, 0, 0);
+    chartStart.setDate(chartStart.getDate() - 6);
+    const chartOrders = await db.select({ totalAmount: orders.totalAmount, createdAt: orders.createdAt })
+      .from(orders)
+      .where(and(inArray(orders.status, SETTLED_STATUSES), gte(orders.createdAt, chartStart)));
+    chartOrders.forEach(order => {
+      const orderDate = new Date(order.createdAt).toISOString().split('T')[0];
+      const dayData = last7Days.find(d => d.fullDate === orderDate);
+      if (dayData) { dayData.revenue += order.totalAmount; dayData.orders += 1; }
+    });
+  } catch (error) {
+    console.error('[dashboard/chart]', error);
+  }
 
   // پرفروش‌ترین‌ها
   try {
@@ -59,16 +100,18 @@ async function DashboardContent() {
       })
       .from(orderItems)
       .innerJoin(orders, eq(orderItems.orderId, orders.id))
-      .where(sql`${orders.status} != 'cancelled'`)
+      .where(inArray(orders.status, SETTLED_STATUSES))
       .groupBy(orderItems.productId, orderItems.productName)
       .orderBy(desc(sql`sum(${orderItems.quantity})`))
       .limit(5);
   } catch (e) {}
 
+  const avgOrderValue = totalOrders > 0 ? Math.round(totalRevenue / totalOrders) : 0;
+
   const stats = [
     { title: 'درآمد کل', value: formatToman(totalRevenue), icon: DollarSign, color: 'text-emerald-600', bg: 'bg-emerald-50' },
     { title: 'میانگین سبد', value: formatToman(avgOrderValue), icon: TrendingUp, color: 'text-blue-600', bg: 'bg-blue-50' },
-    { title: 'تعداد سفارشات', value: validOrders.length.toLocaleString('fa-IR'), icon: ShoppingBag, color: 'text-[#c61d70]', bg: 'bg-[#fff0f7]' },
+    { title: 'تعداد سفارشات', value: totalOrders.toLocaleString('fa-IR'), icon: ShoppingBag, color: 'text-[#c61d70]', bg: 'bg-[#fff0f7]' },
     { title: 'هشدار موجودی', value: (lowStockProducts.length + outOfStockProducts.length).toLocaleString('fa-IR'), icon: AlertCircle, color: 'text-amber-600', bg: 'bg-amber-50' },
   ];
 
@@ -153,13 +196,13 @@ async function DashboardContent() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#f5f0f2]">
-                {validOrders.slice(0, 4).map((order: any) => (
+                {recentOrders.filter((order: any) => order.status !== 'cancelled').slice(0, 4).map((order: any) => (
                   <tr key={order.id} className="hover:bg-[#fafafc]">
                     <td className="py-3 font-bold text-[#28242b]">{order.firstName} {order.lastName}</td>
                     <td className="py-3 font-mono text-[#77717b]" dir="ltr">{order.trackingCode}</td>
                     <td className="py-3 font-bold">{formatToman(order.totalAmount)}</td>
                     <td className="py-3">
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 font-bold">پردازش</span>
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${order.status === 'cancelled' ? 'bg-rose-50 text-rose-600' : order.status === 'delivered' ? 'bg-emerald-50 text-emerald-600' : order.status === 'pending' ? 'bg-amber-50 text-amber-700' : 'bg-blue-50 text-blue-600'}`}>{ORDER_STATUS_LABELS[order.status] || order.status}</span>
                     </td>
                   </tr>
                 ))}

@@ -1,40 +1,61 @@
+import { getClientIp, validateOrigin, rejectCsrf } from '@/lib/security';
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { orders, orderItems } from '@/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, desc } from 'drizzle-orm';
 import { rateLimit } from '@/lib/rate-limit';
+import { z } from 'zod';
+
+const schema = z.object({
+  trackingCode: z.string().trim().min(3).max(40),
+  phone: z.string().trim().min(10).max(15),
+});
 
 export async function POST(req: Request) {
+  const { valid } = validateOrigin(req);
+  if (!valid) return rejectCsrf(req);
   try {
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
-    const rl = await rateLimit('track-order:' + ip);
-    if (!rl.success) return NextResponse.json({ message: 'تعداد تلاش‌های شما برای رهگیری زیاد بوده است. لطفاً یک دقیقه دیگر تلاش کنید.' }, { status: 429 });
-    const { trackingCode, phone } = await req.json();
-    
-    // تلاش اول: جستجو با کد دقیق
-    let orderData = await db.select().from(orders).where(
-      and(eq(orders.trackingCode, trackingCode), eq(orders.phone, phone))
-    ).limit(1);
-    
-    // تلاش دوم: اگر پیدا نشد، با شماره تماس پیدا کن و از روی id بساز
-    if (orderData.length === 0) {
-      const allOrders = await db.select().from(orders).where(eq(orders.phone, phone));
-      const matched = allOrders.find(o => {
-        const derivedCode = `FL-${o.id.slice(0, 6).toUpperCase()}`;
-        return derivedCode === trackingCode.toUpperCase() || o.trackingCode === trackingCode;
-      });
-      if (matched) orderData = [matched];
+    const ip = getClientIp(req);
+    const limit = await rateLimit('track-order:' + ip);
+    if (!limit.success) return NextResponse.json({ message: 'تعداد تلاش‌های شما برای رهگیری زیاد بوده است. لطفاً یک دقیقه دیگر تلاش کنید.' }, { status: 429 });
+
+    const parsed = schema.safeParse(await req.json());
+    if (!parsed.success) return NextResponse.json({ message: 'کد رهگیری یا شماره تماس معتبر نیست.' }, { status: 400 });
+    const trackingCode = parsed.data.trackingCode.toUpperCase();
+    const phone = parsed.data.phone;
+
+    let order = await db.select({
+      id: orders.id,
+      trackingCode: orders.trackingCode,
+      status: orders.status,
+      totalAmount: orders.totalAmount,
+      createdAt: orders.createdAt,
+    }).from(orders).where(and(eq(orders.trackingCode, trackingCode), eq(orders.phone, phone))).limit(1).then((rows) => rows[0]);
+
+    if (!order) {
+      const recentOrders = await db.select({
+        id: orders.id,
+        trackingCode: orders.trackingCode,
+        status: orders.status,
+        totalAmount: orders.totalAmount,
+        createdAt: orders.createdAt,
+      }).from(orders).where(eq(orders.phone, phone)).orderBy(desc(orders.createdAt)).limit(100);
+      const matchedOrder = recentOrders.find((candidate) => `FL-${candidate.id.slice(0, 6).toUpperCase()}` === trackingCode || candidate.trackingCode === trackingCode);
+      if (matchedOrder) order = matchedOrder;
     }
 
-    if (orderData.length === 0) {
-      return NextResponse.json({ message: 'سفارشی با این مشخصات یافت نشد.' }, { status: 404 });
-    }
+    if (!order) return NextResponse.json({ message: 'سفارشی با این مشخصات یافت نشد.' }, { status: 404 });
 
-    const order = orderData[0];
-    const items = await db.select().from(orderItems).where(eq(orderItems.orderId, order.id));
-    
+    const items = await db.select({
+      id: orderItems.id,
+      productName: orderItems.productName,
+      price: orderItems.price,
+      quantity: orderItems.quantity,
+    }).from(orderItems).where(eq(orderItems.orderId, order.id));
+
     return NextResponse.json({ success: true, order, items });
   } catch (error) {
+    console.error('[track/order]', error);
     return NextResponse.json({ message: 'خطا در سیستم رهگیری' }, { status: 500 });
   }
 }

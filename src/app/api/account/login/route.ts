@@ -6,15 +6,18 @@ import * as argon2 from 'argon2';
 import { z } from 'zod';
 import { createCustomerToken } from '@/lib/customer-auth';
 import { rateLimit } from '@/lib/rate-limit';
+import { validateOrigin, rejectCsrf, getClientIp } from '@/lib/security';
 
 const loginSchema = z.object({
-  email: z.string().email('ایمیل معتبر نیست'),
-  password: z.string().min(1, 'رمز عبور الزامی است'),
+  email: z.string().email('ایمیل معتبر نیست').max(254),
+  password: z.string().min(1, 'رمز عبور الزامی است').max(128),
 });
 
 export async function POST(req: Request) {
+  const { valid: originValid } = validateOrigin(req);
+  if (!originValid) return rejectCsrf(req);
   try {
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
+    const ip = getClientIp(req);
     const rl = await rateLimit('customer-login:' + ip);
     if (!rl.success) {
       return NextResponse.json({ success: false, message: 'تعداد تلاش‌ها بیش از حد مجاز است.' }, { status: 429 });

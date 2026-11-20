@@ -6,7 +6,7 @@ import { createCustomerToken } from '@/lib/customer-auth';
 import { Redis } from '@upstash/redis';
 import { cookies } from 'next/headers';
 import { rateLimit } from '@/lib/rate-limit';
-import { validateOrigin, rejectCsrf } from '@/lib/security';
+import { validateOrigin, rejectCsrf, getClientIp } from '@/lib/security';
 
 function getRedis(): Redis | null {
   try {
@@ -33,7 +33,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, message: 'شماره موبایل یا کد تایید معتبر نیست.' }, { status: 400 });
     }
 
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    const ip = getClientIp(req);
     const [ipLimit, mobileLimit] = await Promise.all([
       rateLimit('otp-verify-ip:' + ip),
       rateLimit('otp-verify-mobile:' + mobile),

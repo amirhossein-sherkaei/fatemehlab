@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { put } from '@vercel/blob';
 import { verifyAdmin } from '@/lib/auth';
-import { rejectCsrf, sanitizeFilename, validateImageUpload, validateOrigin } from '@/lib/security';
+import { rejectCsrf, sanitizeFilename, validateImageUploadContent, validateOrigin } from '@/lib/security';
 
 export async function POST(req: Request) {
   const origin = validateOrigin(req);
@@ -15,7 +15,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, message: 'فایل تصویر ارسال نشده است.' }, { status: 400 });
     }
 
-    const validation = validateImageUpload(file);
+    const validation = await validateImageUploadContent(file);
     if (!validation.valid) {
       return NextResponse.json({ success: false, message: validation.message || 'تصویر نامعتبر است.' }, { status: 400 });
     }

@@ -1,28 +1,33 @@
 import { NextResponse } from 'next/server';
 import { put } from '@vercel/blob';
-import { validateImageUpload, sanitizeFilename } from '@/lib/security';
+import { validateImageUploadContent, sanitizeFilename, validateOrigin, rejectCsrf, getClientIp } from '@/lib/security';
+import { rateLimit } from '@/lib/rate-limit';
 
 export async function POST(req: Request) {
-  try {
-    const formData = await req.formData();
-    const file = formData.get('file') as File;
+  const { valid } = validateOrigin(req);
+  if (!valid) return rejectCsrf(req);
 
-    const validation = validateImageUpload(file);
-    if (!validation.valid) {
-      return NextResponse.json({ message: validation.message }, { status: 400 });
-    }
+  try {
+    const ip = getClientIp(req);
+    const limit = await rateLimit('review-upload:' + ip);
+    if (!limit.success) return NextResponse.json({ message: 'تعداد آپلودها بیش از حد مجاز است.' }, { status: 429 });
+
+    const formData = await req.formData();
+    const file = formData.get('file');
+    if (!file || typeof file === 'string') return NextResponse.json({ message: 'فایلی ارسال نشد' }, { status: 400 });
+
+    const validation = await validateImageUploadContent(file);
+    if (!validation.valid) return NextResponse.json({ message: validation.message }, { status: 400 });
 
     const safeName = sanitizeFilename(file.name);
-
     const blob = await put(`review-${safeName}`, file, {
       access: 'public',
       addRandomSuffix: true,
       contentType: file.type,
     });
-
     return NextResponse.json({ url: blob.url });
-  } catch (error: any) {
-    console.error('Review upload error:', error);
+  } catch (error) {
+    console.error('[review/upload]', error);
     return NextResponse.json({ message: 'خطا در آپلود' }, { status: 500 });
   }
 }

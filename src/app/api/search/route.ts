@@ -1,3 +1,4 @@
+import { getClientIp } from '@/lib/security';
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { products } from '@/db/schema';
@@ -6,7 +7,7 @@ import { rateLimit } from '@/lib/rate-limit';
 
 export async function GET(req: Request) {
   try {
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
+    const ip = getClientIp(req);
     const rl = await rateLimit('search:' + ip);
     if (!rl.success) {
       return NextResponse.json({ success: true, results: [] });

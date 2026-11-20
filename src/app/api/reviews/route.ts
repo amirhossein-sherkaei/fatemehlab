@@ -5,72 +5,55 @@ import { reviews, orders, orderItems } from '@/db/schema';
 import { and, eq, desc, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import { getCurrentCustomer } from '@/lib/customer-auth';
+import { validateOrigin, rejectCsrf, isAllowedVercelBlobUrl, getClientIp } from '@/lib/security';
 
 const reviewSchema = z.object({
   productId: z.string().uuid(),
-  name: z.string().min(2, 'نام باید حداقل ۲ حرف باشد'),
-  email: z.string().email().optional().or(z.literal('')),
-  rating: z.number().min(1).max(5),
-  comment: z.string().min(10, 'متن نظر باید حداقل ۱۰ حرف باشد'),
-  images: z.array(z.string()).optional().default([]),
+  name: z.string().trim().min(2).max(100),
+  email: z.union([z.string().email().max(254), z.literal('')]).optional(),
+  rating: z.number().int().min(1).max(5),
+  comment: z.string().trim().min(10).max(3000),
+  images: z.array(z.string().url().max(2048)).max(5).optional().default([]),
 });
 
 export async function POST(req: Request) {
+  const { valid } = validateOrigin(req);
+  if (!valid) return rejectCsrf(req);
   try {
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
-    const rl = await rateLimit('review-submit:' + ip);
-    if (!rl.success) return NextResponse.json({ success: false, message: 'شما اخیراً نظر ثبت کرده‌اید. لطفاً کمی صبر کنید.' }, { status: 429 });
-    const body = await req.json();
-    const validated = reviewSchema.parse(body);
+    const ip = getClientIp(req);
+    const limit = await rateLimit('review-submit:' + ip);
+    if (!limit.success) return NextResponse.json({ success: false, message: 'شما اخیراً نظر ثبت کرده‌اید. لطفاً کمی صبر کنید.' }, { status: 429 });
 
-    // ✅ بررسی خریدار تأیید شده: آیا این ایمیل/نام قبلاً این محصول رو خریداری کرده؟
-    let verifiedPurchase = false;
-    const currentCustomer = await getCurrentCustomer();
-
-    if (currentCustomer) {
-      const purchased = await db
-        .select({ id: orderItems.id })
-        .from(orderItems)
-        .innerJoin(orders, eq(orderItems.orderId, orders.id))
-        .where(
-          and(
-            eq(orderItems.productId, validated.productId),
-            eq(orders.status, 'delivered'),
-            eq(orders.customerId, currentCustomer.id)
-          )
-        )
-        .limit(1);
-      // اگر می‌خواهیم دقیق‌تر باشیم، باید ایمیل مشتری رو در جدول orders هم داشته باشیم
-      // برای سادگی، فعلاً اگر شماره سفارش وجود داشته باشد، فرض می‌کنیم خریدار تایید شده است
-      if (purchased.length > 0) verifiedPurchase = true;
+    const parsed = reviewSchema.safeParse(await req.json());
+    if (!parsed.success) return NextResponse.json({ success: false, message: parsed.error.issues[0]?.message || 'اطلاعات نظر معتبر نیست.' }, { status: 400 });
+    const validated = parsed.data;
+    if (validated.images.some((url) => !isAllowedVercelBlobUrl(url))) {
+      return NextResponse.json({ success: false, message: 'آدرس یکی از تصاویر معتبر نیست.' }, { status: 400 });
     }
 
-    // 🛡️ بررسی لاگین بودن کاربر: اگر لاگین باشد، نام و ایمیل از دیتابیس خوانده می‌شود
-    let finalName = validated.name;
-    let finalEmail = validated.email || null;
-
+    let verifiedPurchase = false;
+    const currentCustomer = await getCurrentCustomer();
     if (currentCustomer) {
-      finalName = currentCustomer.name;
-      finalEmail = currentCustomer.email;
+      const [purchased] = await db.select({ id: orderItems.id }).from(orderItems)
+        .innerJoin(orders, eq(orderItems.orderId, orders.id))
+        .where(and(eq(orderItems.productId, validated.productId), eq(orders.status, 'delivered'), eq(orders.customerId, currentCustomer.id)))
+        .limit(1);
+      verifiedPurchase = Boolean(purchased);
     }
 
     await db.insert(reviews).values({
       productId: validated.productId,
-      name: finalName,
-      email: finalEmail,
+      name: currentCustomer?.name || validated.name,
+      email: currentCustomer?.email || validated.email || null,
       rating: validated.rating,
       comment: validated.comment,
-      images: validated.images || [],
+      images: validated.images,
       verifiedPurchase,
       status: 'pending',
     });
-
-    return NextResponse.json({ success: true, message: 'نظر شما ثبت شد و پس از تایید نمایش داده می‌شود.' });
-  } catch (error: any) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json({ success: false, message: error.issues[0].message }, { status: 400 });
-    }
-    console.error('Review error:', error);
+    return NextResponse.json({ success: true, message: 'نظر شما ثبت شد و پس از تأیید نمایش داده می‌شود.' });
+  } catch (error) {
+    console.error('[reviews/create]', error);
     return NextResponse.json({ success: false, message: 'خطا در ثبت نظر' }, { status: 500 });
   }
 }
@@ -81,12 +64,15 @@ export async function GET(req: Request) {
     const productId = searchParams.get('productId');
     const sort = searchParams.get('sort') || 'newest';
     const ratingFilter = searchParams.get('rating');
-
-    if (!productId) return NextResponse.json({ success: false, message: 'شناسه محصول الزامی است' }, { status: 400 });
+    if (!productId || !/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(productId)) {
+      return NextResponse.json({ success: false, message: 'شناسه محصول معتبر نیست' }, { status: 400 });
+    }
 
     const conditions = [eq(reviews.productId, productId), eq(reviews.status, 'approved')];
     if (ratingFilter && ratingFilter !== 'all') {
-      conditions.push(eq(reviews.rating, Number(ratingFilter)));
+      const rating = Number(ratingFilter);
+      if (!Number.isInteger(rating) || rating < 1 || rating > 5) return NextResponse.json({ success: false, message: 'فیلتر امتیاز معتبر نیست.' }, { status: 400 });
+      conditions.push(eq(reviews.rating, rating));
     }
 
     let orderBy = desc(reviews.createdAt);
@@ -94,58 +80,58 @@ export async function GET(req: Request) {
     if (sort === 'highest') orderBy = desc(reviews.rating);
     if (sort === 'lowest') orderBy = sql`${reviews.rating} asc`;
 
-    const approvedReviews = await db
-      .select()
-      .from(reviews)
-      .where(and(...conditions))
-      .orderBy(orderBy);
-
-    // آمار توزیع امتیازها
-    const allApproved = await db
-      .select({ rating: reviews.rating })
-      .from(reviews)
+    const approvedReviews = await db.select({
+      id: reviews.id,
+      name: reviews.name,
+      rating: reviews.rating,
+      comment: reviews.comment,
+      images: reviews.images,
+      verifiedPurchase: reviews.verifiedPurchase,
+      helpfulCount: reviews.helpfulCount,
+      notHelpfulCount: reviews.notHelpfulCount,
+      adminReply: reviews.adminReply,
+      adminReplyAt: reviews.adminReplyAt,
+      createdAt: reviews.createdAt,
+    }).from(reviews).where(and(...conditions)).orderBy(orderBy).limit(100);
+    const allApproved = await db.select({ rating: reviews.rating }).from(reviews)
       .where(and(eq(reviews.productId, productId), eq(reviews.status, 'approved')));
-
     const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
     let sum = 0;
-    allApproved.forEach(r => {
-      if (r.rating >= 1 && r.rating <= 5) {
-        distribution[r.rating as keyof typeof distribution]++;
-        sum += r.rating;
-      }
+    allApproved.forEach((review) => {
+      if (review.rating >= 1 && review.rating <= 5) { distribution[review.rating as keyof typeof distribution]++; sum += review.rating; }
     });
-    const avg = allApproved.length > 0 ? (sum / allApproved.length).toFixed(1) : null;
-
-    return NextResponse.json({
-      success: true,
-      reviews: approvedReviews,
-      stats: {
-        total: allApproved.length,
-        average: avg,
-        distribution,
-      },
-    });
+    return NextResponse.json({ success: true, reviews: approvedReviews, stats: {
+      total: allApproved.length,
+      average: allApproved.length > 0 ? (sum / allApproved.length).toFixed(1) : null,
+      distribution,
+    } });
   } catch (error) {
+    console.error('[reviews/list]', error);
     return NextResponse.json({ success: false, message: 'خطا در دریافت نظرات' }, { status: 500 });
   }
 }
 
-// رأی مفید/غیرمفید
 export async function PATCH(req: Request) {
+  const { valid } = validateOrigin(req);
+  if (!valid) return rejectCsrf(req);
   try {
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
-    const rl = await rateLimit('review-vote:' + ip);
-    if (!rl.success) {
-      return NextResponse.json({ success: false, message: 'تعداد درخواست‌ها زیاد است' }, { status: 429 });
-    }
-    const { id, action } = await req.json();
-    if (action === 'helpful') {
-      await db.update(reviews).set({ helpfulCount: sql`${reviews.helpfulCount} + 1` }).where(eq(reviews.id, id));
-    } else if (action === 'not-helpful') {
-      await db.update(reviews).set({ notHelpfulCount: sql`${reviews.notHelpfulCount} + 1` }).where(eq(reviews.id, id));
-    }
+    const ip = getClientIp(req);
+    const limit = await rateLimit('review-vote:' + ip);
+    if (!limit.success) return NextResponse.json({ success: false, message: 'تعداد درخواست‌ها زیاد است' }, { status: 429 });
+    const schema = z.object({ id: z.string().uuid(), action: z.enum(['helpful', 'not-helpful']) });
+    const parsed = schema.safeParse(await req.json());
+    if (!parsed.success) return NextResponse.json({ success: false, message: 'درخواست رأی معتبر نیست.' }, { status: 400 });
+    const { id, action } = parsed.data;
+    const [updated] = await db.update(reviews)
+      .set(action === 'helpful'
+        ? { helpfulCount: sql`${reviews.helpfulCount} + 1` }
+        : { notHelpfulCount: sql`${reviews.notHelpfulCount} + 1` })
+      .where(and(eq(reviews.id, id), eq(reviews.status, 'approved')))
+      .returning({ id: reviews.id });
+    if (!updated) return NextResponse.json({ success: false, message: 'نظر موردنظر یافت نشد.' }, { status: 404 });
     return NextResponse.json({ success: true });
-  } catch {
-    return NextResponse.json({ success: false, message: 'خطا' }, { status: 500 });
+  } catch (error) {
+    console.error('[reviews/vote]', error);
+    return NextResponse.json({ success: false, message: 'خطا در ثبت رأی' }, { status: 500 });
   }
 }
