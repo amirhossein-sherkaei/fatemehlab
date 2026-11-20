@@ -39,7 +39,7 @@ export default function FloatingSupportButton() {
   if (!isMounted || hidden || loggedIn === null) return null;
 
   return (
-    <div className={`fbl-support-float fixed right-4 z-40 ${bottomNavHidden ? 'is-viewport-bottom' : 'is-above-bottom-nav'}`}>
+    <div className={`fbl-support-float fixed right-4 z-40 ${bottomNavHidden ? 'is-viewport-bottom' : 'is-above-bottom-nav'} ${pathname.startsWith('/products/') && pathname !== '/products' ? 'is-product-detail-page' : ''}`}>
       {expanded && (
         <div className="fbl-support-popover mb-3 w-72 rounded-2xl border border-[#e9e5eb] bg-white/95 backdrop-blur-xl p-4 shadow-2xl animate-in slide-in-from-bottom-4 fade-in duration-300">
           <div className="flex items-start gap-3 mb-3">
