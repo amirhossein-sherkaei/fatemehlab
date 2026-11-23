@@ -2,10 +2,28 @@ import { NextResponse } from 'next/server';
 import { and, eq, sql } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { orders, paymentAttempts } from '@/db/schema';
-import { appendOrderEvent, finalizeVerifiedOrder, isSettledOrderStatus } from '@/lib/order-payment';
-import { inquireZarinpalAuthority, verifyZarinpalAuthority, type ZarinpalInquiryState } from '@/lib/zarinpal';
+import { appendOrderEvent, finalizePaymentInTransaction, isSettledOrderStatus } from '@/lib/order-payment';
 import { getClientIp } from '@/lib/security';
 import { rateLimit } from '@/lib/rate-limit';
+import {
+  isZibalDefinitiveFailure,
+  isZibalInProgress,
+  isZibalPaymentVerified,
+  normalizeZibalTrackId,
+  verifyZibalPayment,
+  type ZibalState,
+} from '@/lib/zibal';
+
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function getBaseUrl(): string {
+  const configured = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatemehbeautyland.ir';
+  const parsed = new URL(configured);
+  if (process.env.NODE_ENV === 'production' && parsed.protocol !== 'https:') {
+    throw new Error('INSECURE_PUBLIC_BASE_URL');
+  }
+  return parsed.origin;
+}
 
 function failureRedirect(baseUrl: string, reason: string, orderId?: string | null) {
   const target = new URL('/order/failure', baseUrl);
@@ -21,126 +39,154 @@ function successRedirect(baseUrl: string, orderId: string, trackingCode: string)
   return NextResponse.redirect(target);
 }
 
-async function recordGatewayState(
-  orderId: string,
-  authority: string,
-  state: ZarinpalInquiryState,
-): Promise<boolean> {
-  const status = state.status === 'FAILED' ? 'failed'
-    : state.status === 'REVERSED' ? 'reversed'
-      : state.status === 'IN_BANK' ? 'in_bank'
-        : 'unknown';
+async function settleVerifiedZibalOrder(orderId: string, trackId: string, refNumber: string | null): Promise<boolean> {
+  return db.transaction(async (tx) => {
+    await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext('fatemehlab:payment'), hashtext(${orderId}))`);
 
+    const [order] = await tx.select({
+      status: orders.status,
+      paymentAuthority: orders.paymentAuthority,
+      totalAmount: orders.totalAmount,
+    }).from(orders).where(eq(orders.id, orderId)).limit(1);
+    if (!order || order.paymentAuthority !== trackId) return false;
+
+    const [attempt] = await tx.select({
+      id: paymentAttempts.id,
+      provider: paymentAttempts.provider,
+      amount: paymentAttempts.amount,
+      status: paymentAttempts.status,
+    }).from(paymentAttempts)
+      .where(and(
+        eq(paymentAttempts.orderId, orderId),
+        eq(paymentAttempts.authority, trackId),
+        eq(paymentAttempts.provider, 'zibal'),
+      ))
+      .limit(1);
+
+    if (!attempt || attempt.amount !== order.totalAmount) return false;
+    if (isSettledOrderStatus(order.status)) return true;
+    if (order.status !== 'pending' || order.totalAmount <= 0) return false;
+
+    return finalizePaymentInTransaction(tx, orderId, trackId, refNumber, 'gateway');
+  });
+}
+
+async function recordUnresolvedZibalState(
+  orderId: string,
+  trackId: string,
+  state: ZibalState,
+  status: 'in_bank' | 'unknown',
+): Promise<boolean> {
   return db.transaction(async (tx) => {
     await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext('fatemehlab:payment'), hashtext(${orderId}))`);
     const [order] = await tx.select({ status: orders.status, paymentAuthority: orders.paymentAuthority })
       .from(orders).where(eq(orders.id, orderId)).limit(1);
-    if (!order || order.status !== 'pending' || order.paymentAuthority !== authority) return false;
+    if (!order || order.status !== 'pending' || order.paymentAuthority !== trackId) return false;
 
-    const [attempt] = await tx.select({ id: paymentAttempts.id, status: paymentAttempts.status })
+    const [attempt] = await tx.select({ id: paymentAttempts.id, provider: paymentAttempts.provider, status: paymentAttempts.status })
       .from(paymentAttempts)
-      .where(and(eq(paymentAttempts.orderId, orderId), eq(paymentAttempts.authority, authority)))
+      .where(and(
+        eq(paymentAttempts.orderId, orderId),
+        eq(paymentAttempts.authority, trackId),
+        eq(paymentAttempts.provider, 'zibal'),
+      ))
       .limit(1);
+    if (!attempt) return false;
 
-    if (attempt) {
-      await tx.update(paymentAttempts).set({
-        status,
-        gatewayCode: Number.isFinite(state.code) ? state.code : null,
-        gatewayMessage: state.status || 'Unknown gateway state',
-        lastCheckedAt: new Date(),
-        updatedAt: new Date(),
-      }).where(eq(paymentAttempts.id, attempt.id));
-    }
+    await tx.update(paymentAttempts).set({
+      status,
+      gatewayCode: state.result,
+      gatewayMessage: (state.message || `Zibal verification status: ${state.status ?? 'unknown'}`).slice(0, 180),
+      lastCheckedAt: new Date(),
+      updatedAt: new Date(),
+    }).where(eq(paymentAttempts.id, attempt.id));
 
-    if (status === 'failed' || status === 'reversed') {
+    if (attempt.status !== status) {
       await appendOrderEvent(tx, {
         orderId,
         actorType: 'gateway',
-        eventType: status === 'failed' ? 'payment.failed' : 'payment.reversed',
-        summary: status === 'failed' ? 'زرین‌پال تراکنش را ناموفق اعلام کرد؛ سفارش برای تلاش مجدد حفظ شد.' : 'زرین‌پال تراکنش را برگشت‌خورده اعلام کرد؛ سفارش برای تلاش مجدد حفظ شد.',
-        metadata: { gatewayCode: state.code },
-      });
-    } else if (status === 'in_bank') {
-      await appendOrderEvent(tx, {
-        orderId,
-        actorType: 'gateway',
-        eventType: 'payment.in_bank',
-        summary: 'درگاه اعلام کرد تراکنش هنوز در بانک در حال انجام است؛ پرداخت جدیدی ساخته نمی‌شود.',
-        metadata: { gatewayCode: state.code },
+        eventType: status === 'in_bank' ? 'payment.in_bank' : 'payment.reconciliation_pending',
+        summary: status === 'in_bank'
+          ? 'زیبال اعلام کرد تراکنش هنوز در بانک در حال انجام است؛ شناسه قبلی حفظ شد.'
+          : 'نتیجه تأیید زیبال قطعی نیست؛ سفارش و شناسه تراکنش برای تطبیق حفظ شدند.',
+        metadata: { gatewayCode: state.result, provider: 'zibal' },
       });
     }
     return true;
   });
 }
 
-async function reconcileInquiry(
-  merchantId: string,
+async function recordDefinitiveZibalFailure(
   orderId: string,
-  amount: number,
-  authority: string,
-  trackingCode: string,
-  baseUrl: string,
-  inquiry: Awaited<ReturnType<typeof inquireZarinpalAuthority>>,
-) {
-  const state = inquiry.result;
-  if (!inquiry.response.ok || state.code !== 100 || !state.status) {
-    console.error('[Zarinpal Inquiry Response]', inquiry.data);
-    return failureRedirect(baseUrl, 'verify_failed', orderId);
-  }
+  trackId: string,
+  state: ZibalState,
+): Promise<boolean> {
+  return db.transaction(async (tx) => {
+    await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext('fatemehlab:payment'), hashtext(${orderId}))`);
+    const [order] = await tx.select({ status: orders.status, paymentAuthority: orders.paymentAuthority })
+      .from(orders).where(eq(orders.id, orderId)).limit(1);
+    if (!order || order.status !== 'pending' || order.paymentAuthority !== trackId) return false;
 
-  if (state.status === 'VERIFIED') {
-    const finalized = await finalizeVerifiedOrder(orderId, authority, state.refId);
-    return finalized ? successRedirect(baseUrl, orderId, trackingCode) : failureRedirect(baseUrl, 'verification_conflict', orderId);
-  }
+    const [attempt] = await tx.select({ id: paymentAttempts.id, provider: paymentAttempts.provider })
+      .from(paymentAttempts)
+      .where(and(
+        eq(paymentAttempts.orderId, orderId),
+        eq(paymentAttempts.authority, trackId),
+        eq(paymentAttempts.provider, 'zibal'),
+      ))
+      .limit(1);
+    if (!attempt) return false;
 
-  if (state.status === 'PAID') {
-    let verification;
-    try {
-      verification = await verifyZarinpalAuthority(merchantId, amount, authority);
-    } catch (error) {
-      console.error('[Zarinpal verify after inquiry PAID]', error);
-      return failureRedirect(baseUrl, 'payment_processing', orderId);
-    }
-    if (verification.response.ok && [100, 101].includes(verification.result.code)) {
-      const finalized = await finalizeVerifiedOrder(orderId, authority, verification.result.refId ?? state.refId);
-      return finalized ? successRedirect(baseUrl, orderId, trackingCode) : failureRedirect(baseUrl, 'verification_conflict', orderId);
-    }
-    await recordGatewayState(orderId, authority, { ...state, status: 'PAID', code: verification.result.code });
-    return failureRedirect(baseUrl, 'payment_processing', orderId);
-  }
+    await tx.update(paymentAttempts).set({
+      status: 'failed',
+      gatewayCode: state.result,
+      gatewayMessage: (state.message || 'Zibal reports that the payment was not completed.').slice(0, 180),
+      lastCheckedAt: new Date(),
+      updatedAt: new Date(),
+    }).where(eq(paymentAttempts.id, attempt.id));
 
-  if (state.status === 'FAILED' || state.status === 'REVERSED' || state.status === 'IN_BANK') {
-    await recordGatewayState(orderId, authority, state);
-    return failureRedirect(baseUrl, state.status === 'IN_BANK' ? 'payment_processing' : 'payment_not_completed', orderId);
-  }
+    await tx.update(orders).set({ paymentAuthority: null })
+      .where(and(eq(orders.id, orderId), eq(orders.status, 'pending'), eq(orders.paymentAuthority, trackId)));
 
-  await recordGatewayState(orderId, authority, state);
-  return failureRedirect(baseUrl, 'verify_failed', orderId);
+    await appendOrderEvent(tx, {
+      orderId,
+      actorType: 'gateway',
+      eventType: 'payment.failed',
+      summary: 'زیبال عدم تکمیل تراکنش را به‌صورت قطعی تأیید کرد؛ امکان تلاش مجدد فراهم شد.',
+      metadata: { gatewayCode: state.result, provider: 'zibal' },
+    });
+    return true;
+  });
 }
 
 export async function GET(req: Request) {
-  const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'https://fatemehbeautyland.ir').replace(/\/+$/, '');
+  let baseUrl: string;
+  try {
+    baseUrl = getBaseUrl();
+  } catch {
+    return NextResponse.json({ message: 'Server misconfigured' }, { status: 500 });
+  }
+
   const params = new URL(req.url).searchParams;
-  const authority = params.get('Authority');
-  const callbackStatus = params.get('Status');
+  const trackId = normalizeZibalTrackId(params.get('trackId'));
   const orderId = params.get('orderId');
+  const callbackSuccess = params.get('success');
 
   try {
-    if (!authority || authority.length > 128 || /[^a-zA-Z0-9_-]/.test(authority) || !orderId || !/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(orderId)) {
-      return failureRedirect(baseUrl, 'missing_params', orderId);
+    if (!trackId || !orderId || !UUID_PATTERN.test(orderId)) {
+      return failureRedirect(baseUrl, 'missing_params', UUID_PATTERN.test(orderId || '') ? orderId : null);
     }
-    if (callbackStatus !== 'OK' && callbackStatus !== 'NOK') return failureRedirect(baseUrl, 'invalid_callback', orderId);
+    if (callbackSuccess !== null && callbackSuccess !== '0' && callbackSuccess !== '1') {
+      return failureRedirect(baseUrl, 'invalid_callback', orderId);
+    }
 
-    const callbackLimit = await rateLimit('payment-callback:' + getClientIp(req) + ':' + orderId, { failClosedOnStoreError: true });
+    const callbackLimit = await rateLimit('zibal-callback:' + getClientIp(req) + ':' + orderId, { failClosedOnStoreError: true });
     if (callbackLimit.unavailable) return failureRedirect(baseUrl, 'server_error', orderId);
     if (!callbackLimit.success) return failureRedirect(baseUrl, 'verify_failed', orderId);
 
-    const merchantId = process.env.ZARINPAL_MERCHANT_ID;
+    const merchantId = process.env.ZIBAL_MERCHANT_ID;
     if (!merchantId) return failureRedirect(baseUrl, 'server_error', orderId);
 
-    // Read first, perform network calls outside the DB transaction, then use the
-    // shared advisory lock only for the atomic state transition. This prevents
-    // holding a database connection/lock while waiting on the remote gateway.
     const [order] = await db.select({
       id: orders.id,
       status: orders.status,
@@ -148,51 +194,75 @@ export async function GET(req: Request) {
       paymentAuthority: orders.paymentAuthority,
       trackingCode: orders.trackingCode,
     }).from(orders).where(eq(orders.id, orderId)).limit(1);
-
     if (!order) return failureRedirect(baseUrl, 'order_not_found', orderId);
-    if (order.paymentAuthority !== authority) {
-      console.error('[SECURITY] Zarinpal authority mismatch for order ' + orderId);
+
+    const [attempt] = await db.select({
+      id: paymentAttempts.id,
+      provider: paymentAttempts.provider,
+      amount: paymentAttempts.amount,
+      status: paymentAttempts.status,
+    }).from(paymentAttempts)
+      .where(and(
+        eq(paymentAttempts.orderId, orderId),
+        eq(paymentAttempts.authority, trackId),
+      ))
+      .limit(1);
+
+    if (!attempt || attempt.provider !== 'zibal' || attempt.amount !== order.totalAmount || order.paymentAuthority !== trackId) {
+      console.error('[SECURITY] Zibal callback ledger or authority mismatch', { orderId });
       return failureRedirect(baseUrl, 'security_error', orderId);
     }
-    if (order.status === 'cancelled') return failureRedirect(baseUrl, 'cancelled', orderId);
-    if (isSettledOrderStatus(order.status)) return successRedirect(baseUrl, orderId, order.trackingCode);
-    if (order.status !== 'pending') return failureRedirect(baseUrl, 'invalid_order_state', orderId);
 
-    if (callbackStatus === 'NOK') {
-      let inquiry;
-      try {
-        inquiry = await inquireZarinpalAuthority(merchantId, authority);
-      } catch (error) {
-        console.error('[Zarinpal NOK Inquiry Error]', error);
-        return failureRedirect(baseUrl, 'verify_failed', orderId);
-      }
-      return reconcileInquiry(merchantId, orderId, order.totalAmount, authority, order.trackingCode, baseUrl, inquiry);
+    if (isSettledOrderStatus(order.status)) {
+      return successRedirect(baseUrl, orderId, order.trackingCode);
+    }
+    if (order.status !== 'pending' || order.totalAmount <= 0) {
+      return failureRedirect(baseUrl, 'invalid_order_state', orderId);
     }
 
-    let verification;
+    // The callback's `success` flag is only a hint. Every callback is verified
+    // against Zibal's server API before an order can be marked as paid.
+    let verification: Awaited<ReturnType<typeof verifyZibalPayment>>;
     try {
-      verification = await verifyZarinpalAuthority(merchantId, order.totalAmount, authority);
+      verification = await verifyZibalPayment(merchantId, trackId);
     } catch (error) {
-      console.error('[Zarinpal Verify Request Error]', error);
+      console.error('[Zibal Callback Network Error]', error instanceof Error ? error.name : 'UnknownError');
+      await recordUnresolvedZibalState(orderId, trackId, {
+        result: null, status: null, amount: null, trackId, refNumber: null, message: 'Zibal verification network error.',
+      }, 'unknown');
       return failureRedirect(baseUrl, 'payment_processing', orderId);
     }
 
-    if (verification.response.ok && [100, 101].includes(verification.result.code)) {
-      const finalized = await finalizeVerifiedOrder(orderId, authority, verification.result.refId);
-      return finalized ? successRedirect(baseUrl, orderId, order.trackingCode) : failureRedirect(baseUrl, 'verification_conflict', orderId);
+    const { response, state } = verification;
+    if (response.ok && isZibalPaymentVerified(state, order.totalAmount)) {
+      const finalized = await settleVerifiedZibalOrder(orderId, trackId, state.refNumber);
+      return finalized
+        ? successRedirect(baseUrl, orderId, order.trackingCode)
+        : failureRedirect(baseUrl, 'verification_conflict', orderId);
     }
 
-    console.error('[Zarinpal Verify Error]', verification.data);
-    let fallbackInquiry;
-    try {
-      fallbackInquiry = await inquireZarinpalAuthority(merchantId, authority);
-    } catch (error) {
-      console.error('[Zarinpal Verify Fallback Inquiry Error]', error);
+    if (response.ok && isZibalDefinitiveFailure(state)) {
+      const recorded = await recordDefinitiveZibalFailure(orderId, trackId, state);
+      return recorded
+        ? failureRedirect(baseUrl, 'payment_not_completed', orderId)
+        : failureRedirect(baseUrl, 'verification_conflict', orderId);
+    }
+
+    if (response.ok && isZibalInProgress(state) && state.status === -1) {
+      await recordUnresolvedZibalState(orderId, trackId, state, 'in_bank');
       return failureRedirect(baseUrl, 'payment_processing', orderId);
     }
-    return reconcileInquiry(merchantId, orderId, order.totalAmount, authority, order.trackingCode, baseUrl, fallbackInquiry);
+
+    await recordUnresolvedZibalState(orderId, trackId, state, 'unknown');
+    console.error('[Zibal Callback Unresolved]', {
+      result: state.result,
+      status: state.status,
+      amountMatches: state.amount === order.totalAmount,
+      callbackSuccess,
+    });
+    return failureRedirect(baseUrl, 'payment_processing', orderId);
   } catch (error) {
-    console.error('[Payment Verify Error]', error);
-    return failureRedirect(baseUrl, 'server_error', orderId);
+    console.error('[Zibal Callback Error]', error instanceof Error ? error.name : 'UnknownError');
+    return failureRedirect(baseUrl, 'server_error', UUID_PATTERN.test(orderId || '') ? orderId : null);
   }
 }

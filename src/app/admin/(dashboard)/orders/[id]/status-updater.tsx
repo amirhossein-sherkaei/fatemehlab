@@ -76,7 +76,7 @@ export default function StatusUpdater({ orderId, currentStatus }: { orderId: str
 
   const submitRefundCancellation = () => {
     if (!refundAcknowledged) {
-      toast.error("ابتدا تأیید کنید که بازپرداخت واقعی در پنل زرین‌پال انجام شده است.");
+      toast.error("ابتدا تأیید کنید که بازپرداخت واقعی در پنل درگاه پرداخت انجام شده است.");
       return;
     }
     if (refundReference.trim().length < 4 || refundReason.trim().length < 8) {
@@ -118,7 +118,7 @@ export default function StatusUpdater({ orderId, currentStatus }: { orderId: str
               <div>
                 <span className="mb-2 inline-flex rounded-full bg-rose-50 px-3 py-1 text-[10px] font-black text-rose-700">عملیات مالی حساس</span>
                 <h3 id="refund-dialog-title" className="text-lg font-black text-[#28242b]">ثبت بازپرداخت و لغو سفارش</h3>
-                <p className="mt-1 text-xs leading-6 text-[#77717b]">ابتدا بازپرداخت کامل را در پنل زرین‌پال انجام بده؛ سپس شناسه واقعی آن را اینجا ثبت کن.</p>
+                <p className="mt-1 text-xs leading-6 text-[#77717b]">ابتدا بازپرداخت کامل را در پنل درگاه پرداخت انجام بده؛ سپس شناسه واقعی آن را اینجا ثبت کن.</p>
               </div>
               <button type="button" onClick={() => setShowRefundDialog(false)} disabled={loading} aria-label="بستن" className="rounded-xl border border-[#e9e5eb] p-2 text-[#77717b] hover:bg-[#f8f7fa]"><X size={17} /></button>
             </div>

@@ -16,9 +16,9 @@ function validatePaymentDestination(rawUrl: string): URL {
     && destination.pathname === "/order/success"
     && Boolean(destination.searchParams.get("id"))
     && Boolean(destination.searchParams.get("code"));
-  const gatewayPath = /^\/pg\/StartPay\/[A-Za-z0-9_-]{8,128}$/;
+  const gatewayPath = /^\/start\/\d{1,16}$/;
   const trustedGateway = destination.protocol === "https:"
-    && destination.origin === "https://payment.zarinpal.com"
+    && destination.origin === "https://gateway.zibal.ir"
     && gatewayPath.test(destination.pathname)
     && !destination.username
     && !destination.password;

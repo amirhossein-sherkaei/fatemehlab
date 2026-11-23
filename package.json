@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "test:payments": "tsx --test tests/zibal.test.ts"
   },
   "dependencies": {
     "@tiptap/extension-color": "2.10.3",
@@ -37,7 +38,6 @@
     "recharts": "^3.10.1",
     "sms-typescript": "^2.0.3",
     "sonner": "^2.0.8",
-    "zarinpal-node-sdk": "^2.2.0",
     "zod": "^4.6.7",
     "zustand": "^5.1.0"
   },

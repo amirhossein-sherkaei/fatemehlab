@@ -257,9 +257,6 @@ importers:
       sonner:
         specifier: ^2.0.8
         version: 2.0.8(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      zarinpal-node-sdk:
-        specifier: ^2.2.0
-        version: 2.2.0(debug@4.4.3)
       zod:
         specifier: ^4.6.7
         version: 4.6.7
@@ -2216,9 +2213,6 @@ packages:
     resolution: {integrity: sha512-sqMMuL1rc0FmMBOzCpd0yuy9trqF2yTTVe+E9ogwCSWQCdDEtQUwrZPT6AxqtsFGRNxycgncbP/xmOOSPw5ZUw==}
     engines: {node: '>= 6.0'}
 
-  zarinpal-node-sdk@2.2.0:
-    resolution: {integrity: sha512-T6oRxE6b98HpUwOLiM1/TA3z7U4SJJny0Uni2Vod7feNxV7E/NiHFkblHTvCoPwIP7qSgCf75oF2tpQ3KZP4yw==}
-
   zod@4.6.7:
     resolution: {integrity: sha512-g8W2D2kU6a8untc053fX1uVBKzM7yqAxW/3zwk83+6RyF2+SKOuV+c0wBDhUwzV1PaGapmZH+rmcUzPf+3CGwg==}
 
@@ -3825,14 +3819,6 @@ snapshots:
   xdg-portable@7.3.0:
     dependencies:
       os-paths: 4.4.0
-
-  zarinpal-node-sdk@2.2.0(debug@4.4.3):
-    dependencies:
-      axios: 1.21.1(debug@4.4.3)
-      tslib: 2.9.1
-    transitivePeerDependencies:
-      - debug
-      - supports-color
 
   zod@4.6.7: {}
 

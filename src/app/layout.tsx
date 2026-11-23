@@ -125,8 +125,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <head>
         <link rel="preconnect" href="https://public.blob.vercel-storage.com" />
         <link rel="dns-prefetch" href="https://public.blob.vercel-storage.com" />
-        <link rel="preconnect" href="https://payment.zarinpal.com" />
-        <link rel="dns-prefetch" href="https://payment.zarinpal.com" />
+        <link rel="preconnect" href="https://gateway.zibal.ir" />
+        <link rel="dns-prefetch" href="https://gateway.zibal.ir" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdGraph) }} />
       </head>
       <body className="min-h-[100dvh] font-sans text-foreground overflow-x-hidden">

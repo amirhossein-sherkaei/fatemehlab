@@ -291,7 +291,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         throw new Error('نشانی امن درگاه معتبر نیست. سفارش شما ثبت شده و از بخش سفارش‌های حساب کاربری قابل ادامه است.');
       }
       const paymentDestination = new URL(payData.redirectUrl, window.location.origin);
-      const isTrustedGateway = paymentDestination.protocol === 'https:' && paymentDestination.origin === 'https://payment.zarinpal.com' && /^\/pg\/StartPay\/[A-Za-z0-9_-]{8,128}$/.test(paymentDestination.pathname) && !paymentDestination.username && !paymentDestination.password;
+      const isTrustedGateway = paymentDestination.protocol === 'https:' && paymentDestination.origin === 'https://gateway.zibal.ir' && /^\/start\/\d{1,16}$/.test(paymentDestination.pathname) && !paymentDestination.username && !paymentDestination.password;
       const isOwnSuccessPage = paymentDestination.origin === window.location.origin && paymentDestination.pathname === '/order/success';
       if (!isTrustedGateway && !isOwnSuccessPage) {
         throw new Error('نشانی مقصد پرداخت معتبر نیست. سفارش شما در حساب کاربری باقی مانده است.');

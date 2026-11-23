@@ -26,7 +26,7 @@ async function Content({ params }: { params: Promise<{ id: string }> }) {
     db.select().from(orderItems).where(eq(orderItems.orderId, id)),
     db.select({ id: orderEvents.id, eventType: orderEvents.eventType, summary: orderEvents.summary, fromStatus: orderEvents.fromStatus, toStatus: orderEvents.toStatus, createdAt: orderEvents.createdAt })
       .from(orderEvents).where(eq(orderEvents.orderId, id)).orderBy(desc(orderEvents.createdAt)).limit(60),
-    db.select({ id: paymentAttempts.id, attemptNumber: paymentAttempts.attemptNumber, amount: paymentAttempts.amount, status: paymentAttempts.status, refId: paymentAttempts.refId, gatewayCode: paymentAttempts.gatewayCode, requestedAt: paymentAttempts.requestedAt })
+    db.select({ id: paymentAttempts.id, attemptNumber: paymentAttempts.attemptNumber, amount: paymentAttempts.amount, status: paymentAttempts.status, provider: paymentAttempts.provider, refId: paymentAttempts.refId, gatewayCode: paymentAttempts.gatewayCode, requestedAt: paymentAttempts.requestedAt })
       .from(paymentAttempts).where(eq(paymentAttempts.orderId, id)).orderBy(desc(paymentAttempts.attemptNumber)).limit(10),
   ]);
   const itemSubtotal = items.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 0), 0);
@@ -49,7 +49,7 @@ async function Content({ params }: { params: Promise<{ id: string }> }) {
 
       <div className={`rounded-2xl border p-4 ${order.status === 'pending' ? 'border-amber-200 bg-amber-50' : ['paid', 'processing', 'shipped', 'delivered'].includes(order.status) ? 'border-emerald-200 bg-emerald-50' : 'border-[#e9e5eb] bg-white'}`}>
         <p className="text-sm font-black text-[#28242b]">{order.status === 'pending' ? 'پرداخت این سفارش هنوز تأیید نشده است' : order.totalAmount === 0 && ['paid', 'processing', 'shipped', 'delivered'].includes(order.status) ? 'این سفارش با مبلغ صفر و بدون پرداخت آنلاین تکمیل شده است' : ['paid', 'processing', 'shipped', 'delivered'].includes(order.status) ? 'پرداخت این سفارش در سامانه تأیید شده است' : order.status === 'cancelled' ? 'این سفارش لغو شده است' : 'وضعیت مالی سفارش نیازمند بررسی است'}</p>
-        {order.paymentRefId && ['paid', 'processing', 'shipped', 'delivered'].includes(order.status) && <p className="mt-2 text-xs text-[#77717b]">شناسه مرجع زرین‌پال: <span className="font-mono font-bold" dir="ltr">{order.paymentRefId}</span></p>}
+        {order.paymentRefId && ['paid', 'processing', 'shipped', 'delivered'].includes(order.status) && <p className="mt-2 text-xs text-[#77717b]">شناسه مرجع پرداخت: <span className="font-mono font-bold" dir="ltr">{order.paymentRefId}</span></p>}
         {order.status === 'pending' && <p className="mt-1 text-xs leading-6 text-amber-800">تا دریافت تأیید سروری درگاه، سفارش را پرداخت‌شده یا آماده ارسال در نظر نگیرید.</p>}
       </div>
 
@@ -98,10 +98,10 @@ async function Content({ params }: { params: Promise<{ id: string }> }) {
               <h2 className="mb-4 flex items-center gap-2 text-base font-black text-foreground"><CreditCard className="h-5 w-5 text-sage" /> تلاش‌های پرداخت</h2>
               <div className="space-y-3">
                 {attempts.map((attempt) => {
-                  const labels: Record<string, string> = { requesting: 'در حال ایجاد', unknown: 'نیازمند تطبیق', awaiting_customer: 'منتظر ورود مشتری به درگاه', in_bank: 'در حال انجام در بانک', verified: 'تأییدشده', failed: 'ناموفق', reversed: 'برگشت‌خورده' };
+                  const labels: Record<string, string> = { requesting: 'در حال ایجاد', unknown: 'نیازمند تطبیق', awaiting_customer: 'منتظر ورود مشتری به درگاه', in_bank: 'در حال انجام در بانک', verified: 'تأییدشده', failed: 'ناموفق', reversed: 'برگشت‌خورده', retired: 'غیرفعال‌شده در مهاجرت' };
                   return (
                     <div key={attempt.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-[#fbfafb] p-3 text-xs">
-                      <div><p className="font-bold text-foreground">تلاش {attempt.attemptNumber.toLocaleString('fa-IR')}</p><p className="mt-1 text-muted-foreground">{labels[attempt.status] || 'نامشخص'} · {formatToman(attempt.amount)}</p></div>
+                      <div><p className="font-bold text-foreground">تلاش {attempt.attemptNumber.toLocaleString('fa-IR')}</p><p className="mt-1 text-muted-foreground">{attempt.provider === 'zibal' ? 'زیبال' : 'درگاه قبلی'} · {labels[attempt.status] || 'نامشخص'} · {formatToman(attempt.amount)}</p></div>
                       <div className="text-left"><p className="font-mono text-muted-foreground" dir="ltr">{attempt.refId || (attempt.gatewayCode != null ? `Code ${attempt.gatewayCode}` : '—')}</p><p className="mt-1 text-[10px] text-muted-foreground">{new Date(attempt.requestedAt).toLocaleString('fa-IR')}</p></div>
                     </div>
                   );

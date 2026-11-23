@@ -116,8 +116,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
     if (result.kind === 'missing') return NextResponse.json({ message: 'سفارش یافت نشد.' }, { status: 404 });
     if (result.kind === 'transition') return NextResponse.json({ message: `تغییر وضعیت از «${result.from}» به «${result.to}» مجاز نیست.` }, { status: 400 });
-    if (result.kind === 'active-authority') return NextResponse.json({ message: 'برای این سفارش درخواست یا تراکنش پرداخت فعال/نامشخص وجود دارد. ابتدا وضعیت آن را از زرین‌پال تطبیق دهید؛ لغو در این مرحله امن نیست.' }, { status: 409 });
-    if (result.kind === 'refund-required') return NextResponse.json({ message: 'برای لغو سفارش پرداخت‌شده، شناسه واقعی بازپرداخت و علت آن را که پس از بازپرداخت دستی از پنل زرین‌پال دریافت شده وارد کنید.' }, { status: 400 });
+    if (result.kind === 'active-authority') return NextResponse.json({ message: 'برای این سفارش درخواست یا تراکنش پرداخت فعال/نامشخص وجود دارد. ابتدا وضعیت آن را از درگاه پرداخت تطبیق دهید؛ لغو در این مرحله امن نیست.' }, { status: 409 });
+    if (result.kind === 'refund-required') return NextResponse.json({ message: 'برای لغو سفارش پرداخت‌شده، شناسه واقعی بازپرداخت و علت آن را که پس از بازپرداخت دستی از پنل درگاه پرداخت دریافت شده وارد کنید.' }, { status: 400 });
     if (result.kind === 'loyalty-adjustment-required') return NextResponse.json({ message: 'موجودی امتیاز مشتری برای برگشت امتیاز کسب‌شده کافی نیست. ابتدا مانده امتیاز را با سوابق تطبیق دهید؛ لغو خودکار انجام نشد.' }, { status: 409 });
     if (result.kind === 'race') return NextResponse.json({ message: 'وضعیت سفارش هم‌زمان تغییر کرده است. صفحه را تازه‌سازی کنید.' }, { status: 409 });
 

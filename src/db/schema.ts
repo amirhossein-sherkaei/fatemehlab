@@ -137,7 +137,7 @@ export const paymentAttempts = pgTable("payment_attempts", {
   orderId: uuid("order_id").references(() => orders.id, { onDelete: "restrict" }).notNull(),
   requestKey: uuid("request_key").defaultRandom().notNull().unique(),
   attemptNumber: integer("attempt_number").notNull(),
-  provider: text("provider").notNull().default("zarinpal"),
+  provider: text("provider").notNull().default("zibal"),
   amount: integer("amount").notNull(),
   status: text("status").notNull().default("requesting"),
   authority: text("authority"),

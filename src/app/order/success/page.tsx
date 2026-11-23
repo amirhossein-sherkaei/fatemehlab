@@ -70,7 +70,7 @@ export default async function OrderSuccessPage({ searchParams }: { searchParams:
           {isPending && matchedOrder && (
             <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-right">
               <p className="mb-2 text-xs font-black text-amber-900">پیش‌فاکتور — رسید پرداخت نیست</p>
-              <p className="text-[11px] leading-6 text-amber-800">در صورت قطع اینترنت یا بسته‌شدن درگاه، ابتدا تراکنش قبلی از زرین‌پال استعلام می‌شود. تا تعیین نتیجه، پرداخت جدیدی ساخته نخواهد شد.</p>
+              <p className="text-[11px] leading-6 text-amber-800">در صورت قطع اینترنت یا بسته‌شدن درگاه، ابتدا تراکنش قبلی از زیبال استعلام می‌شود. تا تعیین نتیجه، پرداخت جدیدی ساخته نخواهد شد.</p>
             </div>
           )}
 
