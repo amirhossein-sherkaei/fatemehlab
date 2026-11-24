@@ -2,9 +2,6 @@ import { timingSafeEqual } from 'node:crypto';
 import { isIP } from 'node:net';
 import { NextResponse } from 'next/server';
 
-export const runtime = 'nodejs';
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
 
 function hasValidToken(request: Request): boolean {
   const expected = process.env.ZIBAL_EGRESS_DIAGNOSTIC_TOKEN;
