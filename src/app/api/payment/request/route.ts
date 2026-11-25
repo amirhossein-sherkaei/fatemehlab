@@ -154,6 +154,38 @@ async function reserveOrInspectPayment(orderId: string, customerId: string): Pro
   });
 }
 
+function paymentErrorDetails(error: unknown): Record<string, string> {
+  const clean = (value: unknown): string | undefined => {
+    if (typeof value !== 'string') return undefined;
+    return value
+      .replace(/https?:\/\/[^\s"'<>]+/gi, '[url]')
+      .replace(/(authorization\s*[:=]\s*bearer\s+)[^\s"'<>]+/gi, '$1[redacted]')
+      .replace(/((?:secret|signature|token|user_content_key)\s*[:=]\s*["']?)[^&\s"',}]+/gi, '$1[redacted]')
+      .slice(0, 500);
+  };
+
+  const details: Record<string, string> = {};
+  if (!(error instanceof Error)) {
+    details.name = 'UnknownError';
+    details.message = clean(String(error)) ?? 'Non-Error thrown';
+    return details;
+  }
+
+  details.name = error.name.slice(0, 80);
+  details.message = clean(error.message) ?? 'No error message';
+
+  const cause = (error as Error & { cause?: unknown }).cause;
+  if (cause && typeof cause === 'object') {
+    const record = cause as Record<string, unknown>;
+    if (typeof record.name === 'string') details.causeName = record.name.slice(0, 80);
+    if (typeof record.message === 'string') details.causeMessage = clean(record.message) ?? 'No cause message';
+    if (typeof record.code === 'string' || typeof record.code === 'number') details.causeCode = String(record.code).slice(0, 80);
+    if (typeof record.syscall === 'string') details.causeSyscall = record.syscall.slice(0, 80);
+    if (typeof record.hostname === 'string') details.causeHostname = record.hostname.slice(0, 120);
+  }
+
+  return details;
+}
 async function updateAttempt(
   attemptId: string | null,
   values: { status?: string; authority?: string | null; refId?: string | null; gatewayCode?: number | null; gatewayMessage?: string | null; verifiedAt?: Date | null },
@@ -184,7 +216,7 @@ async function issueZibalPayment(
       orderId: reservation.orderId,
     });
   } catch (error) {
-    console.error('[Zibal Request Network Error]', error instanceof Error ? error.name : 'UnknownError');
+    console.error('[Zibal Request Network Error]', paymentErrorDetails(error));
     await updateAttempt(reservation.attemptId, { status: 'unknown', gatewayMessage: 'Gateway request timed out or connection was interrupted.' });
     await db.insert(orderEvents).values({
       orderId: reservation.orderId, actorType: 'system', eventType: 'payment.request_unknown',
@@ -296,7 +328,7 @@ async function reconcileExistingTrackId(
   try {
     verification = await verifyZibalPayment(merchantId, reservation.authority);
   } catch (error) {
-    console.error('[payment/request:zibal-verify-network]', error instanceof Error ? error.name : 'UnknownError');
+    console.error('[payment/request:zibal-verify-network]', paymentErrorDetails(error));
     await updateAttempt(reservation.attemptId, { status: 'unknown', gatewayMessage: 'Zibal verification network error.' });
     return NextResponse.json({ success: false, uncertain: true, message: 'وضعیت تراکنش قبلی از زیبال دریافت نشد. شناسه قبلی حفظ شده و پرداخت تازه‌ای ساخته نمی‌شود؛ کمی بعد دوباره بررسی کنید.' }, { status: 503 });
   }
