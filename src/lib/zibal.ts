@@ -53,7 +53,7 @@ async function zibalRelayFetch(input: RequestInfo | URL, init?: RequestInit): Pr
     throw new Error("Zibal relay received an invalid JSON request body.");
   }
 
-  const timestamp = String(Math.floor(Date.now() / 1000));
+  const timestamp = String(Date.now());
   const nonce = randomUUID();
   const canonical = `1.${timestamp}.${nonce}.${action}.${JSON.stringify(payload)}`;
   const signature = createHmac("sha256", secret).update(canonical, "utf8").digest("base64");
