@@ -12,7 +12,6 @@ async function zibalRelayFetch(input: RequestInfo | URL, init?: RequestInit): Pr
     typeof input === "string" ? input :
     input instanceof URL ? input.toString() :
     input.url;
-
   let parsedUrl: URL;
   try {
     parsedUrl = new URL(inputUrl);
@@ -31,7 +30,6 @@ async function zibalRelayFetch(input: RequestInfo | URL, init?: RequestInit): Pr
   };
   const action = pathActions[parsedUrl.pathname];
   if (!action) return globalThis.fetch(input, init);
-
   const relayUrl = process.env.ZIBAL_RELAY_URL?.trim();
   const secret = process.env.ZIBAL_RELAY_SECRET?.trim();
 
@@ -45,7 +43,6 @@ async function zibalRelayFetch(input: RequestInfo | URL, init?: RequestInit): Pr
   if (typeof init?.body !== "string") {
     throw new Error("Zibal relay requires a JSON string request body.");
   }
-
   let payload: unknown;
   try {
     payload = JSON.parse(init.body);
@@ -58,25 +55,70 @@ async function zibalRelayFetch(input: RequestInfo | URL, init?: RequestInit): Pr
   const canonical = `1.${timestamp}.${nonce}.${action}.${JSON.stringify(payload)}`;
   const signature = createHmac("sha256", secret).update(canonical, "utf8").digest("base64");
 
+  // Send the signed payment operation exactly once. Handle Google's response redirect separately.
   const relayResponse = await globalThis.fetch(relayUrl, {
     method: "POST",
     headers: { "content-type": "application/json", "accept": "application/json" },
     body: JSON.stringify({ version: 1, timestamp, nonce, action, payload, signature }),
     cache: "no-store",
-    redirect: "follow",
+    redirect: "manual",
+    signal: init?.signal,
   });
 
-  if (!relayResponse.ok) {
-    const detail = await relayResponse.text().catch(() => "");
-    throw new Error(`Zibal relay HTTP ${relayResponse.status}: ${detail.slice(0, 300)}`);
+  let contentResponse = relayResponse;
+  if ([301, 302, 303, 307, 308].includes(relayResponse.status)) {
+    const location = relayResponse.headers.get("location");
+    if (!location) {
+      const detail = await relayResponse.text().catch(() => "");
+      throw new Error(`Zibal relay redirect HTTP ${relayResponse.status} did not include a Location header: ${detail.slice(0, 200)}`);
+    }
+
+    let contentUrl: URL;
+    try {
+      contentUrl = new URL(location, relayUrl);
+    } catch {
+      throw new Error("Zibal relay returned an invalid redirect URL.");
+    }
+    if (contentUrl.protocol !== "https:" || contentUrl.hostname !== "script.googleusercontent.com") {
+      throw new Error(`Zibal relay returned an unexpected redirect host: ${contentUrl.hostname}`);
+    }
+
+    // Apps Script ContentService redirects the response body to this Google-hosted URL.
+    // This is a GET for the already-completed POST response, not a second payment request.
+    contentResponse = await globalThis.fetch(contentUrl, {
+      method: "GET",
+      headers: { "accept": "application/json" },
+      cache: "no-store",
+      redirect: "follow",
+      signal: init?.signal,
+    });
   }
 
-  const envelope = await relayResponse.json() as {
+  const responseText = await contentResponse.text().catch(() => "");
+  if (!contentResponse.ok) {
+    throw new Error(`Zibal relay HTTP ${contentResponse.status}: ${responseText.slice(0, 300)}`);
+  }
+
+  let envelope: {
+    ok?: unknown;
+    error?: unknown;
     data?: unknown;
     gatewayHttpStatus?: unknown;
   };
+  try {
+    envelope = JSON.parse(responseText) as typeof envelope;
+  } catch {
+    throw new Error(`Zibal relay returned non-JSON content (HTTP ${contentResponse.status}): ${responseText.slice(0, 240)}`);
+  }
 
-  if (!envelope || typeof envelope !== "object" || !("data" in envelope)) {
+  if (!envelope || typeof envelope !== "object") {
+    throw new Error("Zibal relay returned an invalid response envelope.");
+  }
+  if (envelope.ok === false) {
+    const relayError = typeof envelope.error === "string" ? envelope.error : "unknown_error";
+    throw new Error(`Zibal relay rejected request: ${relayError}`);
+  }
+  if (envelope.ok !== true || !("data" in envelope)) {
     throw new Error("Zibal relay returned an invalid response envelope.");
   }
 
@@ -84,7 +126,6 @@ async function zibalRelayFetch(input: RequestInfo | URL, init?: RequestInit): Pr
   const status = Number.isInteger(candidateStatus) && candidateStatus >= 200 && candidateStatus <= 599
     ? candidateStatus
     : 200;
-
   return new Response(JSON.stringify(envelope.data), {
     status,
     headers: { "content-type": "application/json; charset=utf-8" },
