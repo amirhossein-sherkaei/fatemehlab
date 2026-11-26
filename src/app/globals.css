@@ -9571,3 +9571,224 @@ body {
     scroll-behavior: auto !important;
   }
 }
+/* ========================================================================== */
+/* FBL MAISON DOCK V2 — porcelain glass, editorial spacing, six clear routes  */
+/* ========================================================================== */
+@media (max-width: 767px) {
+  body {
+    padding-bottom: calc(104px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  nav.fbl-maison-dock {
+    position: fixed !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+    z-index: 75 !important;
+    width: min(520px, calc(100vw - 24px)) !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    translate: -50% 0;
+    pointer-events: none !important;
+    animation: fblMaisonAppear .28s cubic-bezier(.2,.72,.24,1) both !important;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+
+  nav.fbl-maison-dock .fbl-maison-dock__surface {
+    position: relative !important;
+    display: grid !important;
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    align-items: stretch !important;
+    gap: 2px !important;
+    width: 100% !important;
+    height: 76px !important;
+    padding: 6px 7px 5px !important;
+    overflow: hidden !important;
+    isolation: isolate !important;
+    border: 1px solid rgba(255,255,255,.96) !important;
+    border-radius: 25px !important;
+    background: linear-gradient(150deg, rgba(255,255,255,.94) 0%, rgba(255,251,253,.91) 48%, rgba(255,246,251,.94) 100%) !important;
+    box-shadow:
+      0 13px 34px rgba(68,34,54,.105),
+      0 3px 9px rgba(68,34,54,.055),
+      inset 0 1px 0 rgba(255,255,255,.98),
+      inset 0 -1px 0 rgba(199,159,180,.10) !important;
+    -webkit-backdrop-filter: blur(22px) saturate(155%) !important;
+    backdrop-filter: blur(22px) saturate(155%) !important;
+    pointer-events: auto !important;
+  }
+
+  nav.fbl-maison-dock .fbl-maison-dock__surface::before {
+    position: absolute;
+    top: 0;
+    left: 18px;
+    right: 18px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.98) 18%, rgba(198,29,112,.17) 50%, rgba(255,255,255,.98) 82%, transparent);
+    content: '';
+    pointer-events: none;
+  }
+
+  nav.fbl-maison-dock .fbl-maison-dock__sheen {
+    position: absolute;
+    top: -26px;
+    left: 50%;
+    width: 54%;
+    height: 42px;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background: rgba(255,255,255,.45);
+    filter: blur(18px);
+    pointer-events: none;
+  }
+
+  nav.fbl-maison-dock .fbl-maison-dock__item {
+    position: relative !important;
+    z-index: 1 !important;
+    display: grid !important;
+    grid-template-rows: 39px 17px !important;
+    align-content: center !important;
+    justify-items: center !important;
+    align-items: center !important;
+    gap: 1px !important;
+    min-width: 0 !important;
+    min-height: 62px !important;
+    padding: 2px 1px !important;
+    border: 0 !important;
+    border-radius: 18px !important;
+    background: transparent !important;
+    color: #827681 !important;
+    text-decoration: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+    touch-action: manipulation !important;
+    transition: color .18s ease, background-color .18s ease, transform .14s ease !important;
+  }
+
+  nav.fbl-maison-dock .fbl-maison-dock__item:active {
+    transform: scale(.955) !important;
+  }
+
+  nav.fbl-maison-dock .fbl-maison-dock__item.is-active {
+    color: #a91861 !important;
+    background: linear-gradient(180deg, rgba(255,244,249,.55), rgba(255,246,250,.16)) !important;
+  }
+
+  nav.fbl-maison-dock .fbl-maison-dock__icon {
+    position: relative !important;
+    display: grid !important;
+    place-items: center !important;
+    width: 39px !important;
+    height: 35px !important;
+    border: 1px solid transparent !important;
+    border-radius: 14px !important;
+    background: transparent !important;
+    color: inherit !important;
+    transition: background .2s ease, border-color .2s ease, box-shadow .2s ease, transform .2s cubic-bezier(.2,.8,.2,1) !important;
+  }
+
+  nav.fbl-maison-dock .fbl-maison-dock__item.is-active .fbl-maison-dock__icon {
+    transform: translateY(-1px) !important;
+    border-color: rgba(196,39,112,.13) !important;
+    background: linear-gradient(145deg, rgba(255,232,243,.98), rgba(255,246,250,.94)) !important;
+    box-shadow: 0 3px 9px rgba(177,35,101,.075), inset 0 1px 0 rgba(255,255,255,.98) !important;
+  }
+
+  nav.fbl-maison-dock .fbl-maison-dock__item.is-active .fbl-maison-dock__icon::after {
+    position: absolute;
+    top: -3px;
+    left: 50%;
+    width: 4px;
+    height: 4px;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background: #bd2b75;
+    box-shadow: 0 0 0 3px rgba(189,43,117,.075);
+    content: '';
+  }
+
+  nav.fbl-maison-dock .fbl-maison-dock__icon svg {
+    display: block !important;
+    width: 21px !important;
+    height: 21px !important;
+    color: inherit !important;
+  }
+
+  nav.fbl-maison-dock .fbl-maison-dock__label {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    color: inherit !important;
+    font-family: var(--font-vazirmatn), Tahoma, Arial, sans-serif !important;
+    font-size: clamp(8.8px, 2.45vw, 10px) !important;
+    font-weight: 570 !important;
+    line-height: 1.5 !important;
+    letter-spacing: -.035em !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    text-overflow: clip !important;
+    transition: font-weight .18s ease !important;
+  }
+
+  nav.fbl-maison-dock .fbl-maison-dock__item.is-active .fbl-maison-dock__label {
+    font-weight: 800 !important;
+  }
+
+  nav.fbl-maison-dock .fbl-maison-dock__badge {
+    position: absolute !important;
+    top: -3px !important;
+    right: -4px !important;
+    display: grid !important;
+    min-width: 17px !important;
+    height: 17px !important;
+    padding: 0 4px !important;
+    place-items: center !important;
+    border: 1.5px solid rgba(255,255,255,.98) !important;
+    border-radius: 99px !important;
+    background: linear-gradient(145deg, #d94b91, #ad175f) !important;
+    box-shadow: 0 2px 6px rgba(173,23,95,.18) !important;
+    color: #fff !important;
+    font-family: var(--font-vazirmatn), Tahoma, Arial, sans-serif !important;
+    font-size: 9px !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+  }
+
+  nav.fbl-maison-dock .fbl-maison-dock__item:focus-visible {
+    outline: 2px solid #bd2b75 !important;
+    outline-offset: -3px !important;
+  }
+
+  .fbl-support-float.is-above-bottom-nav {
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px) + 76px + 12px) !important;
+  }
+}
+
+@media (max-width: 360px) {
+  nav.fbl-maison-dock { width: calc(100vw - 16px) !important; }
+  nav.fbl-maison-dock .fbl-maison-dock__surface { gap: 0 !important; padding-inline: 4px !important; }
+  nav.fbl-maison-dock .fbl-maison-dock__label { font-size: 8.5px !important; letter-spacing: -.045em !important; }
+  nav.fbl-maison-dock .fbl-maison-dock__icon { width: 35px !important; }
+}
+
+@media (max-height: 650px) and (max-width: 767px) {
+  nav.fbl-maison-dock .fbl-maison-dock__surface { height: 68px !important; }
+  nav.fbl-maison-dock .fbl-maison-dock__item { grid-template-rows: 34px 16px !important; min-height: 56px !important; }
+  nav.fbl-maison-dock .fbl-maison-dock__icon { height: 31px !important; }
+  .fbl-support-float.is-above-bottom-nav { bottom: calc(8px + env(safe-area-inset-bottom, 0px) + 68px + 12px) !important; }
+}
+
+@keyframes fblMaisonAppear {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  nav.fbl-maison-dock, nav.fbl-maison-dock *, nav.fbl-maison-dock *::before, nav.fbl-maison-dock *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
