@@ -2,21 +2,31 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, LayoutGrid, BookOpen, ShoppingBag, User, Truck } from 'lucide-react';
+import { Home, LayoutGrid, BookOpen, ShoppingBag, UserRound, Truck } from 'lucide-react';
 import { useCartStore } from '@/store/cart';
-import { useEffect, useState, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+
+type NavItem = {
+  href: string;
+  label: string;
+  icon: typeof Home;
+  match: 'exact' | 'prefix';
+  badge?: number;
+};
 
 export default function BottomNav() {
   const pathname = usePathname();
-  const items = useCartStore((state) => state.items);
-  const [isMounted, setIsMounted] = useState(false);
+  const cartItems = useCartStore((state) => state.items);
+  const [mounted, setMounted] = useState(false);
   const [indicator, setIndicator] = useState({ left: 0, width: 0, show: false });
   const navRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => { setIsMounted(true); }, []);
+  useEffect(() => setMounted(true), []);
 
-  const cartCount = isMounted ? items.reduce((total, item) => total + item.quantity, 0) : 0;
-  const isCartPage = pathname === '/cart' || pathname === '/checkout';
+  const cartCount = mounted
+    ? cartItems.reduce((total, item) => total + item.quantity, 0)
+    : 0;
+  const isCartOrCheckout = pathname === '/cart' || pathname === '/checkout';
 
   const isHidden =
     pathname.startsWith('/admin') ||
@@ -25,74 +35,93 @@ export default function BottomNav() {
     pathname.startsWith('/account') ||
     (pathname.startsWith('/products/') && pathname !== '/products');
 
-  const navItems = [
-    { href: '/', label: 'خانه', icon: Home, match: 'exact' as const },
-    { href: '/products', label: 'محصولات', icon: LayoutGrid, match: 'prefix' as const },
-    { href: '/journal', label: 'مجله', icon: BookOpen, match: 'prefix' as const },
-    { href: '/track', label: 'رهگیری', icon: Truck, match: 'prefix' as const },
-    { href: '/account', label: 'حساب', icon: User, match: 'prefix' as const },
-    { href: '/cart', label: 'سبد', icon: ShoppingBag, match: 'prefix' as const, badge: cartCount },
+  const navItems: NavItem[] = [
+    { href: '/', label: 'خانه', icon: Home, match: 'exact' },
+    { href: '/products', label: 'محصولات', icon: LayoutGrid, match: 'prefix' },
+    { href: '/journal', label: 'مجله', icon: BookOpen, match: 'prefix' },
+    { href: '/track', label: 'رهگیری', icon: Truck, match: 'prefix' },
+    { href: '/account', label: 'حساب', icon: UserRound, match: 'prefix' },
+    { href: '/cart', label: 'سبد', icon: ShoppingBag, match: 'prefix', badge: cartCount },
   ];
 
-  const activeIndex = isHidden ? -1 : navItems.findIndex((item) => {
-    if (item.match === 'exact') return pathname === item.href;
-    return pathname === item.href || pathname.startsWith(item.href + '/');
-  });
+  const activeIndex = isHidden
+    ? -1
+    : navItems.findIndex((item) =>
+        item.match === 'exact'
+          ? pathname === item.href
+          : pathname === item.href || pathname.startsWith(`${item.href}/`),
+      );
 
-  useEffect(() => {
-    if (activeIndex < 0 || !navRef.current) {
-      setIndicator((prev) => ({ ...prev, show: false }));
+  const measureIndicator = useCallback(() => {
+    const nav = navRef.current;
+    if (!nav || activeIndex < 0) {
+      setIndicator((current) => current.show ? { ...current, show: false } : current);
       return;
     }
+    const active = nav.querySelectorAll<HTMLElement>('.fl-bottom-nav-item')[activeIndex];
+    if (!active) return;
+    const navRect = nav.getBoundingClientRect();
+    const activeRect = active.getBoundingClientRect();
+    setIndicator({
+      left: activeRect.left - navRect.left,
+      width: activeRect.width,
+      show: true,
+    });
+  }, [activeIndex]);
+
+  useEffect(() => {
+    measureIndicator();
     const nav = navRef.current;
-    const allItems = nav.querySelectorAll('.fl-bottom-nav-item');
-    const activeEl = allItems[activeIndex] as HTMLElement;
-    if (activeEl) {
-      const navRect = nav.getBoundingClientRect();
-      const activeRect = activeEl.getBoundingClientRect();
-      setIndicator({
-        left: activeRect.left - navRect.left,
-        width: activeRect.width,
-        show: true,
-      });
-    }
-  }, [activeIndex, pathname, cartCount]);
+    if (!nav) return;
+    const observer = typeof ResizeObserver !== 'undefined'
+      ? new ResizeObserver(measureIndicator)
+      : null;
+    observer?.observe(nav);
+    window.addEventListener('resize', measureIndicator, { passive: true });
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener('resize', measureIndicator);
+    };
+  }, [measureIndicator, pathname, cartCount]);
 
   if (isHidden) return null;
 
   return (
-    <nav className="fl-bottom-nav md:hidden" aria-label="ناوبری موبایل">
+    <nav className="fl-bottom-nav md:hidden" aria-label="ناوبری اصلی فروشگاه">
       <div className="fl-bottom-nav-inner" ref={navRef}>
         {indicator.show && (
-          <div
+          <span
             className="fl-bottom-nav-pill"
-            style={{
-              width: `${indicator.width}px`,
-              transform: `translateX(${indicator.left}px)`,
-            }}
+            style={{ width: `${indicator.width}px`, transform: `translateX(${indicator.left}px)` }}
             aria-hidden="true"
           />
         )}
-
-        {navItems.map((item, idx) => {
-          const isActive = idx === activeIndex;
+        {navItems.map((item, index) => {
+          const active = index === activeIndex;
           const Icon = item.icon;
+          const showBadge = item.href === '/cart' && cartCount > 0 && !isCartOrCheckout;
+          const accessibleName = showBadge
+            ? `${item.label}، ${cartCount} کالا`
+            : item.label;
+
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`fl-bottom-nav-item ${isActive ? 'is-active' : ''}`}
-              aria-label={item.label}
-              aria-current={isActive ? 'page' : undefined}
+              className={`fl-bottom-nav-item${active ? ' is-active' : ''}`}
+              aria-label={accessibleName}
+              aria-current={active ? 'page' : undefined}
+              title={item.label}
+              prefetch={true}
             >
-              <div className="fl-bottom-nav-icon-wrap">
-                <Icon size={22} strokeWidth={isActive ? 2.4 : 1.7} />
-                {(item.badge && item.badge > 0 && !isCartPage) ? (
+              <span className="fl-bottom-nav-icon-wrap" aria-hidden="true">
+                <Icon size={21} strokeWidth={active ? 2.25 : 1.75} />
+                {showBadge && (
                   <span className="fl-bottom-nav-badge">
-                    {item.badge.toLocaleString('fa-IR')}
+                    {cartCount > 99 ? '۹۹+' : cartCount.toLocaleString('fa-IR')}
                   </span>
-                ) : null}
-              </div>
+                )}
+              </span>
               <span className="fl-bottom-nav-label">{item.label}</span>
             </Link>
           );

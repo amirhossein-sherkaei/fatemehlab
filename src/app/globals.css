@@ -9422,3 +9422,152 @@ body {
   .fbl-campaign-strip-v4 *::before,
   .fbl-campaign-strip-v4 *::after { transition-duration: .01ms !important; }
 }
+/* ========================================================================== */
+/* FATEMEH BEAUTY LAND — BOTTOM NAVIGATION SIGNATURE DOCK                     */
+/* A restrained editorial-glass treatment: clear, touchable, and lightweight. */
+/* ========================================================================== */
+@media (max-width: 767px) {
+  body { padding-bottom: calc(108px + env(safe-area-inset-bottom, 0px)) !important; }
+
+  nav.fl-bottom-nav {
+    position: fixed !important;
+    inset-inline: 12px !important;
+    left: 12px !important;
+    right: 12px !important;
+    bottom: calc(9px + env(safe-area-inset-bottom, 0px)) !important;
+    z-index: 70 !important;
+    width: auto !important;
+    pointer-events: none !important;
+    animation: flDockEnter .42s cubic-bezier(.2,.8,.2,1) both !important;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+
+  nav.fl-bottom-nav .fl-bottom-nav-inner {
+    display: flex !important;
+    align-items: stretch !important;
+    justify-content: space-between !important;
+    gap: 2px !important;
+    width: 100% !important;
+    height: 70px !important;
+    padding: 5px !important;
+    overflow: hidden !important;
+    isolation: isolate !important;
+    border: 1px solid rgba(255,255,255,.92) !important;
+    border-radius: 23px !important;
+    background: rgba(255,252,254,.88) !important;
+    background-image: linear-gradient(145deg,rgba(255,255,255,.94),rgba(255,247,251,.86)) !important;
+    box-shadow: 0 10px 34px rgba(70,35,56,.12), 0 2px 8px rgba(70,35,56,.055), inset 0 1px 0 rgba(255,255,255,.96) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(165%) !important;
+    backdrop-filter: blur(24px) saturate(165%) !important;
+    pointer-events: auto !important;
+  }
+
+  nav.fl-bottom-nav .fl-bottom-nav-pill {
+    top: 5px !important;
+    bottom: 5px !important;
+    z-index: 0 !important;
+    border: 1px solid rgba(198,29,112,.105) !important;
+    border-radius: 17px !important;
+    background: linear-gradient(155deg,rgba(255,237,246,.96),rgba(255,247,251,.88)) !important;
+    box-shadow: 0 3px 10px rgba(198,29,112,.075), inset 0 1px 0 rgba(255,255,255,.96) !important;
+    transition: transform .34s cubic-bezier(.2,.8,.2,1), width .28s ease !important;
+    will-change: transform,width;
+  }
+
+  nav.fl-bottom-nav .fl-bottom-nav-item {
+    position: relative !important;
+    z-index: 1 !important;
+    display: flex !important;
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    min-height: 58px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+    padding: 4px 1px !important;
+    border-radius: 17px !important;
+    color: #817783 !important;
+    text-decoration: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+    transition: color .2s ease, transform .16s ease !important;
+  }
+
+  nav.fl-bottom-nav .fl-bottom-nav-item:active { transform: scale(.94) !important; }
+  nav.fl-bottom-nav .fl-bottom-nav-item.is-active { color: #b51b67 !important; }
+  nav.fl-bottom-nav .fl-bottom-nav-item:focus-visible {
+    outline: 2px solid #c61d70 !important;
+    outline-offset: -3px !important;
+  }
+
+  nav.fl-bottom-nav .fl-bottom-nav-icon-wrap {
+    position: relative !important;
+    display: grid !important;
+    width: 27px !important;
+    height: 27px !important;
+    flex: 0 0 27px !important;
+    place-items: center !important;
+    color: inherit !important;
+    transition: transform .22s cubic-bezier(.2,.8,.2,1) !important;
+  }
+  nav.fl-bottom-nav .fl-bottom-nav-item.is-active .fl-bottom-nav-icon-wrap {
+    transform: translateY(-1px) !important;
+  }
+  nav.fl-bottom-nav .fl-bottom-nav-icon-wrap svg { display: block; }
+
+  nav.fl-bottom-nav .fl-bottom-nav-label {
+    display: block !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    color: inherit !important;
+    font-family: var(--font-vazirmatn),Tahoma,Arial,sans-serif !important;
+    font-size: 10px !important;
+    font-weight: 600 !important;
+    line-height: 1.35 !important;
+    letter-spacing: -.025em !important;
+    white-space: nowrap !important;
+    text-overflow: ellipsis !important;
+    transition: font-weight .18s ease !important;
+  }
+  nav.fl-bottom-nav .fl-bottom-nav-item.is-active .fl-bottom-nav-label { font-weight: 800 !important; }
+
+  nav.fl-bottom-nav .fl-bottom-nav-badge {
+    position: absolute !important;
+    top: -5px !important;
+    right: -7px !important;
+    display: grid !important;
+    min-width: 17px !important;
+    height: 17px !important;
+    padding: 0 4px !important;
+    place-items: center !important;
+    border: 1.5px solid #fff !important;
+    border-radius: 99px !important;
+    background: linear-gradient(135deg,#e84e9e,#bd1769) !important;
+    box-shadow: 0 2px 7px rgba(185,23,103,.22) !important;
+    color: #fff !important;
+    font-size: 9px !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+  }
+}
+
+@media (max-width: 360px) {
+  nav.fl-bottom-nav { left: 8px !important; right: 8px !important; }
+  nav.fl-bottom-nav .fl-bottom-nav-inner { gap: 0 !important; padding: 4px !important; }
+  nav.fl-bottom-nav .fl-bottom-nav-label { font-size: 9px !important; }
+  nav.fl-bottom-nav .fl-bottom-nav-icon-wrap { width: 25px !important; height: 25px !important; flex-basis: 25px !important; }
+}
+
+@keyframes flDockEnter {
+  from { opacity: 0; transform: translate3d(0,12px,0); }
+  to { opacity: 1; transform: translate3d(0,0,0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  nav.fl-bottom-nav, nav.fl-bottom-nav *, nav.fl-bottom-nav *::before, nav.fl-bottom-nav *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
