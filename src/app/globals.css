@@ -9992,3 +9992,296 @@ body {
 @media (prefers-reduced-motion: reduce) {
   nav.fbl-maison-dock-v3, nav.fbl-maison-dock-v3 * { animation: none !important; transition: none !important; }
 }
+
+/* ==========================================================================
+   FBL PETAL SIGNATURE DOCK V5
+   Porcelain glass / rose enamel / champagne edge.
+   Five primary destinations with full viewport positioning.
+   ========================================================================== */
+
+@media (max-width: 767px) {
+  body:has(nav.fbl-petal-signature-dock-v5) {
+    padding-bottom: calc(128px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  nav.fbl-petal-signature-dock-v5 {
+    position: fixed !important;
+    inset-inline: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+    z-index: 96 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 13px !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+    transform: none !important;
+    translate: none !important;
+    background: transparent !important;
+    pointer-events: none !important;
+    isolation: isolate !important;
+  }
+
+  nav.fbl-petal-signature-dock-v5 .fbl-petal-signature-dock-v5__surface {
+    position: relative !important;
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    align-items: stretch !important;
+    gap: 5px !important;
+    width: min(490px, 100%) !important;
+    max-width: 490px !important;
+    min-width: 0 !important;
+    height: 86px !important;
+    margin: 0 auto !important;
+    padding: 7px 8px 6px !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+    border: 1px solid rgba(183, 139, 157, .38) !important;
+    border-radius: 29px !important;
+    background:
+      radial-gradient(ellipse at 50% -42%, rgba(255,255,255,.99) 0%, rgba(255,255,255,0) 66%),
+      radial-gradient(ellipse at 4% 100%, rgba(246,213,228,.56) 0%, rgba(246,213,228,0) 48%),
+      radial-gradient(ellipse at 96% 100%, rgba(238,220,199,.38) 0%, rgba(238,220,199,0) 48%),
+      linear-gradient(145deg, rgba(255,255,255,.985) 0%, rgba(255,250,252,.97) 48%, rgba(249,238,244,.975) 100%) !important;
+    box-shadow:
+      0 20px 48px rgba(68, 35, 54, .16),
+      0 5px 15px rgba(174, 48, 105, .075),
+      inset 0 1px 0 rgba(255,255,255,.99),
+      inset 0 -1px 0 rgba(183,139,157,.17) !important;
+    -webkit-backdrop-filter: blur(26px) saturate(175%) !important;
+    backdrop-filter: blur(26px) saturate(175%) !important;
+    pointer-events: auto !important;
+    isolation: isolate !important;
+  }
+
+  nav.fbl-petal-signature-dock-v5 .fbl-petal-signature-dock-v5__edge-light {
+    position: absolute !important;
+    top: 0 !important;
+    left: 26px !important;
+    right: 26px !important;
+    height: 1px !important;
+    border-radius: 999px !important;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255,255,255,.98) 18%,
+      rgba(196,157,116,.72) 50%,
+      rgba(255,255,255,.98) 82%,
+      transparent
+    ) !important;
+    pointer-events: none !important;
+  }
+
+  nav.fbl-petal-signature-dock-v5 .fbl-petal-signature-dock-v5__surface::before {
+    content: '' !important;
+    position: absolute !important;
+    inset: 4px !important;
+    z-index: -1 !important;
+    border: 1px solid rgba(255,255,255,.66) !important;
+    border-radius: 25px !important;
+    pointer-events: none !important;
+  }
+
+  nav.fbl-petal-signature-dock-v5 .fbl-petal-signature-dock-v5__item {
+    position: relative !important;
+    display: grid !important;
+    grid-template-rows: 46px 18px !important;
+    justify-items: center !important;
+    align-content: center !important;
+    align-items: center !important;
+    gap: 1px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    min-height: 70px !important;
+    margin: 0 !important;
+    padding: 4px 2px 5px !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+    border: 1px solid transparent !important;
+    border-radius: 20px !important;
+    background: transparent !important;
+    color: #81727d !important;
+    text-align: center !important;
+    text-decoration: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+    touch-action: manipulation !important;
+    transition:
+      color .22s ease,
+      background .22s ease,
+      border-color .22s ease,
+      transform .18s cubic-bezier(.2,.8,.2,1) !important;
+  }
+
+  nav.fbl-petal-signature-dock-v5 .fbl-petal-signature-dock-v5__item.is-active {
+    color: #fff !important;
+    border-color: rgba(255,255,255,.72) !important;
+    background:
+      radial-gradient(ellipse at 50% -8%, rgba(255,255,255,.38), rgba(255,255,255,0) 62%),
+      linear-gradient(155deg, #d74b91 0%, #c32675 48%, #a81760 100%) !important;
+    box-shadow:
+      0 7px 17px rgba(165, 25, 91, .24),
+      0 2px 5px rgba(165, 25, 91, .12),
+      inset 0 1px 0 rgba(255,255,255,.48),
+      inset 0 -1px 0 rgba(94, 15, 54, .18) !important;
+  }
+
+  nav.fbl-petal-signature-dock-v5 .fbl-petal-signature-dock-v5__item:active {
+    transform: scale(.955) !important;
+  }
+
+  nav.fbl-petal-signature-dock-v5 .fbl-petal-signature-dock-v5__icon {
+    position: relative !important;
+    display: grid !important;
+    place-items: center !important;
+    width: 40px !important;
+    max-width: 100% !important;
+    height: 40px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    border: 1px solid rgba(183,139,157,.17) !important;
+    border-radius: 15px !important;
+    background: linear-gradient(150deg, rgba(255,255,255,.92), rgba(250,238,244,.78)) !important;
+    color: #a34d75 !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.98),
+      0 2px 5px rgba(72,41,58,.045) !important;
+    transition:
+      background .22s ease,
+      border-color .22s ease,
+      box-shadow .22s ease,
+      color .22s ease,
+      transform .22s cubic-bezier(.2,.8,.2,1) !important;
+  }
+
+  nav.fbl-petal-signature-dock-v5 .fbl-petal-signature-dock-v5__icon svg {
+    display: block !important;
+    width: 22px !important;
+    max-width: 22px !important;
+    height: 22px !important;
+    color: inherit !important;
+    flex: none !important;
+  }
+
+  nav.fbl-petal-signature-dock-v5 .fbl-petal-signature-dock-v5__item.is-active .fbl-petal-signature-dock-v5__icon {
+    transform: translateY(-1px) scale(1.035) !important;
+    border-color: rgba(255,255,255,.55) !important;
+    background: linear-gradient(150deg, rgba(255,255,255,.28), rgba(255,255,255,.10)) !important;
+    color: #fff !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.42),
+      0 2px 7px rgba(84,12,48,.13) !important;
+  }
+
+  nav.fbl-petal-signature-dock-v5 .fbl-petal-signature-dock-v5__label {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    color: inherit !important;
+    font-family: var(--font-vazirmatn), Tahoma, Arial, sans-serif !important;
+    font-size: clamp(9px, 2.55vw, 10.5px) !important;
+    font-weight: 700 !important;
+    line-height: 1.5 !important;
+    letter-spacing: -.035em !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    text-overflow: clip !important;
+    transition: color .2s ease, font-weight .2s ease !important;
+  }
+
+  nav.fbl-petal-signature-dock-v5 .fbl-petal-signature-dock-v5__item.is-active .fbl-petal-signature-dock-v5__label {
+    color: #fff !important;
+    font-weight: 900 !important;
+  }
+
+  nav.fbl-petal-signature-dock-v5 .fbl-petal-signature-dock-v5__active-mark {
+    position: absolute !important;
+    bottom: 2px !important;
+    left: 50% !important;
+    display: block !important;
+    width: 14px !important;
+    height: 2px !important;
+    margin: 0 !important;
+    border-radius: 999px !important;
+    background: linear-gradient(90deg, #fff, #f4d7a7) !important;
+    box-shadow: 0 0 7px rgba(255,255,255,.55) !important;
+    transform: translateX(-50%) !important;
+  }
+
+  nav.fbl-petal-signature-dock-v5 .fbl-petal-signature-dock-v5__item:focus-visible {
+    outline: 2px solid #ae1e65 !important;
+    outline-offset: 2px !important;
+  }
+
+  .fbl-support-float.is-above-bottom-nav {
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px) + 86px + 13px) !important;
+  }
+}
+
+@media (max-width: 380px) {
+  nav.fbl-petal-signature-dock-v5 { padding-inline: 7px !important; }
+  nav.fbl-petal-signature-dock-v5 .fbl-petal-signature-dock-v5__surface {
+    gap: 2px !important;
+    padding-inline: 5px !important;
+  }
+  nav.fbl-petal-signature-dock-v5 .fbl-petal-signature-dock-v5__item {
+    padding-inline: 1px !important;
+  }
+  nav.fbl-petal-signature-dock-v5 .fbl-petal-signature-dock-v5__icon {
+    width: 37px !important;
+    height: 37px !important;
+  }
+  nav.fbl-petal-signature-dock-v5 .fbl-petal-signature-dock-v5__label {
+    font-size: clamp(8.5px, 2.5vw, 9.2px) !important;
+  }
+}
+
+@media (max-height: 650px) and (max-width: 767px) {
+  nav.fbl-petal-signature-dock-v5 {
+    bottom: calc(5px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  nav.fbl-petal-signature-dock-v5 .fbl-petal-signature-dock-v5__surface {
+    height: 74px !important;
+  }
+  nav.fbl-petal-signature-dock-v5 .fbl-petal-signature-dock-v5__item {
+    grid-template-rows: 38px 16px !important;
+    min-height: 60px !important;
+  }
+  nav.fbl-petal-signature-dock-v5 .fbl-petal-signature-dock-v5__icon {
+    width: 34px !important;
+    height: 34px !important;
+  }
+  .fbl-support-float.is-above-bottom-nav {
+    bottom: calc(5px + env(safe-area-inset-bottom, 0px) + 74px + 12px) !important;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) and (max-width: 767px) {
+  nav.fbl-petal-signature-dock-v5 .fbl-petal-signature-dock-v5__item:not(.is-active):hover {
+    color: #ad1d66 !important;
+    background: rgba(255, 237, 246, .75) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  nav.fbl-petal-signature-dock-v5,
+  nav.fbl-petal-signature-dock-v5 *,
+  nav.fbl-petal-signature-dock-v5 *::before,
+  nav.fbl-petal-signature-dock-v5 *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
