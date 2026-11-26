@@ -21,7 +21,6 @@ type TimeLeft = {
 function getTimeLeft(expiry: number): TimeLeft | null {
   const distance = expiry - Date.now();
   if (!Number.isFinite(distance) || distance <= 0) return null;
-
   return {
     days: Math.floor(distance / 86_400_000),
     hours: Math.floor((distance % 86_400_000) / 3_600_000),
@@ -58,18 +57,17 @@ export default function PromoBar({
         return;
       }
     } catch {
-      // Keep the campaign available when browser storage is restricted.
+      // The campaign remains usable when browser storage is unavailable.
     }
 
     const expiry = expiresAt ? new Date(expiresAt).getTime() : null;
     if (expiry !== null && (!Number.isFinite(expiry) || expiry <= Date.now())) {
-      setIsVisible(false);
       setTimeLeft(null);
+      setIsVisible(false);
       return;
     }
 
     setIsVisible(true);
-
     if (expiry === null) {
       setTimeLeft(null);
       return;
@@ -86,12 +84,10 @@ export default function PromoBar({
     };
 
     if (!updateCountdown()) return;
-
-    const timer = window.setInterval(() => {
-      if (!updateCountdown()) window.clearInterval(timer);
+    const timerId = window.setInterval(() => {
+      if (!updateCountdown()) window.clearInterval(timerId);
     }, 1000);
-
-    return () => window.clearInterval(timer);
+    return () => window.clearInterval(timerId);
   }, [campaignKey, expiresAt]);
 
   const handleDismiss = () => {
@@ -99,7 +95,7 @@ export default function PromoBar({
     try {
       window.localStorage.setItem('fbl-promo-dismissed-campaign', campaignKey);
     } catch {
-      // The close action still works for this page view.
+      // Dismissal still works for the current page view.
     }
   };
 
@@ -107,71 +103,49 @@ export default function PromoBar({
 
   return (
     <aside
-      className="fbl-campaign-ribbon"
+      className="fbl-campaign-strip-v4"
       role="region"
       aria-label="پیشنهاد ویژه فاطمه بیوتی لند"
       data-campaign-banner
     >
-      <span className="fbl-campaign-ribbon__glow" aria-hidden="true" />
-      <span className="fbl-campaign-ribbon__sheen" aria-hidden="true" />
-      <span className="fbl-campaign-ribbon__ornament" aria-hidden="true">F</span>
-
-      <div className="container-custom fbl-campaign-ribbon__inner">
-        <Link
-          href={link}
-          className="fbl-campaign-ribbon__link"
-          aria-label={`${label}: ${text}`}
-        >
-          <span className="fbl-campaign-ribbon__seal" aria-hidden="true">
-            <span className="fbl-campaign-ribbon__seal-frame">
-              <span className="fbl-campaign-ribbon__monogram">F</span>
-              <Sparkles className="fbl-campaign-ribbon__seal-sparkle" size={11} strokeWidth={1.7} />
-            </span>
+      <span className="fbl-campaign-strip-v4__glow" aria-hidden="true" />
+      <span className="fbl-campaign-strip-v4__sheen" aria-hidden="true" />
+      <div className={`fbl-campaign-strip-v4__inner${timeLeft ? ' fbl-campaign-strip-v4__inner--timer' : ' fbl-campaign-strip-v4__inner--no-timer'}`} dir="rtl">
+        <Link href={link} className="fbl-campaign-strip-v4__offer" aria-label={`${label}: ${text}`}>
+          <span className="fbl-campaign-strip-v4__seal" aria-hidden="true">
+            <span className="fbl-campaign-strip-v4__seal-letter">F</span>
+            <Sparkles className="fbl-campaign-strip-v4__seal-sparkle" size={10} strokeWidth={1.8} />
           </span>
-
-          <span className="fbl-campaign-ribbon__copy">
-            <span className="fbl-campaign-ribbon__eyebrow">
-              <span className="fbl-campaign-ribbon__live-dot" aria-hidden="true" />
-              <span>{label}</span>
-              <span className="fbl-campaign-ribbon__brand">FATEMEH BEAUTY LAND</span>
+          <span className="fbl-campaign-strip-v4__copy">
+            <span className="fbl-campaign-strip-v4__eyebrow">
+              <span className="fbl-campaign-strip-v4__dot" aria-hidden="true" />
+              <strong>{label}</strong>
+              <span className="fbl-campaign-strip-v4__brand">FATEMEH BEAUTY LAND</span>
             </span>
-            <span className="fbl-campaign-ribbon__message">{text}</span>
+            <span className="fbl-campaign-strip-v4__message">{text}</span>
           </span>
-
-          <span className="fbl-campaign-ribbon__cta">
+          <span className="fbl-campaign-strip-v4__cta">
             <span>مشاهده پیشنهاد</span>
-            <ArrowUpLeft size={15} strokeWidth={2} aria-hidden="true" />
+            <ArrowUpLeft size={14} strokeWidth={2} aria-hidden="true" />
           </span>
         </Link>
 
         {timeLeft && (
           <div
-            className="fbl-campaign-ribbon__countdown"
+            className="fbl-campaign-strip-v4__timer"
+            dir="rtl"
             aria-label={`زمان باقی‌مانده: ${timeLeft.days} روز، ${timeLeft.hours} ساعت، ${timeLeft.minutes} دقیقه و ${timeLeft.seconds} ثانیه`}
             aria-live="off"
-            dir="rtl"
           >
-            <span className="fbl-campaign-ribbon__countdown-label">
-              <Clock3 size={13} strokeWidth={1.8} aria-hidden="true" />
+            <span className="fbl-campaign-strip-v4__timer-label">
+              <Clock3 size={12} strokeWidth={1.8} aria-hidden="true" />
               <span>فرصت باقی‌مانده</span>
             </span>
-            <span className="fbl-campaign-ribbon__countdown-units" dir="ltr">
-              <span className="fbl-campaign-ribbon__time-unit">
-                <strong>{toFaDigits(timeLeft.days)}</strong>
-                <small>روز</small>
-              </span>
-              <span className="fbl-campaign-ribbon__time-unit">
-                <strong>{toFaDigits(timeLeft.hours)}</strong>
-                <small>ساعت</small>
-              </span>
-              <span className="fbl-campaign-ribbon__time-unit">
-                <strong>{toFaDigits(timeLeft.minutes)}</strong>
-                <small>دقیقه</small>
-              </span>
-              <span className="fbl-campaign-ribbon__time-unit fbl-campaign-ribbon__time-unit--seconds">
-                <strong>{toFaDigits(timeLeft.seconds)}</strong>
-                <small>ثانیه</small>
-              </span>
+            <span className="fbl-campaign-strip-v4__timer-units" dir="ltr">
+              <span className="fbl-campaign-strip-v4__unit"><strong>{toFaDigits(timeLeft.days)}</strong><small>روز</small></span>
+              <span className="fbl-campaign-strip-v4__unit"><strong>{toFaDigits(timeLeft.hours)}</strong><small>ساعت</small></span>
+              <span className="fbl-campaign-strip-v4__unit"><strong>{toFaDigits(timeLeft.minutes)}</strong><small>دقیقه</small></span>
+              <span className="fbl-campaign-strip-v4__unit fbl-campaign-strip-v4__unit--seconds"><strong>{toFaDigits(timeLeft.seconds)}</strong><small>ثانیه</small></span>
             </span>
           </div>
         )}
@@ -179,11 +153,11 @@ export default function PromoBar({
         <button
           type="button"
           onClick={handleDismiss}
-          className="fbl-campaign-ribbon__close"
+          className="fbl-campaign-strip-v4__close"
           aria-label="بستن نوار پیشنهاد"
           title="بستن پیشنهاد"
         >
-          <X size={16} strokeWidth={1.8} aria-hidden="true" />
+          <X size={14} strokeWidth={1.8} aria-hidden="true" />
         </button>
       </div>
     </aside>
