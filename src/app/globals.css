@@ -10565,3 +10565,267 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+
+/* ==========================================================================
+   FBL SIGNATURE MOBILE DOCK V8
+   Reference-led, icon-first shopping navigation with a pearl surface and
+   restrained rose activation. Five real destinations; no decorative labels.
+   ========================================================================== */
+
+@media (max-width: 767px) {
+  body:has(nav.fbl-signature-dock-v8) {
+    padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  nav.fbl-signature-dock-v8 {
+    position: fixed !important;
+    inset-inline: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: calc(9px + env(safe-area-inset-bottom, 0px)) !important;
+    z-index: 96 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 13px !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+    transform: none !important;
+    translate: none !important;
+    background: transparent !important;
+    pointer-events: none !important;
+    isolation: isolate !important;
+  }
+
+  nav.fbl-signature-dock-v8 .fbl-signature-dock-v8__surface {
+    position: relative !important;
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    align-items: center !important;
+    justify-items: stretch !important;
+    gap: 2px !important;
+    width: min(440px, 100%) !important;
+    max-width: 440px !important;
+    min-width: 0 !important;
+    height: 76px !important;
+    margin: 0 auto !important;
+    padding: 7px 9px !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+    border: 1px solid rgba(224, 211, 218, .92) !important;
+    border-radius: 28px !important;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.99) 0%, rgba(255,255,255,.96) 52%, rgba(253,249,251,.97) 100%) !important;
+    box-shadow:
+      0 14px 34px rgba(48, 25, 37, .14),
+      0 3px 9px rgba(128, 61, 88, .055),
+      inset 0 1px 0 rgba(255,255,255,.99),
+      inset 0 -1px 0 rgba(202, 178, 189, .16) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(160%) !important;
+    backdrop-filter: blur(24px) saturate(160%) !important;
+    pointer-events: auto !important;
+    isolation: isolate !important;
+  }
+
+  nav.fbl-signature-dock-v8 .fbl-signature-dock-v8__surface::before {
+    content: '' !important;
+    position: absolute !important;
+    inset: 4px !important;
+    z-index: -1 !important;
+    border: 1px solid rgba(255,255,255,.86) !important;
+    border-radius: 24px !important;
+    pointer-events: none !important;
+  }
+
+  nav.fbl-signature-dock-v8 .fbl-signature-dock-v8__sheen {
+    position: absolute !important;
+    top: 0 !important;
+    left: 30px !important;
+    right: 30px !important;
+    height: 1px !important;
+    border-radius: 99px !important;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.98) 22%, rgba(225,192,207,.8) 50%, rgba(255,255,255,.98) 78%, transparent) !important;
+    pointer-events: none !important;
+  }
+
+  nav.fbl-signature-dock-v8 .fbl-signature-dock-v8__item {
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: 60px !important;
+    min-height: 60px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+    border: 1px solid transparent !important;
+    border-radius: 19px !important;
+    background: transparent !important;
+    color: #898188 !important;
+    text-decoration: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+    touch-action: manipulation !important;
+    transition:
+      color .2s ease,
+      background .22s ease,
+      border-color .22s ease,
+      box-shadow .22s ease,
+      transform .16s ease !important;
+  }
+
+  nav.fbl-signature-dock-v8 .fbl-signature-dock-v8__item.is-active {
+    border-color: rgba(194, 137, 163, .25) !important;
+    border-radius: 21px !important;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(255,255,255,.98), rgba(255,255,255,0) 72%),
+      linear-gradient(155deg, rgba(255,245,250,.98), rgba(249,229,239,.94)) !important;
+    color: #9f1d5d !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.99),
+      inset 0 -1px 0 rgba(198,145,169,.14),
+      0 3px 10px rgba(157, 48, 98, .075) !important;
+  }
+
+  nav.fbl-signature-dock-v8 .fbl-signature-dock-v8__icon {
+    position: relative !important;
+    display: grid !important;
+    place-items: center !important;
+    width: 45px !important;
+    height: 45px !important;
+    flex: 0 0 45px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    border: 1px solid transparent !important;
+    border-radius: 15px !important;
+    background: transparent !important;
+    color: #898188 !important;
+    transition: color .2s ease, transform .2s cubic-bezier(.2,.8,.2,1) !important;
+  }
+
+  nav.fbl-signature-dock-v8 .fbl-signature-dock-v8__icon svg {
+    display: block !important;
+    width: 24px !important;
+    height: 24px !important;
+    color: inherit !important;
+    flex: none !important;
+  }
+
+  nav.fbl-signature-dock-v8 .fbl-signature-dock-v8__item.is-active .fbl-signature-dock-v8__icon {
+    transform: translateY(-1px) !important;
+    border-color: transparent !important;
+    border-radius: 15px !important;
+    background: transparent !important;
+    color: #9f1d5d !important;
+    box-shadow: none !important;
+  }
+
+  nav.fbl-signature-dock-v8 .fbl-signature-dock-v8__badge {
+    position: absolute !important;
+    top: -3px !important;
+    inset-inline-start: -5px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 17px !important;
+    height: 17px !important;
+    padding: 0 4px !important;
+    border: 2px solid #fff !important;
+    border-radius: 99px !important;
+    background: #c51f69 !important;
+    color: #fff !important;
+    font-family: var(--font-vazirmatn), Tahoma, Arial, sans-serif !important;
+    font-size: 9px !important;
+    font-weight: 900 !important;
+    line-height: 1 !important;
+    box-shadow: 0 2px 5px rgba(145, 25, 76, .2) !important;
+    white-space: nowrap !important;
+    pointer-events: none !important;
+  }
+
+  nav.fbl-signature-dock-v8 .fbl-signature-dock-v8__item:active {
+    transform: scale(.965) !important;
+  }
+
+  nav.fbl-signature-dock-v8 .fbl-signature-dock-v8__item:focus-visible {
+    outline: 2px solid #b72b73 !important;
+    outline-offset: 2px !important;
+  }
+
+  /* Keep the separate concierge/support control on the left, above the dock. */
+  .fbl-support-float.is-above-bottom-nav {
+    left: 14px !important;
+    right: auto !important;
+    bottom: calc(9px + env(safe-area-inset-bottom, 0px) + 76px + 14px) !important;
+  }
+}
+
+@media (max-width: 380px) {
+  nav.fbl-signature-dock-v8 { padding-inline: 8px !important; }
+  nav.fbl-signature-dock-v8 .fbl-signature-dock-v8__surface {
+    gap: 0 !important;
+    padding-inline: 5px !important;
+  }
+  nav.fbl-signature-dock-v8 .fbl-signature-dock-v8__item {
+    height: 56px !important;
+    min-height: 56px !important;
+    border-radius: 17px !important;
+  }
+  nav.fbl-signature-dock-v8 .fbl-signature-dock-v8__icon {
+    width: 42px !important;
+    height: 42px !important;
+    flex-basis: 42px !important;
+  }
+}
+
+@media (max-height: 650px) and (max-width: 767px) {
+  body:has(nav.fbl-signature-dock-v8) {
+    padding-bottom: calc(98px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  nav.fbl-signature-dock-v8 {
+    bottom: calc(6px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  nav.fbl-signature-dock-v8 .fbl-signature-dock-v8__surface {
+    height: 68px !important;
+  }
+  nav.fbl-signature-dock-v8 .fbl-signature-dock-v8__item {
+    height: 54px !important;
+    min-height: 54px !important;
+  }
+  nav.fbl-signature-dock-v8 .fbl-signature-dock-v8__icon {
+    width: 40px !important;
+    height: 40px !important;
+    flex-basis: 40px !important;
+  }
+  .fbl-support-float.is-above-bottom-nav {
+    bottom: calc(6px + env(safe-area-inset-bottom, 0px) + 68px + 13px) !important;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) and (max-width: 767px) {
+  nav.fbl-signature-dock-v8 .fbl-signature-dock-v8__item:not(.is-active):hover {
+    color: #a72b68 !important;
+    background: rgba(255, 240, 247, .56) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  nav.fbl-signature-dock-v8,
+  nav.fbl-signature-dock-v8 *,
+  nav.fbl-signature-dock-v8 *::before,
+  nav.fbl-signature-dock-v8 *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
