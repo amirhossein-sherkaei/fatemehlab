@@ -12,6 +12,8 @@ export default function SettingsPage() {
   
   // استیت‌های مربوط به نوار تبلیغاتی
   const [promoText, setPromoText] = useState('');
+  const [promoLabel, setPromoLabel] = useState('پیشنهاد ویژه');
+  const [promoLink, setPromoLink] = useState('/products');
   const [promoExpiresAt, setPromoExpiresAt] = useState<Date | null>(null);
   const [promoActive, setPromoActive] = useState(true);
 
@@ -24,11 +26,13 @@ export default function SettingsPage() {
           data.settings.forEach((s: any) => { map[s.key] = s.value; });
           setSettings(map);
           setPromoText(map.promoBarText || '');
+          setPromoLabel(map.promoBarLabel || 'پیشنهاد ویژه');
+          setPromoLink(map.promoBarLink || '/products');
           if (map.promoBarExpiresAt) {
             setPromoExpiresAt(new Date(map.promoBarExpiresAt));
           }
           if (map.promoBarActive !== undefined) {
-            setPromoActive(Boolean(map.promoBarActive));
+            setPromoActive(map.promoBarActive === true || map.promoBarActive === 'true');
           }
         }
       })
@@ -47,7 +51,9 @@ export default function SettingsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           ...settings, 
-          promoBarText: promoText, 
+          promoBarText: promoText,
+          promoBarLabel: promoLabel,
+          promoBarLink: promoLink,
           promoBarExpiresAt: promoExpiresAt ? promoExpiresAt.toISOString() : null,
           promoBarActive: promoActive
         }),
@@ -64,10 +70,12 @@ export default function SettingsPage() {
   const handleDeletePromo = async () => {
     if (!confirm('آیا از حذف کامل نوار تبلیغاتی مطمئن هستید؟')) return;
     setPromoText('');
+    setPromoLabel('پیشنهاد ویژه');
+    setPromoLink('/products');
     setPromoExpiresAt(null);
     setPromoActive(false);
     
-    const newSettings = { ...settings, promoBarText: '', promoBarExpiresAt: null, promoBarActive: false };
+    const newSettings = { ...settings, promoBarText: '', promoBarLabel: 'پیشنهاد ویژه', promoBarLink: '/products', promoBarExpiresAt: null, promoBarActive: false };
     try {
       const res = await fetch('/api/admin/settings', {
         method: 'POST',
@@ -196,7 +204,30 @@ export default function SettingsPage() {
                 className="w-full rounded-xl border border-[#e9e5eb] bg-[#f8f7fa] px-4 py-3 text-sm outline-none transition-colors focus:border-[#c61d70] focus:bg-white" 
                 placeholder="مثلاً: ارسال رایگان برای خرید بالای ۵۰۰ هزار تومان" 
               />
-              <p className="text-[10px] text-[#77717b]">اگر خالی باشد، نوار تبلیغاتی نمایش داده نمی‌شود.</p>
+              <p className="text-[10px] text-[#77717b]">متن کامل نمایش داده می‌شود و در موبایل به‌صورت چندخطی می‌شکند؛ کوتاه و روشن بنویسید.</p>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-[#28242b]">برچسب کوچک کمپین</label>
+              <input
+                type="text"
+                value={promoLabel}
+                onChange={e => setPromoLabel(e.target.value)}
+                maxLength={32}
+                className="w-full rounded-xl border border-[#e9e5eb] bg-[#f8f7fa] px-4 py-3 text-sm outline-none transition-colors focus:border-[#c61d70] focus:bg-white"
+                placeholder="مثلاً: پیشنهاد ویژه"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-[#28242b]">لینک مقصد نوار</label>
+              <input
+                type="text"
+                value={promoLink}
+                onChange={e => setPromoLink(e.target.value)}
+                className="w-full rounded-xl border border-[#e9e5eb] bg-[#f8f7fa] px-4 py-3 text-left text-sm outline-none transition-colors focus:border-[#c61d70] focus:bg-white"
+                dir="ltr"
+                placeholder="/products یا https://..."
+              />
+              <p className="text-[10px] text-[#77717b]">مسیر داخلی مثل /products یا یک نشانی HTTPS معتبر.</p>
             </div>
             <div className="space-y-2 md:col-span-2">
               <label className="text-xs font-bold text-[#28242b]">تاریخ و ساعت پایان کمپین (اختیاری)</label>

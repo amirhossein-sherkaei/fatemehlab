@@ -1,87 +1,129 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { X, Sparkles, Clock } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { ArrowUpLeft, Clock3, Sparkles, X } from 'lucide-react';
 
 interface PromoBarProps {
   text: string;
+  label?: string;
   expiresAt: string | null;
   link?: string;
 }
 
-export default function PromoBar({ text, expiresAt, link = '/products' }: PromoBarProps) {
+type TimeLeft = { days: number; hours: number; minutes: number; seconds: number };
+
+function getTimeLeft(expiry: number): TimeLeft | null {
+  const distance = expiry - Date.now();
+  if (!Number.isFinite(distance) || distance <= 0) return null;
+  return {
+    days: Math.floor(distance / 86_400_000),
+    hours: Math.floor((distance % 86_400_000) / 3_600_000),
+    minutes: Math.floor((distance % 3_600_000) / 60_000),
+    seconds: Math.floor((distance % 60_000) / 1_000),
+  };
+}
+
+export default function PromoBar({
+  text,
+  label = 'پیشنهاد ویژه',
+  expiresAt,
+  link = '/products',
+}: PromoBarProps) {
   const [isVisible, setIsVisible] = useState(false);
-  const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number } | null>(null);
+  const [timeLeft, setTimeLeft] = useState<TimeLeft | null>(null);
+  const campaignKey = useMemo(
+    () => JSON.stringify([text, label, expiresAt, link]),
+    [text, label, expiresAt, link],
+  );
 
   useEffect(() => {
-    // بررسی اینکه آیا کاربر این "متن خاص" را قبلاً بسته است یا نه
-    const dismissedText = localStorage.getItem('promo-bar-dismissed-text');
-    if (dismissedText === text) return;
-
-    if (expiresAt) {
-      const expireTime = new Date(expiresAt).getTime();
-      if (expireTime < Date.now()) return;
-
-      const timer = setInterval(() => {
-        const now = Date.now();
-        const distance = expireTime - now;
-
-        if (distance < 0) {
-          clearInterval(timer);
-          setIsVisible(false);
-          return;
-        }
-
-        setTimeLeft({
-          days: Math.floor(distance / (1000 * 60 * 60 * 24)),
-          hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-          minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
-          seconds: Math.floor((distance % (1000 * 60)) / 1000),
-        });
-      }, 1000);
-
-      setIsVisible(true);
-      return () => clearInterval(timer);
-    } else {
-      setIsVisible(true);
+    let dismissed = false;
+    try {
+      dismissed = window.localStorage.getItem('fbl-promo-dismissed-campaign') === campaignKey;
+    } catch {
+      // The announcement should still work if browser storage is unavailable.
     }
-  }, [expiresAt, text]);
+
+    if (dismissed) {
+      setIsVisible(false);
+      return;
+    }
+
+    const expiry = expiresAt ? new Date(expiresAt).getTime() : null;
+    if (expiry !== null && (!Number.isFinite(expiry) || expiry <= Date.now())) {
+      setIsVisible(false);
+      setTimeLeft(null);
+      return;
+    }
+
+    setIsVisible(true);
+    if (expiry === null) {
+      setTimeLeft(null);
+      return;
+    }
+
+    const update = () => {
+      const remaining = getTimeLeft(expiry);
+      setTimeLeft(remaining);
+      if (!remaining) setIsVisible(false);
+    };
+
+    update();
+    const timer = window.setInterval(update, 1000);
+    return () => window.clearInterval(timer);
+  }, [campaignKey, expiresAt]);
 
   const handleDismiss = () => {
     setIsVisible(false);
-    // ذخیره متن فعلی برای اینکه اگر متن عوض شد، دوباره نمایش داده شود
-    localStorage.setItem('promo-bar-dismissed-text', text);
+    try {
+      window.localStorage.setItem('fbl-promo-dismissed-campaign', campaignKey);
+    } catch {
+      // Dismiss for this render even when local storage is blocked.
+    }
   };
 
-  if (!isVisible) return null;
+  if (!isVisible || !text.trim()) return null;
 
   return (
-    <div className="relative bg-gradient-to-r from-[#c61d70] via-[#e84e9e] to-[#c61d70] text-white shadow-md overflow-hidden z-[60]">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white/20 via-transparent to-transparent opacity-50 pointer-events-none animate-pulse" />
-      
-      <div className="container-custom flex items-center justify-between gap-4 py-2.5 relative z-10">
-        <Link href={link} className="flex-1 flex items-center justify-center gap-2 group text-xs md:text-sm font-bold hover:underline">
-          <Sparkles size={16} className="text-yellow-300 animate-bounce shrink-0" />
-          <span className="truncate text-center">{text}</span>
+    <aside className="fbl-promo-bar" role="region" aria-label="اطلاعیه و پیشنهاد ویژه فروشگاه">
+      <span className="fbl-promo-bar__sheen" aria-hidden="true" />
+      <div className="container-custom fbl-promo-bar__inner">
+        <Link href={link} className="fbl-promo-bar__link" aria-label={`${label}: ${text}`}>
+          <span className="fbl-promo-bar__mark" aria-hidden="true">
+            <Sparkles size={17} strokeWidth={1.8} />
+          </span>
+          <span className="fbl-promo-bar__copy">
+            <span className="fbl-promo-bar__label">{label}</span>
+            <span className="fbl-promo-bar__text">{text}</span>
+          </span>
+          <span className="fbl-promo-bar__cta">
+            مشاهده <ArrowUpLeft size={14} aria-hidden="true" />
+          </span>
         </Link>
 
         {timeLeft && (
-          <div className="hidden md:flex items-center gap-2 text-xs font-mono font-black bg-black/20 px-3 py-1.5 rounded-lg backdrop-blur-sm border border-white/10" dir="ltr">
-            <Clock size={12} />
+          <div className="fbl-promo-bar__countdown" aria-label="زمان باقی‌مانده تا پایان پیشنهاد" dir="ltr">
+            <Clock3 size={13} aria-hidden="true" />
             {timeLeft.days > 0 && <span>{timeLeft.days}d</span>}
-            <span>{String(timeLeft.hours).padStart(2, '0')}:{String(timeLeft.minutes).padStart(2, '0')}:{String(timeLeft.seconds).padStart(2, '0')}</span>
+            <strong>
+              {String(timeLeft.hours).padStart(2, '0')}:
+              {String(timeLeft.minutes).padStart(2, '0')}:
+              {String(timeLeft.seconds).padStart(2, '0')}
+            </strong>
           </div>
         )}
 
-        <button 
-          onClick={handleDismiss} 
-          className="p-1.5 hover:bg-white/20 rounded-full transition-colors shrink-0 flex items-center justify-center"
-          aria-label="بستن نوار تبلیغاتی"
+        <button
+          type="button"
+          onClick={handleDismiss}
+          className="fbl-promo-bar__close"
+          aria-label="بستن اطلاعیه"
+          title="بستن"
         >
-          <X size={20} />
+          <X size={17} aria-hidden="true" />
         </button>
       </div>
-    </div>
+    </aside>
   );
 }

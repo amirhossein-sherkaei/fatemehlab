@@ -148,7 +148,7 @@ export default async function ProductsPage({
               <span aria-current="page">محصولات</span>
             </nav>
             <div className="fbl-catalog-hero__copy">
-              <span className="fbl-catalog-eyebrow"><i aria-hidden="true" /> FATEMEH BEAUTY LAND <b>/</b> THE COLLECTION</span>
+              <span className="fbl-catalog-eyebrow" dir="ltr"><i aria-hidden="true" /><span>FATEMEH BEAUTY LAND</span><b>/</b><span>THE COLLECTION</span></span>
               <h1>زیبایی، با انتخابی آگاهانه.</h1>
               <p>محصولات را با آرامش ببینید، جزئیات را مقایسه کنید و انتخابی متناسب با نیاز خود داشته باشید.</p>
               <div className="fbl-catalog-hero__footnote">
@@ -176,7 +176,7 @@ export default async function ProductsPage({
               <label className="sr-only" htmlFor="fbl-product-search">جست‌وجوی محصولات</label>
               <Search size={19} aria-hidden="true" />
               <input id="fbl-product-search" type="search" name="q" defaultValue={searchTerm}
-                placeholder="نام محصول، برند یا عبارت موردنظر..." autoComplete="off" />
+                placeholder="نام محصول یا برند..." autoComplete="off" />
               {category && <input type="hidden" name="category" value={category} />}
               {brands && <input type="hidden" name="brands" value={brands} />}
               {skinTypes && <input type="hidden" name="skinTypes" value={skinTypes} />}

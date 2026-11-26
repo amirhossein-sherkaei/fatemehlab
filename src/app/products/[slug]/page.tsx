@@ -222,7 +222,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             </div>
           </div>
 
-          <div className="mt-12 md:mt-20 max-w-4xl mx-auto space-y-8">
+          <div className="fbl-product-detail-sections mt-12 md:mt-20 max-w-4xl mx-auto space-y-8">
             {specs.length > 0 && (
               <div className="bg-white rounded-2xl border border-[#e9e5eb] overflow-hidden shadow-sm">
                 <div className="p-4 border-b border-[#e9e5eb] bg-[#fafafc]">
@@ -240,21 +240,21 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             )}
 
             {product.ingredients && (
-              <div className="bg-white rounded-2xl border border-[#e9e5eb] p-6 shadow-sm">
+              <div className="fbl-product-info-card bg-white rounded-2xl border border-[#e9e5eb] p-6 shadow-sm">
                 <h3 className="text-sm font-black text-[#28242b] mb-3 flex items-center gap-2"><Droplets size={16} className="text-[#c61d70]" /> ترکیبات</h3>
                 <p className="text-xs leading-loose text-[#77717b]">{product.ingredients}</p>
               </div>
             )}
 
             {product.usage && (
-              <div className="bg-white rounded-2xl border border-[#e9e5eb] p-6 shadow-sm">
+              <div className="fbl-product-info-card bg-white rounded-2xl border border-[#e9e5eb] p-6 shadow-sm">
                 <h3 className="text-sm font-black text-[#28242b] mb-3 flex items-center gap-2"><Sparkles size={16} className="text-[#c61d70]" /> روش استفاده</h3>
                 <p className="text-xs leading-loose text-[#77717b]">{product.usage}</p>
               </div>
             )}
 
             {product.warnings && (
-              <div className="bg-amber-50 rounded-2xl border border-amber-200 p-6 shadow-sm">
+              <div className="fbl-product-info-card fbl-product-info-card--warning bg-amber-50 rounded-2xl border border-amber-200 p-6 shadow-sm">
                 <h3 className="text-sm font-black text-amber-800 mb-3 flex items-center gap-2"><ShieldAlert size={16} /> هشدارهای ایمنی</h3>
                 <p className="text-xs leading-loose text-amber-900/80">{product.warnings}</p>
               </div>

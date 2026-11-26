@@ -7860,3 +7860,391 @@ body {
   .fbl-luxe-shelf--autoplay .fbl-luxe-shelf__motion,
   .fbl-luxe-shelf--autoplay .fbl-luxe-shelf__arrows button { transition: none !important; }
 }
+
+/* ============================================================
+   FATEMEHLAB MOBILE EXPERIENCE REFINEMENT — NOV 2026
+   Promo announcement, stock-notify dialog and mobile safe areas.
+   ============================================================ */
+
+.fbl-promo-bar {
+  position: relative;
+  z-index: 60;
+  isolation: isolate;
+  overflow: hidden;
+  color: #fff;
+  background:
+    radial-gradient(ellipse at 12% 0%, rgba(255,255,255,.15), transparent 36%),
+    linear-gradient(108deg, #4b263d 0%, #71304f 36%, #96345f 72%, #692943 100%);
+  border-bottom: 1px solid rgba(255,255,255,.18);
+  box-shadow: 0 5px 18px rgba(69, 29, 51, .13);
+}
+.fbl-promo-bar__sheen {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  opacity: .22;
+  background: linear-gradient(112deg, transparent 20%, rgba(255,255,255,.22) 48%, transparent 72%);
+  transform: translateX(-110%);
+  animation: fbl-promo-sheen 9s ease-in-out infinite;
+}
+.fbl-promo-bar__inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-height: 58px;
+  padding-top: 7px;
+  padding-bottom: 7px;
+}
+.fbl-promo-bar__link {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+.fbl-promo-bar__mark {
+  display: grid;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,.26);
+  border-radius: 13px;
+  color: #ffe7af;
+  background: rgba(255,255,255,.11);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.18);
+}
+.fbl-promo-bar__copy {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  min-width: 0;
+}
+.fbl-promo-bar__label {
+  flex: 0 0 auto;
+  color: #ffe5b2;
+  font-size: 10px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+.fbl-promo-bar__text {
+  display: block;
+  min-width: 0;
+  color: rgba(255,255,255,.98);
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+  text-wrap: pretty;
+}
+.fbl-promo-bar__cta {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 5px;
+  min-height: 32px;
+  padding: 0 11px;
+  border: 1px solid rgba(255,255,255,.24);
+  border-radius: 999px;
+  color: #fff;
+  background: rgba(255,255,255,.1);
+  font-size: 10px;
+  font-weight: 850;
+  transition: background .2s ease, border-color .2s ease;
+}
+.fbl-promo-bar__link:hover .fbl-promo-bar__cta {
+  border-color: rgba(255,255,255,.48);
+  background: rgba(255,255,255,.19);
+}
+.fbl-promo-bar__countdown {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 0 11px;
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 11px;
+  color: rgba(255,255,255,.92);
+  background: rgba(20,10,17,.18);
+  font-size: 10px;
+}
+.fbl-promo-bar__countdown strong { color: #fff; font-variant-numeric: tabular-nums; }
+.fbl-promo-bar__close {
+  display: grid;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  place-items: center;
+  padding: 0;
+  border: 1px solid rgba(255,255,255,.22);
+  border-radius: 50%;
+  color: rgba(255,255,255,.88);
+  background: rgba(255,255,255,.08);
+  cursor: pointer;
+  transition: background .2s ease, transform .2s ease;
+}
+.fbl-promo-bar__close:hover { background: rgba(255,255,255,.18); transform: rotate(4deg); }
+.fbl-promo-bar a:focus-visible,
+.fbl-promo-bar button:focus-visible {
+  outline: 2px solid #ffe5b2;
+  outline-offset: 3px;
+}
+@keyframes fbl-promo-sheen {
+  0%, 62% { transform: translateX(-110%); }
+  85%, 100% { transform: translateX(110%); }
+}
+
+.fbl-stock-notify-overlay {
+  position: fixed;
+  z-index: 190;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+  background: rgba(31, 20, 29, .52);
+  -webkit-backdrop-filter: blur(7px);
+  backdrop-filter: blur(7px);
+  overscroll-behavior: contain;
+  animation: fbl-stock-overlay-in .18s ease-out both;
+}
+.fbl-stock-notify-dialog {
+  position: relative;
+  box-sizing: border-box;
+  width: min(100%, 460px);
+  max-height: min(86dvh, 680px, calc(var(--fbl-visual-viewport-height, 100dvh) - 32px));
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 30px 28px 26px;
+  border: 1px solid rgba(255,255,255,.82);
+  border-radius: 28px;
+  color: #30232d;
+  background: linear-gradient(160deg, #fff 0%, #fffafd 68%, #fdf4f8 100%);
+  box-shadow: 0 28px 90px rgba(26, 13, 23, .28), 0 5px 18px rgba(60, 32, 49, .09);
+  animation: fbl-stock-dialog-in .22s cubic-bezier(.2,.8,.2,1) both;
+}
+.fbl-stock-notify-close {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  border: 1px solid #eee3e9;
+  border-radius: 13px;
+  color: #786a74;
+  background: rgba(255,255,255,.9);
+  cursor: pointer;
+}
+.fbl-stock-notify-close:disabled { opacity: .45; cursor: not-allowed; }
+.fbl-stock-notify-heading { display: flex; flex-direction: column; align-items: center; padding: 5px 22px 0; text-align: center; }
+.fbl-stock-notify-icon {
+  display: grid;
+  width: 62px;
+  height: 62px;
+  place-items: center;
+  margin-bottom: 14px;
+  border: 1px solid #f5dce8;
+  border-radius: 21px;
+  color: #b83276;
+  background: linear-gradient(145deg, #fff4f9, #fce7f1);
+  box-shadow: 0 8px 22px rgba(184,50,118,.09), inset 0 1px 0 #fff;
+}
+.fbl-stock-notify-icon.is-success { color: #178553; border-color: #d6f1e3; background: #effbf4; }
+.fbl-stock-notify-kicker { color: #a35b7c; font-size: 9px; font-weight: 900; letter-spacing: .18em; }
+.fbl-stock-notify-heading h3,
+.fbl-stock-notify-success h3 { margin: 7px 0 0; color: #352532; font-size: 21px; font-weight: 900; line-height: 1.55; }
+.fbl-stock-notify-heading p,
+.fbl-stock-notify-success p { max-width: 330px; margin: 7px 0 0; color: #817580; font-size: 12px; line-height: 2; }
+.fbl-stock-notify-form { display: grid; gap: 12px; margin-top: 24px; }
+.fbl-stock-notify-form > label { color: #574653; font-size: 12px; font-weight: 800; }
+.fbl-stock-notify-input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 52px;
+  padding: 0 16px;
+  border: 1px solid #eadde5;
+  border-radius: 15px;
+  outline: none;
+  color: #382936;
+  background: #fff;
+  font-family: inherit;
+  font-size: 16px;
+  text-align: center;
+  transition: border-color .18s ease, box-shadow .18s ease;
+}
+.fbl-stock-notify-input:focus { border-color: #c0618e; box-shadow: 0 0 0 4px rgba(192,97,142,.11); }
+.fbl-stock-notify-hint { margin: -4px 0 0; color: #958892; font-size: 10px; line-height: 1.8; }
+.fbl-stock-notify-account-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid #f0dce7;
+  border-radius: 16px;
+  color: #6f5264;
+  background: #fff6fa;
+  font-size: 11px;
+  line-height: 1.95;
+}
+.fbl-stock-notify-account-note svg { flex: 0 0 auto; margin-top: 1px; color: #b83276; }
+.fbl-stock-notify-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: 100%;
+  min-height: 52px;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 15px;
+  color: #fff;
+  background: linear-gradient(105deg, #782c52, #b83276 68%, #c94d88);
+  box-shadow: 0 9px 22px rgba(172,47,108,.18);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+}
+.fbl-stock-notify-submit:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 12px 25px rgba(172,47,108,.23); }
+.fbl-stock-notify-submit:disabled { opacity: .58; cursor: wait; }
+.fbl-stock-notify-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  margin-top: 24px;
+  padding: 15px;
+  border: 1px solid #f0e3ea;
+  border-radius: 15px;
+  color: #76576a;
+  background: #fff8fb;
+  font-size: 11px;
+}
+.fbl-stock-notify-state.is-error { display: grid; justify-items: center; text-align: center; color: #94405c; background: #fff7f5; }
+.fbl-stock-notify-state p { margin: 0; line-height: 1.9; }
+.fbl-stock-notify-state button { min-height: 40px; padding: 0 16px; border: 1px solid #e9c7d8; border-radius: 11px; color: #9e3869; background: #fff; font: inherit; font-size: 11px; font-weight: 800; }
+.fbl-stock-notify-success { display: flex; flex-direction: column; align-items: center; padding: 24px 0 0; text-align: center; }
+.fbl-stock-notify-success .fbl-stock-notify-submit { margin-top: 25px; }
+@keyframes fbl-stock-overlay-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fbl-stock-dialog-in { from { opacity: .75; transform: translateY(9px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+@media (max-width: 767px) {
+  body:has(.fl-bottom-nav) { padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)) !important; }
+
+  .fbl-promo-bar__inner {
+    align-items: center;
+    gap: 8px;
+    min-height: 0;
+    padding: 10px 12px;
+  }
+  .fbl-promo-bar__link { align-items: flex-start; gap: 9px; }
+  .fbl-promo-bar__mark { flex-basis: 32px; width: 32px; height: 32px; margin-top: 2px; border-radius: 11px; }
+  .fbl-promo-bar__mark svg { width: 15px; height: 15px; }
+  .fbl-promo-bar__copy { display: block; padding: 0 0 1px; }
+  .fbl-promo-bar__label { display: block; margin-bottom: 2px; font-size: 9px; line-height: 1.5; }
+  .fbl-promo-bar__text { font-size: 12px; line-height: 1.85; font-weight: 800; white-space: normal; overflow: visible; }
+  .fbl-promo-bar__cta, .fbl-promo-bar__countdown { display: none; }
+  .fbl-promo-bar__close { flex-basis: 32px; width: 32px; height: 32px; min-width: 32px; min-height: 32px; margin-inline-start: 1px; }
+
+  .fbl-stock-notify-overlay {
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0;
+  }
+  .fbl-stock-notify-dialog {
+    width: 100%;
+    max-width: none;
+    max-height: min(88dvh, 720px, calc(var(--fbl-visual-viewport-height, 100dvh) - 12px));
+    padding: 28px 20px calc(20px + env(safe-area-inset-bottom, 0px));
+    border-right: 0;
+    border-bottom: 0;
+    border-left: 0;
+    border-radius: 27px 27px 0 0;
+    box-shadow: 0 -14px 50px rgba(26,13,23,.18);
+  }
+  .fbl-stock-notify-heading { padding-inline: 18px; }
+  .fbl-stock-notify-heading h3, .fbl-stock-notify-success h3 { font-size: 19px; }
+  .fbl-stock-notify-form { margin-top: 20px; }
+}
+@media (max-width: 380px) {
+  .fbl-stock-notify-dialog { padding-inline: 16px; }
+  .fbl-stock-notify-heading { padding-inline: 12px; }
+  .fbl-stock-notify-heading p, .fbl-stock-notify-success p { font-size: 11px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fbl-promo-bar__sheen,
+  .fbl-stock-notify-overlay,
+  .fbl-stock-notify-dialog { animation: none !important; }
+  .fbl-promo-bar *, .fbl-stock-notify-dialog * { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+}
+
+@media (max-width: 700px) {
+  .fbl-catalog-eyebrow {
+    direction: ltr;
+    display: flex;
+    width: 100%;
+    max-width: 100%;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 6px 8px;
+    font-size: 9px;
+    line-height: 1.65;
+    letter-spacing: .095em;
+    text-align: left;
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+  .fbl-catalog-eyebrow i { flex: 0 0 7px; }
+  .fbl-catalog-hero__copy > p { overflow-wrap: normal; word-break: normal; }
+  .fbl-product-detail-sections {
+    margin-top: 34px !important;
+    display: grid;
+    gap: 14px !important;
+  }
+  .fbl-product-info-card {
+    padding: 18px !important;
+    border-radius: 18px !important;
+    box-shadow: 0 7px 22px rgba(65, 37, 54, .045) !important;
+  }
+  .fbl-product-info-card h3 {
+    margin-bottom: 8px !important;
+    font-size: 13px !important;
+    line-height: 1.7 !important;
+  }
+  .fbl-product-info-card p {
+    font-size: 12px !important;
+    line-height: 2.05 !important;
+    overflow-wrap: anywhere;
+  }
+}
+.fbl-stock-notify-profile-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 15px;
+  border: 1px solid #e6bfd1;
+  border-radius: 12px;
+  color: #9b3768;
+  background: #fff;
+  font-size: 11px;
+  font-weight: 850;
+  text-decoration: none;
+}
