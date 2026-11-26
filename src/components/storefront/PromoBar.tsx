@@ -45,22 +45,20 @@ export default function PromoBar({
 }: PromoBarProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [timeLeft, setTimeLeft] = useState<TimeLeft | null>(null);
+
   const campaignKey = useMemo(
     () => JSON.stringify([text, label, expiresAt, link]),
     [text, label, expiresAt, link],
   );
 
   useEffect(() => {
-    let dismissed = false;
     try {
-      dismissed = window.localStorage.getItem('fbl-promo-dismissed-campaign') === campaignKey;
+      if (window.localStorage.getItem('fbl-promo-dismissed-campaign') === campaignKey) {
+        setIsVisible(false);
+        return;
+      }
     } catch {
       // Keep the campaign available when browser storage is restricted.
-    }
-
-    if (dismissed) {
-      setIsVisible(false);
-      return;
     }
 
     const expiry = expiresAt ? new Date(expiresAt).getTime() : null;
@@ -71,6 +69,7 @@ export default function PromoBar({
     }
 
     setIsVisible(true);
+
     if (expiry === null) {
       setTimeLeft(null);
       return;
@@ -87,9 +86,11 @@ export default function PromoBar({
     };
 
     if (!updateCountdown()) return;
+
     const timer = window.setInterval(() => {
       if (!updateCountdown()) window.clearInterval(timer);
     }, 1000);
+
     return () => window.clearInterval(timer);
   }, [campaignKey, expiresAt]);
 
@@ -113,6 +114,7 @@ export default function PromoBar({
     >
       <span className="fbl-campaign-ribbon__glow" aria-hidden="true" />
       <span className="fbl-campaign-ribbon__sheen" aria-hidden="true" />
+      <span className="fbl-campaign-ribbon__ornament" aria-hidden="true">F</span>
 
       <div className="container-custom fbl-campaign-ribbon__inner">
         <Link
@@ -121,15 +123,17 @@ export default function PromoBar({
           aria-label={`${label}: ${text}`}
         >
           <span className="fbl-campaign-ribbon__seal" aria-hidden="true">
-            <span className="fbl-campaign-ribbon__seal-ring">
-              <Sparkles size={17} strokeWidth={1.7} />
+            <span className="fbl-campaign-ribbon__seal-frame">
+              <span className="fbl-campaign-ribbon__monogram">F</span>
+              <Sparkles className="fbl-campaign-ribbon__seal-sparkle" size={11} strokeWidth={1.7} />
             </span>
           </span>
 
           <span className="fbl-campaign-ribbon__copy">
             <span className="fbl-campaign-ribbon__eyebrow">
-              <span className="fbl-campaign-ribbon__eyebrow-dot" aria-hidden="true" />
-              {label}
+              <span className="fbl-campaign-ribbon__live-dot" aria-hidden="true" />
+              <span>{label}</span>
+              <span className="fbl-campaign-ribbon__brand">FATEMEH BEAUTY LAND</span>
             </span>
             <span className="fbl-campaign-ribbon__message">{text}</span>
           </span>
@@ -143,18 +147,32 @@ export default function PromoBar({
         {timeLeft && (
           <div
             className="fbl-campaign-ribbon__countdown"
-            aria-label="زمان باقی‌مانده تا پایان پیشنهاد"
-            dir="ltr"
+            aria-label={`زمان باقی‌مانده: ${timeLeft.days} روز، ${timeLeft.hours} ساعت، ${timeLeft.minutes} دقیقه و ${timeLeft.seconds} ثانیه`}
+            aria-live="off"
+            dir="rtl"
           >
-            <Clock3 size={13} aria-hidden="true" />
-            {timeLeft.days > 0 && (
-              <span className="fbl-campaign-ribbon__days">
-                {new Intl.NumberFormat('fa-IR').format(timeLeft.days)} روز
+            <span className="fbl-campaign-ribbon__countdown-label">
+              <Clock3 size={13} strokeWidth={1.8} aria-hidden="true" />
+              <span>فرصت باقی‌مانده</span>
+            </span>
+            <span className="fbl-campaign-ribbon__countdown-units" dir="ltr">
+              <span className="fbl-campaign-ribbon__time-unit">
+                <strong>{toFaDigits(timeLeft.days)}</strong>
+                <small>روز</small>
               </span>
-            )}
-            <strong>
-              {toFaDigits(timeLeft.hours)}:{toFaDigits(timeLeft.minutes)}:{toFaDigits(timeLeft.seconds)}
-            </strong>
+              <span className="fbl-campaign-ribbon__time-unit">
+                <strong>{toFaDigits(timeLeft.hours)}</strong>
+                <small>ساعت</small>
+              </span>
+              <span className="fbl-campaign-ribbon__time-unit">
+                <strong>{toFaDigits(timeLeft.minutes)}</strong>
+                <small>دقیقه</small>
+              </span>
+              <span className="fbl-campaign-ribbon__time-unit fbl-campaign-ribbon__time-unit--seconds">
+                <strong>{toFaDigits(timeLeft.seconds)}</strong>
+                <small>ثانیه</small>
+              </span>
+            </span>
           </div>
         )}
 

@@ -8525,3 +8525,374 @@ body {
   .fbl-campaign-ribbon__sheen { animation: none !important; }
   .fbl-campaign-ribbon *, .fbl-campaign-ribbon *::before, .fbl-campaign-ribbon *::after { transition-duration: .01ms !important; }
 }
+
+/* ============================================================
+   FBL CAMPAIGN RIBBON — SIGNATURE EDITION V2
+   Premium editorial campaign strip + always-visible mobile countdown.
+   ============================================================ */
+.fbl-campaign-ribbon {
+  --fbl-ribbon-ink: #20111d;
+  --fbl-ribbon-plum: #351728;
+  --fbl-ribbon-wine: #5a1f3b;
+  --fbl-ribbon-rose: #a83b70;
+  --fbl-ribbon-gold: #e8c995;
+  position: relative;
+  z-index: 60;
+  isolation: isolate;
+  overflow: hidden;
+  color: #fffafd;
+  border-top: 1px solid rgba(255, 240, 215, .26);
+  border-bottom: 1px solid rgba(232, 201, 149, .48);
+  background:
+    radial-gradient(34rem 13rem at 74% -125%, rgba(247, 210, 169, .29), transparent 70%),
+    radial-gradient(26rem 9rem at 9% 145%, rgba(195, 54, 119, .28), transparent 69%),
+    linear-gradient(112deg, #1f101b 0%, #321728 27%, #55213b 63%, #351629 100%);
+  box-shadow: 0 7px 28px rgba(46, 17, 35, .19), inset 0 1px 0 rgba(255,255,255,.08);
+}
+.fbl-campaign-ribbon::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 1px 0 auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(248,225,188,.9) 20%, rgba(255,255,255,.62) 50%, rgba(248,225,188,.85) 80%, transparent);
+  pointer-events: none;
+}
+.fbl-campaign-ribbon::after {
+  content: "F";
+  position: absolute;
+  z-index: -1;
+  left: clamp(110px, 16vw, 290px);
+  top: 50%;
+  transform: translateY(-57%);
+  color: rgba(255,255,255,.045);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(64px, 8vw, 112px);
+  font-weight: 700;
+  font-style: italic;
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+}
+.fbl-campaign-ribbon__glow {
+  position: absolute;
+  z-index: -1;
+  top: -105px;
+  right: 33%;
+  width: 340px;
+  height: 190px;
+  border-radius: 50%;
+  background: rgba(229, 167, 196, .13);
+  filter: blur(48px);
+  pointer-events: none;
+}
+.fbl-campaign-ribbon__sheen {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: linear-gradient(108deg, transparent 28%, rgba(255,255,255,.09) 49%, transparent 68%);
+  transform: translateX(-115%);
+  animation: fbl-campaign-signature-sheen 13s cubic-bezier(.4,0,.2,1) infinite;
+  pointer-events: none;
+}
+.fbl-campaign-ribbon__ornament {
+  position: absolute;
+  z-index: -1;
+  right: 50%;
+  top: 50%;
+  transform: translate(50%,-50%);
+  color: rgba(245,219,183,.045);
+  font: italic 700 116px/1 Georgia, serif;
+  pointer-events: none;
+  user-select: none;
+}
+.fbl-campaign-ribbon__inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 78px;
+  padding-block: 10px;
+}
+.fbl-campaign-ribbon__link {
+  display: grid;
+  grid-template-columns: 46px minmax(0,1fr) auto;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 13px;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.fbl-campaign-ribbon__seal {
+  position: relative;
+  display: grid;
+  width: 46px;
+  height: 46px;
+  place-items: center;
+  border: 1px solid rgba(235,205,160,.65);
+  border-radius: 16px;
+  background: linear-gradient(145deg, rgba(255,255,255,.18), rgba(255,255,255,.045));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 5px 18px rgba(0,0,0,.17);
+}
+.fbl-campaign-ribbon__seal::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 1px solid rgba(235,205,160,.31);
+  border-radius: 12px;
+}
+.fbl-campaign-ribbon__seal-frame {
+  position: relative;
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 1px solid rgba(255,239,212,.32);
+  border-radius: 50%;
+  color: #f6dbb2;
+  background: rgba(255,255,255,.055);
+}
+.fbl-campaign-ribbon__monogram {
+  font: italic 700 20px/1 Georgia, "Times New Roman", serif;
+  transform: translateY(-1px);
+}
+.fbl-campaign-ribbon__seal-sparkle {
+  position: absolute;
+  right: -5px;
+  top: -5px;
+  color: #fff0cd;
+  filter: drop-shadow(0 0 5px rgba(248,219,170,.55));
+}
+.fbl-campaign-ribbon__copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 3px;
+  min-width: 0;
+}
+.fbl-campaign-ribbon__eyebrow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  color: #f5d9b3;
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1.5;
+}
+.fbl-campaign-ribbon__live-dot {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 6px;
+  border-radius: 50%;
+  background: #f6d8a9;
+  box-shadow: 0 0 0 3px rgba(246,216,169,.13), 0 0 13px rgba(246,216,169,.62);
+}
+.fbl-campaign-ribbon__brand {
+  padding-inline-start: 8px;
+  border-inline-start: 1px solid rgba(245,217,179,.29);
+  color: rgba(255,246,236,.54);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: .16em;
+  direction: ltr;
+}
+.fbl-campaign-ribbon__message {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  color: #fffafd;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.8;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  text-wrap: pretty;
+}
+.fbl-campaign-ribbon__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 37px;
+  padding: 0 15px;
+  border: 1px solid rgba(240,211,171,.51);
+  border-radius: 999px;
+  color: #f9e8cf;
+  background: linear-gradient(135deg, rgba(255,255,255,.17), rgba(255,255,255,.055));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.16), 0 4px 12px rgba(0,0,0,.09);
+  font-size: 10px;
+  font-weight: 900;
+  white-space: nowrap;
+  transition: transform .2s ease, background .2s ease, border-color .2s ease;
+}
+.fbl-campaign-ribbon__link:hover .fbl-campaign-ribbon__cta {
+  transform: translateY(-1px);
+  border-color: rgba(255,233,196,.82);
+  background: rgba(255,255,255,.18);
+}
+.fbl-campaign-ribbon__countdown {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 9px;
+  min-height: 47px;
+  padding: 5px 9px;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 15px;
+  color: #fff8f3;
+  background: linear-gradient(135deg, rgba(15,7,13,.34), rgba(255,255,255,.075));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 5px 18px rgba(0,0,0,.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.fbl-campaign-ribbon__countdown-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #f1d7b5;
+  font-size: 9px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.fbl-campaign-ribbon__countdown-label svg { color: #f2d2a2; }
+.fbl-campaign-ribbon__countdown-units {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.fbl-campaign-ribbon__time-unit {
+  display: grid;
+  min-width: 34px;
+  min-height: 35px;
+  padding: 3px 4px 2px;
+  place-content: center;
+  justify-items: center;
+  gap: 1px;
+  border: 1px solid rgba(246,221,190,.2);
+  border-radius: 8px;
+  background: linear-gradient(180deg, rgba(255,255,255,.13), rgba(255,255,255,.045));
+  font-variant-numeric: tabular-nums;
+}
+.fbl-campaign-ribbon__time-unit strong {
+  color: #fff;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: .015em;
+}
+.fbl-campaign-ribbon__time-unit small {
+  color: rgba(248,226,204,.73);
+  font-size: 7px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.fbl-campaign-ribbon__time-unit--seconds {
+  border-color: rgba(238,190,207,.38);
+  background: linear-gradient(180deg, rgba(176,63,111,.36), rgba(255,255,255,.07));
+}
+.fbl-campaign-ribbon__close {
+  display: grid;
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  min-height: 34px;
+  place-items: center;
+  padding: 0;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 50%;
+  color: rgba(255,255,255,.88);
+  background: rgba(255,255,255,.065);
+  cursor: pointer;
+  transition: color .18s ease, background .18s ease, border-color .18s ease, transform .18s ease;
+}
+.fbl-campaign-ribbon__close:hover {
+  color: #fff;
+  border-color: rgba(255,255,255,.48);
+  background: rgba(255,255,255,.16);
+  transform: rotate(8deg);
+}
+.fbl-campaign-ribbon__link:focus-visible,
+.fbl-campaign-ribbon__close:focus-visible {
+  outline: 2px solid #f4d7a7;
+  outline-offset: 3px;
+}
+@keyframes fbl-campaign-signature-sheen {
+  0%, 76% { transform: translateX(-115%); }
+  91%, 100% { transform: translateX(115%); }
+}
+@media (max-width: 1100px) {
+  .fbl-campaign-ribbon__inner { gap: 8px; min-height: 73px; }
+  .fbl-campaign-ribbon__link { grid-template-columns: 40px minmax(0,1fr) 31px; gap: 9px; }
+  .fbl-campaign-ribbon__seal { width: 40px; height: 40px; border-radius: 14px; }
+  .fbl-campaign-ribbon__seal-frame { width: 27px; height: 27px; }
+  .fbl-campaign-ribbon__monogram { font-size: 18px; }
+  .fbl-campaign-ribbon__cta { width: 31px; min-height: 31px; padding: 0; border-radius: 10px; }
+  .fbl-campaign-ribbon__cta span { display: none; }
+  .fbl-campaign-ribbon__countdown { gap: 6px; padding-inline: 7px; }
+}
+@media (max-width: 900px) {
+  .fbl-campaign-ribbon__inner {
+    display: grid;
+    grid-template-columns: minmax(0,1fr) 30px;
+    grid-template-areas: "link close" "timer timer";
+    gap: 8px 7px;
+    min-height: 0;
+    padding-block: 10px;
+  }
+  .fbl-campaign-ribbon__link { grid-area: link; grid-template-columns: 38px minmax(0,1fr) 29px; gap: 8px; }
+  .fbl-campaign-ribbon__seal { width: 38px; height: 38px; border-radius: 13px; }
+  .fbl-campaign-ribbon__seal-frame { width: 26px; height: 26px; }
+  .fbl-campaign-ribbon__countdown {
+    display: flex !important;
+    grid-area: timer;
+    justify-self: center;
+    width: max-content;
+    max-width: 100%;
+    min-height: 42px;
+    gap: 9px;
+    padding: 4px 10px;
+    border-radius: 13px;
+  }
+  .fbl-campaign-ribbon__countdown-label { font-size: 9px; }
+  .fbl-campaign-ribbon__countdown-units { gap: 4px; }
+  .fbl-campaign-ribbon__time-unit { min-width: 36px; min-height: 32px; }
+  .fbl-campaign-ribbon__time-unit strong { font-size: 12px; }
+  .fbl-campaign-ribbon__time-unit small { font-size: 7px; }
+  .fbl-campaign-ribbon__close { grid-area: close; align-self: start; width: 30px; height: 30px; min-width: 30px; min-height: 30px; }
+}
+@media (max-width: 420px) {
+  .fbl-campaign-ribbon__inner { padding: 9px 11px; gap: 7px 6px; }
+  .fbl-campaign-ribbon__link { grid-template-columns: 35px minmax(0,1fr) 27px; gap: 7px; }
+  .fbl-campaign-ribbon__seal { width: 35px; height: 35px; border-radius: 12px; }
+  .fbl-campaign-ribbon__seal::before { inset: 3px; border-radius: 9px; }
+  .fbl-campaign-ribbon__seal-frame { width: 24px; height: 24px; }
+  .fbl-campaign-ribbon__monogram { font-size: 16px; }
+  .fbl-campaign-ribbon__eyebrow { gap: 5px; font-size: 8px; }
+  .fbl-campaign-ribbon__brand { font-size: 7px; letter-spacing: .11em; }
+  .fbl-campaign-ribbon__message { font-size: 11.5px; line-height: 1.72; }
+  .fbl-campaign-ribbon__cta { width: 27px; min-height: 27px; border-radius: 9px; }
+  .fbl-campaign-ribbon__countdown { gap: 6px; min-height: 39px; padding: 3px 7px; }
+  .fbl-campaign-ribbon__countdown-label { gap: 4px; font-size: 8px; }
+  .fbl-campaign-ribbon__countdown-label svg { width: 11px; height: 11px; }
+  .fbl-campaign-ribbon__countdown-units { gap: 3px; }
+  .fbl-campaign-ribbon__time-unit { min-width: 33px; min-height: 30px; padding: 2px 3px; border-radius: 7px; }
+  .fbl-campaign-ribbon__time-unit strong { font-size: 11px; }
+  .fbl-campaign-ribbon__time-unit small { font-size: 6.5px; }
+}
+@media (max-width: 350px) {
+  .fbl-campaign-ribbon__inner { padding-inline: 8px; }
+  .fbl-campaign-ribbon__countdown { gap: 4px; padding-inline: 5px; }
+  .fbl-campaign-ribbon__countdown-label { font-size: 7px; }
+  .fbl-campaign-ribbon__time-unit { min-width: 30px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fbl-campaign-ribbon__sheen { animation: none !important; }
+  .fbl-campaign-ribbon *, .fbl-campaign-ribbon *::before, .fbl-campaign-ribbon *::after { transition-duration: .01ms !important; }
+}
