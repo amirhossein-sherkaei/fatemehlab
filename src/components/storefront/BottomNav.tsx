@@ -43,12 +43,12 @@ export default function BottomNav() {
 
   return createPortal(
     <nav
-      className="fbl-petal-signature-dock-v5 md:hidden"
+      className="fbl-atelier-dock-v6 md:hidden"
       dir="rtl"
       aria-label="ناوبری اصلی فروشگاه"
     >
-      <div className="fbl-petal-signature-dock-v5__surface">
-        <span className="fbl-petal-signature-dock-v5__edge-light" aria-hidden="true" />
+      <div className="fbl-atelier-dock-v6__rail">
+        <span className="fbl-atelier-dock-v6__shine" aria-hidden="true" />
         {ITEMS.map((item) => {
           const active = item.match === 'exact'
             ? pathname === item.href
@@ -60,7 +60,7 @@ export default function BottomNav() {
               key={item.href}
               href={item.href}
               className={
-                'fbl-petal-signature-dock-v5__item' +
+                'fbl-atelier-dock-v6__item' +
                 (active ? ' is-active' : '')
               }
               aria-label={item.label}
@@ -68,17 +68,12 @@ export default function BottomNav() {
               title={item.label}
               prefetch
             >
-              <span className="fbl-petal-signature-dock-v5__icon" aria-hidden="true">
-                <Icon size={22} strokeWidth={active ? 2.15 : 1.8} />
+              <span className="fbl-atelier-dock-v6__icon" aria-hidden="true">
+                <Icon size={23} strokeWidth={active ? 2.05 : 1.75} />
               </span>
-              <span className="fbl-petal-signature-dock-v5__label">
-                {item.label}
-              </span>
+              <span className="fbl-atelier-dock-v6__label">{item.label}</span>
               {active ? (
-                <span
-                  className="fbl-petal-signature-dock-v5__active-mark"
-                  aria-hidden="true"
-                />
+                <span className="fbl-atelier-dock-v6__active-dot" aria-hidden="true" />
               ) : null}
             </Link>
           );

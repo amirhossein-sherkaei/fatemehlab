@@ -10285,3 +10285,283 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+
+/* ==========================================================================
+   FBL ATELIER DOCK V6
+   Floating porcelain rail, unboxed inactive icons, rose-gold active medallion.
+   ========================================================================== */
+
+@media (max-width: 767px) {
+  body:has(nav.fbl-atelier-dock-v6) {
+    padding-bottom: calc(128px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  nav.fbl-atelier-dock-v6 {
+    position: fixed !important;
+    inset-inline: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+    z-index: 96 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 13px !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+    transform: none !important;
+    translate: none !important;
+    background: transparent !important;
+    pointer-events: none !important;
+    isolation: isolate !important;
+  }
+
+  nav.fbl-atelier-dock-v6 .fbl-atelier-dock-v6__rail {
+    position: relative !important;
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    align-items: center !important;
+    gap: 2px !important;
+    width: min(500px, 100%) !important;
+    max-width: 500px !important;
+    min-width: 0 !important;
+    height: 88px !important;
+    margin: 0 auto !important;
+    padding: 8px 9px 7px !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+    border: 1px solid rgba(190, 155, 166, .34) !important;
+    border-radius: 29px !important;
+    background:
+      radial-gradient(ellipse at 50% -45%, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 67%),
+      radial-gradient(ellipse at 0% 120%, rgba(246,220,232,.58) 0%, rgba(246,220,232,0) 48%),
+      radial-gradient(ellipse at 100% 120%, rgba(239,225,208,.45) 0%, rgba(239,225,208,0) 47%),
+      linear-gradient(155deg, rgba(255,255,255,.985), rgba(255,250,252,.97) 58%, rgba(249,241,245,.985)) !important;
+    box-shadow:
+      0 18px 42px rgba(72, 39, 57, .14),
+      0 4px 12px rgba(186, 86, 132, .065),
+      inset 0 1px 0 rgba(255,255,255,.99),
+      inset 0 -1px 0 rgba(190,155,166,.16) !important;
+    -webkit-backdrop-filter: blur(25px) saturate(168%) !important;
+    backdrop-filter: blur(25px) saturate(168%) !important;
+    pointer-events: auto !important;
+    isolation: isolate !important;
+  }
+
+  nav.fbl-atelier-dock-v6 .fbl-atelier-dock-v6__rail::before {
+    content: '' !important;
+    position: absolute !important;
+    inset: 4px !important;
+    z-index: -1 !important;
+    border: 1px solid rgba(255,255,255,.72) !important;
+    border-radius: 24px !important;
+    pointer-events: none !important;
+  }
+
+  nav.fbl-atelier-dock-v6 .fbl-atelier-dock-v6__shine {
+    position: absolute !important;
+    top: 0 !important;
+    left: 28px !important;
+    right: 28px !important;
+    height: 1px !important;
+    border-radius: 99px !important;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.98) 18%, rgba(198,164,125,.65) 50%, rgba(255,255,255,.98) 82%, transparent) !important;
+    pointer-events: none !important;
+  }
+
+  nav.fbl-atelier-dock-v6 .fbl-atelier-dock-v6__item {
+    position: relative !important;
+    display: grid !important;
+    grid-template-rows: 49px 19px !important;
+    justify-items: center !important;
+    align-content: center !important;
+    align-items: center !important;
+    gap: 1px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    min-height: 72px !important;
+    margin: 0 !important;
+    padding: 3px 1px 4px !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+    border: 1px solid transparent !important;
+    border-radius: 22px !important;
+    background: transparent !important;
+    color: #8b7c85 !important;
+    text-align: center !important;
+    text-decoration: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+    touch-action: manipulation !important;
+    transition: color .2s ease, transform .2s ease !important;
+  }
+
+  /* Inactive items stay intentionally unboxed: less visual noise and more air. */
+  nav.fbl-atelier-dock-v6 .fbl-atelier-dock-v6__icon {
+    position: relative !important;
+    display: grid !important;
+    place-items: center !important;
+    width: 46px !important;
+    height: 46px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    border: 1px solid transparent !important;
+    border-radius: 50% !important;
+    background: transparent !important;
+    color: #927b88 !important;
+    transition:
+      color .2s ease,
+      background .22s ease,
+      border-color .22s ease,
+      box-shadow .22s ease,
+      transform .22s cubic-bezier(.2,.8,.2,1) !important;
+  }
+
+  nav.fbl-atelier-dock-v6 .fbl-atelier-dock-v6__icon svg {
+    display: block !important;
+    width: 23px !important;
+    height: 23px !important;
+    color: inherit !important;
+    flex: none !important;
+  }
+
+  /* Active item becomes the signature rose-enamel medallion. */
+  nav.fbl-atelier-dock-v6 .fbl-atelier-dock-v6__item.is-active {
+    color: #a51e62 !important;
+  }
+
+  nav.fbl-atelier-dock-v6 .fbl-atelier-dock-v6__item.is-active .fbl-atelier-dock-v6__icon {
+    transform: translateY(-7px) !important;
+    border: 1px solid rgba(255,255,255,.9) !important;
+    background:
+      radial-gradient(circle at 34% 20%, rgba(255,255,255,.52), transparent 42%),
+      linear-gradient(145deg, #e77eae 0%, #d43d89 46%, #a91861 100%) !important;
+    color: #fff !important;
+    box-shadow:
+      0 8px 17px rgba(165, 26, 93, .24),
+      0 2px 5px rgba(94, 18, 56, .13),
+      inset 0 1px 0 rgba(255,255,255,.68),
+      inset 0 -2px 4px rgba(91, 13, 52, .16) !important;
+  }
+
+  nav.fbl-atelier-dock-v6 .fbl-atelier-dock-v6__item.is-active .fbl-atelier-dock-v6__icon::after {
+    content: '' !important;
+    position: absolute !important;
+    inset: -4px !important;
+    border: 1px solid rgba(196, 153, 112, .58) !important;
+    border-radius: 50% !important;
+    pointer-events: none !important;
+  }
+
+  nav.fbl-atelier-dock-v6 .fbl-atelier-dock-v6__label {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    color: inherit !important;
+    font-family: var(--font-vazirmatn), Tahoma, Arial, sans-serif !important;
+    font-size: clamp(9px, 2.5vw, 10.5px) !important;
+    font-weight: 650 !important;
+    line-height: 1.5 !important;
+    letter-spacing: -.035em !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+    transition: color .2s ease, font-weight .2s ease !important;
+  }
+
+  nav.fbl-atelier-dock-v6 .fbl-atelier-dock-v6__item.is-active .fbl-atelier-dock-v6__label {
+    color: #9c1c5b !important;
+    font-weight: 900 !important;
+  }
+
+  nav.fbl-atelier-dock-v6 .fbl-atelier-dock-v6__active-dot {
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 50% !important;
+    display: block !important;
+    width: 13px !important;
+    height: 2px !important;
+    border-radius: 99px !important;
+    background: linear-gradient(90deg, #d34d91, #c7a477) !important;
+    box-shadow: 0 0 7px rgba(195, 72, 132, .22) !important;
+    transform: translateX(-50%) !important;
+  }
+
+  nav.fbl-atelier-dock-v6 .fbl-atelier-dock-v6__item:active {
+    transform: scale(.965) !important;
+  }
+
+  nav.fbl-atelier-dock-v6 .fbl-atelier-dock-v6__item:focus-visible {
+    outline: 2px solid #b72b73 !important;
+    outline-offset: 2px !important;
+  }
+
+  .fbl-support-float.is-above-bottom-nav {
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px) + 88px + 13px) !important;
+  }
+}
+
+@media (max-width: 380px) {
+  nav.fbl-atelier-dock-v6 { padding-inline: 7px !important; }
+  nav.fbl-atelier-dock-v6 .fbl-atelier-dock-v6__rail {
+    gap: 0 !important;
+    padding-inline: 4px !important;
+  }
+  nav.fbl-atelier-dock-v6 .fbl-atelier-dock-v6__item {
+    padding-inline: 0 !important;
+  }
+  nav.fbl-atelier-dock-v6 .fbl-atelier-dock-v6__icon {
+    width: 43px !important;
+    height: 43px !important;
+  }
+  nav.fbl-atelier-dock-v6 .fbl-atelier-dock-v6__label {
+    font-size: clamp(8.5px, 2.45vw, 9.2px) !important;
+  }
+}
+
+@media (max-height: 650px) and (max-width: 767px) {
+  nav.fbl-atelier-dock-v6 {
+    bottom: calc(5px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  nav.fbl-atelier-dock-v6 .fbl-atelier-dock-v6__rail {
+    height: 76px !important;
+  }
+  nav.fbl-atelier-dock-v6 .fbl-atelier-dock-v6__item {
+    grid-template-rows: 41px 17px !important;
+    min-height: 62px !important;
+  }
+  nav.fbl-atelier-dock-v6 .fbl-atelier-dock-v6__icon {
+    width: 38px !important;
+    height: 38px !important;
+  }
+  .fbl-support-float.is-above-bottom-nav {
+    bottom: calc(5px + env(safe-area-inset-bottom, 0px) + 76px + 12px) !important;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) and (max-width: 767px) {
+  nav.fbl-atelier-dock-v6 .fbl-atelier-dock-v6__item:not(.is-active):hover {
+    color: #b32670 !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  nav.fbl-atelier-dock-v6,
+  nav.fbl-atelier-dock-v6 *,
+  nav.fbl-atelier-dock-v6 *::before,
+  nav.fbl-atelier-dock-v6 *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
