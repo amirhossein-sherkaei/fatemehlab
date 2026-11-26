@@ -11,17 +11,30 @@ interface PromoBarProps {
   link?: string;
 }
 
-type TimeLeft = { days: number; hours: number; minutes: number; seconds: number };
+type TimeLeft = {
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+};
 
 function getTimeLeft(expiry: number): TimeLeft | null {
   const distance = expiry - Date.now();
   if (!Number.isFinite(distance) || distance <= 0) return null;
+
   return {
     days: Math.floor(distance / 86_400_000),
     hours: Math.floor((distance % 86_400_000) / 3_600_000),
     minutes: Math.floor((distance % 3_600_000) / 60_000),
     seconds: Math.floor((distance % 60_000) / 1_000),
   };
+}
+
+function toFaDigits(value: number, minimumDigits = 2): string {
+  return new Intl.NumberFormat('fa-IR', {
+    minimumIntegerDigits: minimumDigits,
+    useGrouping: false,
+  }).format(value);
 }
 
 export default function PromoBar({
@@ -42,7 +55,7 @@ export default function PromoBar({
     try {
       dismissed = window.localStorage.getItem('fbl-promo-dismissed-campaign') === campaignKey;
     } catch {
-      // The announcement should still work if browser storage is unavailable.
+      // Keep the campaign available when browser storage is restricted.
     }
 
     if (dismissed) {
@@ -63,14 +76,20 @@ export default function PromoBar({
       return;
     }
 
-    const update = () => {
+    const updateCountdown = () => {
       const remaining = getTimeLeft(expiry);
       setTimeLeft(remaining);
-      if (!remaining) setIsVisible(false);
+      if (!remaining) {
+        setIsVisible(false);
+        return false;
+      }
+      return true;
     };
 
-    update();
-    const timer = window.setInterval(update, 1000);
+    if (!updateCountdown()) return;
+    const timer = window.setInterval(() => {
+      if (!updateCountdown()) window.clearInterval(timer);
+    }, 1000);
     return () => window.clearInterval(timer);
   }, [campaignKey, expiresAt]);
 
@@ -79,37 +98,62 @@ export default function PromoBar({
     try {
       window.localStorage.setItem('fbl-promo-dismissed-campaign', campaignKey);
     } catch {
-      // Dismiss for this render even when local storage is blocked.
+      // The close action still works for this page view.
     }
   };
 
   if (!isVisible || !text.trim()) return null;
 
   return (
-    <aside className="fbl-promo-bar" role="region" aria-label="اطلاعیه و پیشنهاد ویژه فروشگاه">
-      <span className="fbl-promo-bar__sheen" aria-hidden="true" />
-      <div className="container-custom fbl-promo-bar__inner">
-        <Link href={link} className="fbl-promo-bar__link" aria-label={`${label}: ${text}`}>
-          <span className="fbl-promo-bar__mark" aria-hidden="true">
-            <Sparkles size={17} strokeWidth={1.8} />
+    <aside
+      className="fbl-campaign-ribbon"
+      role="region"
+      aria-label="پیشنهاد ویژه فاطمه بیوتی لند"
+      data-campaign-banner
+    >
+      <span className="fbl-campaign-ribbon__glow" aria-hidden="true" />
+      <span className="fbl-campaign-ribbon__sheen" aria-hidden="true" />
+
+      <div className="container-custom fbl-campaign-ribbon__inner">
+        <Link
+          href={link}
+          className="fbl-campaign-ribbon__link"
+          aria-label={`${label}: ${text}`}
+        >
+          <span className="fbl-campaign-ribbon__seal" aria-hidden="true">
+            <span className="fbl-campaign-ribbon__seal-ring">
+              <Sparkles size={17} strokeWidth={1.7} />
+            </span>
           </span>
-          <span className="fbl-promo-bar__copy">
-            <span className="fbl-promo-bar__label">{label}</span>
-            <span className="fbl-promo-bar__text">{text}</span>
+
+          <span className="fbl-campaign-ribbon__copy">
+            <span className="fbl-campaign-ribbon__eyebrow">
+              <span className="fbl-campaign-ribbon__eyebrow-dot" aria-hidden="true" />
+              {label}
+            </span>
+            <span className="fbl-campaign-ribbon__message">{text}</span>
           </span>
-          <span className="fbl-promo-bar__cta">
-            مشاهده <ArrowUpLeft size={14} aria-hidden="true" />
+
+          <span className="fbl-campaign-ribbon__cta">
+            <span>مشاهده پیشنهاد</span>
+            <ArrowUpLeft size={15} strokeWidth={2} aria-hidden="true" />
           </span>
         </Link>
 
         {timeLeft && (
-          <div className="fbl-promo-bar__countdown" aria-label="زمان باقی‌مانده تا پایان پیشنهاد" dir="ltr">
+          <div
+            className="fbl-campaign-ribbon__countdown"
+            aria-label="زمان باقی‌مانده تا پایان پیشنهاد"
+            dir="ltr"
+          >
             <Clock3 size={13} aria-hidden="true" />
-            {timeLeft.days > 0 && <span>{timeLeft.days}d</span>}
+            {timeLeft.days > 0 && (
+              <span className="fbl-campaign-ribbon__days">
+                {new Intl.NumberFormat('fa-IR').format(timeLeft.days)} روز
+              </span>
+            )}
             <strong>
-              {String(timeLeft.hours).padStart(2, '0')}:
-              {String(timeLeft.minutes).padStart(2, '0')}:
-              {String(timeLeft.seconds).padStart(2, '0')}
+              {toFaDigits(timeLeft.hours)}:{toFaDigits(timeLeft.minutes)}:{toFaDigits(timeLeft.seconds)}
             </strong>
           </div>
         )}
@@ -117,11 +161,11 @@ export default function PromoBar({
         <button
           type="button"
           onClick={handleDismiss}
-          className="fbl-promo-bar__close"
-          aria-label="بستن اطلاعیه"
-          title="بستن"
+          className="fbl-campaign-ribbon__close"
+          aria-label="بستن نوار پیشنهاد"
+          title="بستن پیشنهاد"
         >
-          <X size={17} aria-hidden="true" />
+          <X size={16} strokeWidth={1.8} aria-hidden="true" />
         </button>
       </div>
     </aside>
