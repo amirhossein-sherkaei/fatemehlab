@@ -9792,3 +9792,203 @@ body {
     scroll-behavior: auto !important;
   }
 }
+/* ========================================================================== */
+/* FBL MAISON DOCK V3 — true viewport-level dock (body portal)                */
+/* ========================================================================== */
+@media (max-width: 767px) {
+  body {
+    padding-bottom: calc(108px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  nav.fbl-maison-dock-v3 {
+    position: fixed !important;
+    inset-inline: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: calc(7px + env(safe-area-inset-bottom, 0px)) !important;
+    z-index: 90 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: flex-end !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 12px !important;
+    box-sizing: border-box !important;
+    transform: none !important;
+    translate: none !important;
+    overflow: visible !important;
+    pointer-events: none !important;
+    background: transparent !important;
+    animation: fblMaisonV3In .22s ease-out both !important;
+  }
+
+  nav.fbl-maison-dock-v3 .fbl-maison-dock-v3__surface {
+    position: relative !important;
+    display: grid !important;
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    align-items: stretch !important;
+    gap: 3px !important;
+    width: min(520px, 100%) !important;
+    max-width: 520px !important;
+    min-width: 0 !important;
+    height: 76px !important;
+    margin: 0 auto !important;
+    padding: 6px 6px 5px !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    border: 1px solid rgba(255,255,255,.96) !important;
+    border-radius: 25px !important;
+    background: linear-gradient(145deg, rgba(255,255,255,.97), rgba(255,249,252,.96) 56%, rgba(255,243,249,.96)) !important;
+    box-shadow: 0 12px 34px rgba(65,37,55,.12), 0 2px 7px rgba(65,37,55,.06), inset 0 1px 0 #fff !important;
+    -webkit-backdrop-filter: blur(22px) saturate(155%) !important;
+    backdrop-filter: blur(22px) saturate(155%) !important;
+    pointer-events: auto !important;
+    isolation: isolate !important;
+  }
+
+  nav.fbl-maison-dock-v3 .fbl-maison-dock-v3__surface::before {
+    position: absolute !important;
+    top: 0 !important;
+    left: 18px !important;
+    right: 18px !important;
+    height: 1px !important;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.98), rgba(190,52,119,.16), rgba(255,255,255,.98), transparent) !important;
+    content: '' !important;
+    pointer-events: none !important;
+  }
+
+  nav.fbl-maison-dock-v3 .fbl-maison-dock-v3__item {
+    position: relative !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 3px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    min-height: 62px !important;
+    margin: 0 !important;
+    padding: 3px 1px !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    border: 1px solid transparent !important;
+    border-radius: 17px !important;
+    background: transparent !important;
+    color: #81747f !important;
+    text-decoration: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+    touch-action: manipulation !important;
+    transition: color .18s ease, background-color .18s ease, border-color .18s ease, transform .14s ease !important;
+  }
+
+  nav.fbl-maison-dock-v3 .fbl-maison-dock-v3__item.is-active {
+    color: #ad1d66 !important;
+    border-color: rgba(192,48,117,.12) !important;
+    background: linear-gradient(180deg, rgba(255,239,247,.92), rgba(255,248,251,.76)) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.98) !important;
+  }
+
+  nav.fbl-maison-dock-v3 .fbl-maison-dock-v3__item:active {
+    transform: scale(.96) !important;
+  }
+
+  nav.fbl-maison-dock-v3 .fbl-maison-dock-v3__icon {
+    position: relative !important;
+    display: grid !important;
+    flex: 0 0 34px !important;
+    place-items: center !important;
+    width: 36px !important;
+    max-width: 100% !important;
+    height: 34px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 1px solid transparent !important;
+    border-radius: 12px !important;
+    background: transparent !important;
+    color: inherit !important;
+  }
+
+  nav.fbl-maison-dock-v3 .fbl-maison-dock-v3__icon svg {
+    display: block !important;
+    width: 21px !important;
+    height: 21px !important;
+    max-width: 21px !important;
+    color: inherit !important;
+  }
+
+  nav.fbl-maison-dock-v3 .fbl-maison-dock-v3__label {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    color: inherit !important;
+    font-family: var(--font-vazirmatn), Tahoma, Arial, sans-serif !important;
+    font-size: clamp(8px, 2.35vw, 9.5px) !important;
+    font-weight: 650 !important;
+    line-height: 1.45 !important;
+    letter-spacing: -.035em !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    text-overflow: clip !important;
+  }
+
+  nav.fbl-maison-dock-v3 .fbl-maison-dock-v3__item.is-active .fbl-maison-dock-v3__label {
+    font-weight: 850 !important;
+  }
+
+  nav.fbl-maison-dock-v3 .fbl-maison-dock-v3__badge {
+    position: absolute !important;
+    top: -2px !important;
+    right: -3px !important;
+    display: grid !important;
+    min-width: 16px !important;
+    height: 16px !important;
+    padding: 0 3px !important;
+    place-items: center !important;
+    box-sizing: border-box !important;
+    border: 1.5px solid #fff !important;
+    border-radius: 99px !important;
+    background: linear-gradient(145deg, #d94b91, #ad175f) !important;
+    color: #fff !important;
+    font-size: 8px !important;
+    font-weight: 850 !important;
+    line-height: 1 !important;
+  }
+
+  nav.fbl-maison-dock-v3 .fbl-maison-dock-v3__item:focus-visible {
+    outline: 2px solid #bd2b75 !important;
+    outline-offset: -3px !important;
+  }
+
+  .fbl-support-float.is-above-bottom-nav {
+    bottom: calc(7px + env(safe-area-inset-bottom, 0px) + 76px + 12px) !important;
+  }
+}
+
+@media (max-width: 360px) {
+  nav.fbl-maison-dock-v3 { padding-inline: 7px !important; }
+  nav.fbl-maison-dock-v3 .fbl-maison-dock-v3__surface { gap: 1px !important; padding-inline: 3px !important; }
+  nav.fbl-maison-dock-v3 .fbl-maison-dock-v3__label { font-size: 7.8px !important; letter-spacing: -.045em !important; }
+}
+
+@media (max-height: 650px) and (max-width: 767px) {
+  nav.fbl-maison-dock-v3 .fbl-maison-dock-v3__surface { height: 68px !important; }
+  nav.fbl-maison-dock-v3 .fbl-maison-dock-v3__item { min-height: 56px !important; gap: 1px !important; }
+  nav.fbl-maison-dock-v3 .fbl-maison-dock-v3__icon { flex-basis: 30px !important; height: 30px !important; }
+  .fbl-support-float.is-above-bottom-nav { bottom: calc(7px + env(safe-area-inset-bottom, 0px) + 68px + 12px) !important; }
+}
+
+@keyframes fblMaisonV3In {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  nav.fbl-maison-dock-v3, nav.fbl-maison-dock-v3 * { animation: none !important; transition: none !important; }
+}

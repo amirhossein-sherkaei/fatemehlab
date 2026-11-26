@@ -4,16 +4,17 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, LayoutGrid, BookOpen, Truck, UserRound, ShoppingBag } from 'lucide-react';
 import { useCartStore } from '@/store/cart';
+import { createPortal } from 'react-dom';
 import { useEffect, useState } from 'react';
 
-type MaisonNavItem = {
+type NavItem = {
   href: string;
   label: string;
   icon: typeof Home;
   match: 'exact' | 'prefix';
 };
 
-const MAISON_ITEMS: MaisonNavItem[] = [
+const ITEMS: NavItem[] = [
   { href: '/', label: 'خانه', icon: Home, match: 'exact' },
   { href: '/products', label: 'محصولات', icon: LayoutGrid, match: 'prefix' },
   { href: '/journal', label: 'مجله', icon: BookOpen, match: 'prefix' },
@@ -39,45 +40,43 @@ export default function BottomNav() {
     pathname.startsWith('/account') ||
     (pathname.startsWith('/products/') && pathname !== '/products');
 
-  if (isHidden) return null;
+  // A body-level portal escapes transformed/overflow-clipped layout ancestors.
+  // It is mounted only after hydration, so server and initial client markup agree.
+  if (!mounted || isHidden) return null;
 
-  return (
-    <nav className="fbl-maison-dock md:hidden" dir="rtl" aria-label="ناوبری اصلی فروشگاه">
-      <div className="fbl-maison-dock__surface">
-        <span className="fbl-maison-dock__sheen" aria-hidden="true" />
-        {MAISON_ITEMS.map((item) => {
+  return createPortal(
+    <nav className="fbl-maison-dock-v3 md:hidden" dir="rtl" aria-label="ناوبری اصلی فروشگاه">
+      <div className="fbl-maison-dock-v3__surface">
+        {ITEMS.map((item) => {
           const active = item.match === 'exact'
             ? pathname === item.href
             : pathname === item.href || pathname.startsWith(`${item.href}/`);
           const Icon = item.icon;
           const showCartBadge = item.href === '/cart' && cartCount > 0;
-          const accessibleLabel = showCartBadge
-            ? `${item.label}، ${cartCount} کالا`
-            : item.label;
-
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`fbl-maison-dock__item${active ? ' is-active' : ''}`}
-              aria-label={accessibleLabel}
+              className={`fbl-maison-dock-v3__item${active ? ' is-active' : ''}`}
+              aria-label={showCartBadge ? `${item.label}، ${cartCount} کالا` : item.label}
               aria-current={active ? 'page' : undefined}
               title={item.label}
               prefetch
             >
-              <span className="fbl-maison-dock__icon" aria-hidden="true">
-                <Icon size={21} strokeWidth={active ? 2.15 : 1.75} />
+              <span className="fbl-maison-dock-v3__icon" aria-hidden="true">
+                <Icon size={21} strokeWidth={active ? 2.2 : 1.75} />
                 {showCartBadge && (
-                  <span className="fbl-maison-dock__badge">
+                  <span className="fbl-maison-dock-v3__badge">
                     {cartCount > 99 ? '۹۹+' : cartCount.toLocaleString('fa-IR')}
                   </span>
                 )}
               </span>
-              <span className="fbl-maison-dock__label">{item.label}</span>
+              <span className="fbl-maison-dock-v3__label">{item.label}</span>
             </Link>
           );
         })}
       </div>
-    </nav>
+    </nav>,
+    document.body,
   );
 }
