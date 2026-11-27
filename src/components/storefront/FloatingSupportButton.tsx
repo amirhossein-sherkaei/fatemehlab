@@ -28,13 +28,12 @@ export default function FloatingSupportButton() {
     pathname === '/login' ||
     pathname === '/register';
 
-  // Keep the support bubble above mobile navigation when that navigation is visible.
+  // Keep the support bubble beside the dock wherever the storefront dock is visible.
   const bottomNavHidden =
     pathname.startsWith('/admin') ||
     pathname === '/cart' ||
     pathname === '/checkout' ||
-    pathname.startsWith('/account') ||
-    (pathname.startsWith('/products/') && pathname !== '/products');
+    pathname.startsWith('/account');
 
   if (!isMounted || hidden || loggedIn === null) return null;
 

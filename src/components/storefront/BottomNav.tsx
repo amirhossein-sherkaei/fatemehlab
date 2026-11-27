@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { UserRound, MessageCircle, ShoppingCart, LayoutGrid, ShoppingBag } from 'lucide-react';
+import { House, LayoutGrid, ShoppingCart, Truck, UserRound } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useCartStore } from '@/store/cart';
 import { createPortal } from 'react-dom';
@@ -15,31 +15,31 @@ type NavItem = {
   match: 'exact' | 'prefix';
 };
 
-// Items are intentionally ordered for RTL: home is the far-right destination.
+// RTL order: home, categories, cart, order tracking, account.
+// Customer support remains the single separate floating control at the left.
 const ITEMS: NavItem[] = [
-  { href: '/', label: 'خانه', icon: ShoppingBag, match: 'exact' },
-  { href: '/products', label: 'دسته‌بندی', icon: LayoutGrid, match: 'prefix' },
+  { href: '/', label: 'خانه', icon: House, match: 'exact' },
+  { href: '/products', label: 'دسته‌بندی‌ها', icon: LayoutGrid, match: 'prefix' },
   { href: '/cart', label: 'سبد خرید', icon: ShoppingCart, match: 'prefix' },
-  { href: '/account/support', label: 'پیام‌ها', icon: MessageCircle, match: 'prefix' },
+  { href: '/track', label: 'رهگیری سفارش', icon: Truck, match: 'prefix' },
   { href: '/account', label: 'حساب کاربری', icon: UserRound, match: 'prefix' },
 ];
 
-function StoreHomeGlyph({ active }: { active: boolean }) {
+function HomeGlyph({ active }: { active: boolean }) {
   if (!active) {
-    return <ShoppingBag size={25} strokeWidth={1.85} aria-hidden="true" />;
+    return <House size={25} strokeWidth={1.85} aria-hidden="true" />;
   }
 
   return (
-    <svg viewBox="0 0 24 24" width="27" height="27" fill="none" aria-hidden="true">
+    <svg viewBox="0 0 24 24" width="26" height="26" fill="none" aria-hidden="true">
       <path
-        d="M5.1 8.4h13.8l1.15 11.05a1.8 1.8 0 0 1-1.79 1.99H5.74a1.8 1.8 0 0 1-1.79-1.99L5.1 8.4Z"
+        d="M3.15 10.2 12 2.95l8.85 7.25v9.2c0 .82-.66 1.48-1.48 1.48h-4.82v-6.14H9.45v6.14H4.63c-.82 0-1.48-.66-1.48-1.48v-9.2Z"
         fill="currentColor"
         stroke="currentColor"
-        strokeWidth="1.4"
+        strokeWidth="1.1"
         strokeLinejoin="round"
       />
-      <path d="M8.2 8.2V6.45a3.8 3.8 0 0 1 7.6 0V8.2" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
-      <path d="M8.7 14.1c.8 1.15 2 1.72 3.3 1.72s2.5-.57 3.3-1.72" stroke="#fff" strokeWidth="1.65" strokeLinecap="round" />
+      <path d="M9.65 20.55v-5.78h4.7v5.78" fill="#f5eef2" stroke="#f5eef2" strokeWidth=".75" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -57,14 +57,13 @@ export default function BottomNav() {
     ? cartItems.reduce((total, item) => total + item.quantity, 0)
     : 0;
 
-  // Account pages use their own purpose-built account navigation; checkout and
-  // product details keep their focused purchase layouts.
+  // The account area has its own purpose-built navigation. Checkout is kept focused.
+  // The dock remains available on cart and product-detail pages.
   const isHidden =
     pathname.startsWith('/admin') ||
     pathname === '/checkout' ||
     pathname.startsWith('/checkout/') ||
-    pathname.startsWith('/account') ||
-    (pathname.startsWith('/products/') && pathname !== '/products');
+    pathname.startsWith('/account');
 
   if (!mounted || isHidden) return null;
 
@@ -82,19 +81,25 @@ export default function BottomNav() {
           const Icon = item.icon;
           const isHome = item.href === '/';
           const showCartBadge = item.href === '/cart' && cartCount > 0;
+          const accessibleLabel = showCartBadge
+            ? `${item.label}، ${cartCount.toLocaleString('fa-IR')} کالا`
+            : item.label;
 
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={'fbl-digikala-grade-dock-v9__item' + (active ? ' is-active' : '')}
-              aria-label={showCartBadge ? item.label + '، ' + cartCount + ' کالا' : item.label}
+              className={
+                'fbl-digikala-grade-dock-v9__item' +
+                (active ? ' is-active' : '')
+              }
+              aria-label={accessibleLabel}
               aria-current={active ? 'page' : undefined}
               title={item.label}
               prefetch
             >
-              <span className="fbl-digikala-grade-dock-v9__icon">
-                {isHome ? <StoreHomeGlyph active={active} /> : <Icon size={25} strokeWidth={1.85} aria-hidden="true" />}
+              <span className="fbl-digikala-grade-dock-v9__icon" aria-hidden="true">
+                {isHome ? <HomeGlyph active={active} /> : <Icon size={25} strokeWidth={active ? 2.1 : 1.8} />}
                 {showCartBadge && (
                   <span className="fbl-digikala-grade-dock-v9__badge">
                     {cartCount > 99 ? '۹۹+' : cartCount.toLocaleString('fa-IR')}

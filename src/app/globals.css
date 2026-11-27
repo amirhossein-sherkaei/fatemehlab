@@ -11032,3 +11032,128 @@ body {
     transition: none !important;
   }
 }
+
+
+/* ==========================================================================
+   FBL ATELIER DOCK REFINEMENT V11
+   Keep the V9 composition; refine its material, optical hierarchy and motion.
+   Porcelain rail / pearl-rose selected medallion / restrained champagne detail.
+   ========================================================================== */
+
+@media (max-width: 767px) {
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__surface {
+    border-color: rgba(224, 215, 222, .94) !important;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.995) 0%, rgba(255,254,255,.985) 58%, rgba(251,248,250,.985) 100%) !important;
+    box-shadow:
+      0 14px 34px rgba(38, 25, 34, .125),
+      0 3px 9px rgba(110, 71, 91, .055),
+      inset 0 1px 0 rgba(255,255,255,.99),
+      inset 0 -1px 0 rgba(196, 171, 184, .12) !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__surface::before {
+    content: '' !important;
+    position: absolute !important;
+    inset: 1px !important;
+    z-index: 0 !important;
+    border: 1px solid rgba(255,255,255,.88) !important;
+    border-radius: inherit !important;
+    pointer-events: none !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__surface::after {
+    content: '' !important;
+    position: absolute !important;
+    top: 1px !important;
+    left: 17% !important;
+    right: 17% !important;
+    height: 1px !important;
+    border-radius: 99px !important;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.98) 20%, rgba(198,160,174,.48) 50%, rgba(255,255,255,.98) 80%, transparent) !important;
+    opacity: .9 !important;
+    pointer-events: none !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item {
+    z-index: 1 !important;
+    color: #89838a !important;
+    -webkit-user-select: none !important;
+    user-select: none !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item.is-active {
+    color: #211a20 !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__icon {
+    border-color: transparent !important;
+    background: transparent !important;
+    color: inherit !important;
+    transform: translateZ(0) !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item.is-active .fbl-digikala-grade-dock-v9__icon {
+    border-color: rgba(190, 143, 164, .31) !important;
+    background:
+      radial-gradient(circle at 34% 23%, rgba(255,255,255,.99) 0%, rgba(255,255,255,0) 57%),
+      linear-gradient(148deg, #fffefe 0%, #f8f1f4 57%, #f2e9ee 100%) !important;
+    color: #211a20 !important;
+    box-shadow:
+      0 5px 14px rgba(125, 62, 91, .105),
+      0 0 0 3px rgba(195, 145, 169, .045),
+      inset 0 1px 0 rgba(255,255,255,.99),
+      inset 0 -1px 0 rgba(192, 151, 171, .12) !important;
+    animation: fbl-dock-arrive-v11 .28s cubic-bezier(.2,.8,.2,1) both !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item.is-active .fbl-digikala-grade-dock-v9__icon::after {
+    content: '' !important;
+    position: absolute !important;
+    top: 7px !important;
+    right: 9px !important;
+    width: 4px !important;
+    height: 4px !important;
+    border: 1px solid rgba(255,255,255,.85) !important;
+    border-radius: 50% !important;
+    background: linear-gradient(145deg, #d7bd9b, #b98c9f) !important;
+    box-shadow: 0 1px 3px rgba(126, 78, 98, .16) !important;
+    pointer-events: none !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item:active .fbl-digikala-grade-dock-v9__icon {
+    transform: scale(.93) !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item:focus-visible {
+    outline: 2px solid rgba(174, 76, 119, .7) !important;
+    outline-offset: -3px !important;
+  }
+
+  .fbl-support-float.is-above-bottom-nav .fbl-support-trigger {
+    border: 1px solid rgba(255,255,255,.86) !important;
+    background:
+      radial-gradient(circle at 31% 22%, rgba(255,255,255,.24), transparent 38%),
+      linear-gradient(145deg, #d43e88 0%, #c61d70 58%, #b71865 100%) !important;
+    box-shadow:
+      0 8px 22px rgba(176, 35, 103, .23),
+      0 2px 5px rgba(57, 26, 42, .09),
+      inset 0 1px 0 rgba(255,255,255,.32) !important;
+  }
+}
+
+@keyframes fbl-dock-arrive-v11 {
+  0% { transform: scale(.94); }
+  68% { transform: scale(1.025); }
+  100% { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  nav.fbl-digikala-grade-dock-v9,
+  nav.fbl-digikala-grade-dock-v9 *,
+  nav.fbl-digikala-grade-dock-v9 *::before,
+  nav.fbl-digikala-grade-dock-v9 *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
