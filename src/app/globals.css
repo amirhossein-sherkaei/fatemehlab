@@ -11588,3 +11588,288 @@ body {
     transition: none !important;
   }
 }
+
+/* ==========================================================================
+   FBL ATELIER LIQUID GLASS VISUAL EDITION V15
+   Pearl liquid-glass rail / optical crystal rim / rose-champagne active lens.
+   V13 geometry, five destinations, cart behavior and support placement stay fixed.
+   CSS only — no route, component, state, or business-logic changes.
+   ========================================================================== */
+
+@media (max-width: 767px) {
+  nav.fbl-digikala-grade-dock-v9 {
+    -webkit-font-smoothing: antialiased !important;
+    text-rendering: geometricPrecision !important;
+  }
+
+  /* The rail: translucent porcelain glass with a soft, multi-depth reflection. */
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__surface {
+    border: 1px solid rgba(218, 197, 211, .76) !important;
+    background:
+      linear-gradient(116deg,
+        rgba(255,255,255,.94) 0%,
+        rgba(255,255,255,.79) 23%,
+        rgba(255,250,253,.74) 52%,
+        rgba(255,255,255,.86) 100%),
+      radial-gradient(ellipse 66% 112% at 50% -42%,
+        rgba(255,255,255,.98) 0%, rgba(255,255,255,0) 72%),
+      radial-gradient(ellipse 38% 88% at 4% 120%,
+        rgba(229,190,214,.22) 0%, rgba(229,190,214,0) 76%),
+      radial-gradient(ellipse 34% 84% at 98% 118%,
+        rgba(222,205,180,.17) 0%, rgba(222,205,180,0) 76%),
+      linear-gradient(180deg,
+        rgba(255,255,255,.90) 0%,
+        rgba(255,252,254,.82) 54%,
+        rgba(249,244,248,.88) 100%) !important;
+    box-shadow:
+      0 22px 52px rgba(48, 27, 43, .135),
+      0 9px 22px rgba(112, 69, 96, .075),
+      0 2px 6px rgba(57, 33, 50, .045),
+      inset 0 1.25px 0 rgba(255,255,255,.995),
+      inset 0 0 0 1px rgba(255,255,255,.40),
+      inset 0 -1px 0 rgba(177, 139, 164, .18) !important;
+    -webkit-backdrop-filter: blur(28px) saturate(182%) brightness(1.035) !important;
+    backdrop-filter: blur(28px) saturate(182%) brightness(1.035) !important;
+  }
+
+  /* Fine inner crystal edge; kept below all five interactive destinations. */
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__surface::before {
+    inset: 1px !important;
+    border: 1px solid rgba(255,255,255,.94) !important;
+    box-shadow:
+      inset 0 0 0 1px rgba(190, 151, 177, .075),
+      inset 0 1px 5px rgba(255,255,255,.42) !important;
+    opacity: .98 !important;
+  }
+
+  /* A quiet top-edge light streak, like a polished glass bevel. */
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__surface::after {
+    top: 1px !important;
+    left: 13% !important;
+    right: 13% !important;
+    height: 1px !important;
+    opacity: .92 !important;
+    background: linear-gradient(90deg,
+      rgba(255,255,255,0),
+      rgba(255,255,255,.98) 16%,
+      rgba(255,255,255,.96) 34%,
+      rgba(213,177,198,.66) 50%,
+      rgba(255,255,255,.98) 72%,
+      rgba(255,255,255,0)) !important;
+    box-shadow: 0 0 7px rgba(255,255,255,.50) !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item {
+    z-index: 1 !important;
+    color: #817783 !important;
+    -webkit-tap-highlight-color: transparent !important;
+    transition:
+      color .24s ease,
+      transform .24s cubic-bezier(.2,.78,.22,1),
+      filter .24s ease !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item:not(.is-active) .fbl-digikala-grade-dock-v9__icon {
+    color: #817783 !important;
+    border-color: transparent !important;
+    background: transparent !important;
+    transition:
+      color .24s ease,
+      transform .24s cubic-bezier(.2,.78,.22,1),
+      background .24s ease,
+      box-shadow .24s ease !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item:not(.is-active) .fbl-digikala-grade-dock-v9__icon svg {
+    stroke-width: 1.8 !important;
+    filter: drop-shadow(0 .7px 0 rgba(255,255,255,.94)) !important;
+    opacity: .98 !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item.is-active {
+    color: #2a2029 !important;
+  }
+
+  /* Selected icon becomes a small convex glass lens — not a neon glow. */
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item.is-active .fbl-digikala-grade-dock-v9__icon {
+    position: relative !important;
+    border: 1px solid rgba(194, 151, 176, .48) !important;
+    border-radius: 50% !important;
+    background:
+      radial-gradient(ellipse 66% 43% at 29% 13%,
+        rgba(255,255,255,1) 0%, rgba(255,255,255,0) 76%),
+      radial-gradient(ellipse 46% 54% at 82% 88%,
+        rgba(219,184,207,.30) 0%, rgba(219,184,207,0) 74%),
+      linear-gradient(148deg,
+        rgba(255,255,255,.98) 0%,
+        rgba(255,249,253,.94) 43%,
+        rgba(240,226,236,.91) 100%) !important;
+    color: #29202a !important;
+    -webkit-backdrop-filter: blur(13px) saturate(168%) !important;
+    backdrop-filter: blur(13px) saturate(168%) !important;
+    box-shadow:
+      0 9px 20px rgba(112, 55, 91, .145),
+      0 3px 7px rgba(81, 42, 68, .075),
+      0 0 0 2px rgba(255,255,255,.94),
+      0 0 0 3.5px rgba(190, 145, 171, .16),
+      inset 0 1.2px 0 rgba(255,255,255,1),
+      inset 1px 0 0 rgba(255,255,255,.62),
+      inset 0 -2px 5px rgba(159, 111, 145, .12) !important;
+    transform: translateY(-1.5px) !important;
+  }
+
+  /* Second inner rim gives the selected lens a real, layered glass edge. */
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item.is-active .fbl-digikala-grade-dock-v9__icon::before {
+    inset: 3px !important;
+    border: 1px solid rgba(255,255,255,.84) !important;
+    box-shadow: inset 0 1px 1px rgba(255,255,255,.58) !important;
+    opacity: .94 !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item.is-active .fbl-digikala-grade-dock-v9__icon::after {
+    top: 7px !important;
+    right: 9px !important;
+    width: 4px !important;
+    height: 4px !important;
+    border: 1px solid rgba(255,255,255,.99) !important;
+    background: linear-gradient(145deg, #f1dfc6 0%, #c9a27f 52%, #bd91a9 100%) !important;
+    box-shadow:
+      0 0 0 1.5px rgba(255,255,255,.68),
+      0 1px 4px rgba(110, 64, 91, .23) !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item.is-active .fbl-digikala-grade-dock-v9__icon svg {
+    stroke-width: 2.05 !important;
+    filter:
+      drop-shadow(0 .8px 0 rgba(255,255,255,.95))
+      drop-shadow(0 1px 1.8px rgba(95, 54, 79, .13)) !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__badge {
+    border: 2px solid rgba(255,255,255,.99) !important;
+    background: linear-gradient(145deg, #dc579b 0%, #c72b7b 58%, #a91d67 100%) !important;
+    box-shadow:
+      0 2px 6px rgba(131, 30, 82, .23),
+      0 0 0 1px rgba(190, 126, 164, .12),
+      inset 0 1px 0 rgba(255,255,255,.36),
+      inset 0 -1px 0 rgba(105, 18, 63, .17) !important;
+  }
+
+  /* Keep the separate support button distinct, but finish it like ruby glass. */
+  .fbl-support-float.is-above-bottom-nav .fbl-support-trigger {
+    border: 1px solid rgba(255,255,255,.98) !important;
+    background:
+      radial-gradient(ellipse 68% 42% at 28% 13%,
+        rgba(255,255,255,.48) 0%, rgba(255,255,255,0) 76%),
+      radial-gradient(circle at 82% 90%,
+        rgba(255,205,227,.18) 0%, rgba(255,205,227,0) 62%),
+      linear-gradient(148deg, #d94b96 0%, #c72d7e 54%, #aa1c68 100%) !important;
+    box-shadow:
+      0 12px 25px rgba(151, 34, 94, .245),
+      0 3px 8px rgba(49, 22, 38, .10),
+      0 0 0 2px rgba(255,255,255,.32),
+      inset 0 1.2px 0 rgba(255,255,255,.52),
+      inset 0 -1px 0 rgba(104, 15, 62, .20) !important;
+    -webkit-backdrop-filter: blur(12px) saturate(155%) !important;
+    backdrop-filter: blur(12px) saturate(155%) !important;
+  }
+
+  .fbl-support-float.is-above-bottom-nav .fbl-support-trigger::before {
+    inset: 3px !important;
+    border-color: rgba(255,255,255,.46) !important;
+    box-shadow: inset 0 1px 1px rgba(255,255,255,.22) !important;
+  }
+
+  .fbl-support-float.is-above-bottom-nav .fbl-support-trigger svg {
+    filter:
+      drop-shadow(0 1px 0 rgba(255,255,255,.24))
+      drop-shadow(0 1px 1.5px rgba(80, 12, 49, .16)) !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item:active {
+    transform: scale(.972) !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item:active .fbl-digikala-grade-dock-v9__icon {
+    transform: scale(.945) !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item.is-active:active .fbl-digikala-grade-dock-v9__icon {
+    transform: translateY(0) scale(.95) !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item:focus-visible {
+    outline: 2px solid rgba(158, 71, 113, .78) !important;
+    outline-offset: -3px !important;
+  }
+}
+
+/* Devices without backdrop-filter keep the same bright, legible pearl shell. */
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  @media (max-width: 767px) {
+    nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__surface {
+      background: linear-gradient(180deg, #fff 0%, #fffdfd 52%, #faf6f9 100%) !important;
+    }
+    nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item.is-active .fbl-digikala-grade-dock-v9__icon {
+      background: linear-gradient(145deg, #fff 0%, #fbf5f9 55%, #f0e4ec 100%) !important;
+    }
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  @media (max-width: 767px) {
+    nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__surface {
+      background: rgba(255,255,255,.97) !important;
+      -webkit-backdrop-filter: none !important;
+      backdrop-filter: none !important;
+    }
+  }
+}
+
+@media (hover: hover) and (pointer: fine) and (max-width: 767px) {
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item:not(.is-active):hover .fbl-digikala-grade-dock-v9__icon {
+    color: #a3547b !important;
+    background: radial-gradient(circle, rgba(246,231,240,.76), rgba(246,231,240,0) 72%) !important;
+    transform: translateY(-1px) !important;
+  }
+
+  .fbl-support-float.is-above-bottom-nav .fbl-support-trigger:hover {
+    transform: translateY(-2px) !important;
+    box-shadow:
+      0 15px 29px rgba(151, 34, 94, .27),
+      0 4px 9px rgba(49, 22, 38, .11),
+      0 0 0 2px rgba(255,255,255,.34),
+      inset 0 1px 0 rgba(255,255,255,.54) !important;
+  }
+}
+
+@media (forced-colors: active) {
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__surface {
+    border: 1px solid CanvasText !important;
+    background: Canvas !important;
+    box-shadow: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item,
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item.is-active,
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__icon {
+    color: CanvasText !important;
+  }
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item.is-active .fbl-digikala-grade-dock-v9__icon {
+    border: 2px solid Highlight !important;
+    box-shadow: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item,
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__icon,
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__icon::before,
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__icon::after,
+  .fbl-support-float.is-above-bottom-nav .fbl-support-trigger {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
