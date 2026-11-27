@@ -11420,3 +11420,171 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+
+/* ==========================================================================
+   FBL ATELIER OPALINE EDITION V14
+   Pearl ceramic / softened rose-champagne / optical icon calibration.
+   The approved V13 dock geometry, spacing, routes and support placement remain fixed.
+   This pass refines light, material, contrast and tactile response — not structure.
+   ========================================================================== */
+
+@media (max-width: 767px) {
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__surface {
+    border-color: rgba(224, 211, 220, .96) !important;
+    background:
+      radial-gradient(ellipse 58% 94% at 50% -34%, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 72%),
+      radial-gradient(ellipse 36% 78% at 5% 118%, rgba(226, 196, 213, .16) 0%, rgba(226,196,213,0) 76%),
+      radial-gradient(ellipse 34% 76% at 96% 120%, rgba(220, 205, 185, .12) 0%, rgba(220,205,185,0) 76%),
+      linear-gradient(180deg, #fff 0%, #fffefe 54%, #faf7f9 100%) !important;
+    box-shadow:
+      0 16px 38px rgba(42, 27, 38, .105),
+      0 4px 12px rgba(126, 76, 104, .045),
+      0 1px 2px rgba(45, 30, 40, .035),
+      inset 0 1px 0 rgba(255,255,255,.995),
+      inset 0 -1px 0 rgba(190, 160, 178, .13) !important;
+    -webkit-backdrop-filter: blur(18px) saturate(142%) !important;
+    backdrop-filter: blur(18px) saturate(142%) !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__surface::before {
+    border-color: rgba(255,255,255,.94) !important;
+    box-shadow: inset 0 0 0 1px rgba(195, 162, 180, .045) !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__surface::after {
+    left: 18% !important;
+    right: 18% !important;
+    opacity: .68 !important;
+    background: linear-gradient(90deg,
+      transparent,
+      rgba(255,255,255,.98) 22%,
+      rgba(207, 178, 194, .58) 50%,
+      rgba(255,255,255,.98) 78%,
+      transparent) !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item {
+    color: #817982 !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item:not(.is-active) .fbl-digikala-grade-dock-v9__icon {
+    color: #817982 !important;
+    background: transparent !important;
+    border-color: transparent !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item:not(.is-active) .fbl-digikala-grade-dock-v9__icon svg {
+    stroke-width: 1.75 !important;
+    filter: none !important;
+    opacity: .96 !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item.is-active {
+    color: #261e25 !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item.is-active .fbl-digikala-grade-dock-v9__icon {
+    border-color: rgba(195, 157, 178, .36) !important;
+    background:
+      radial-gradient(ellipse 76% 48% at 34% 9%, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 78%),
+      radial-gradient(circle at 83% 91%, rgba(221, 192, 207, .16) 0%, rgba(221,192,207,0) 62%),
+      linear-gradient(150deg, #fff 0%, #fbf6f9 55%, #f3eaf0 100%) !important;
+    color: #261e25 !important;
+    box-shadow:
+      0 6px 15px rgba(112, 62, 91, .105),
+      0 0 0 2px rgba(255,255,255,.98),
+      0 0 0 3px rgba(190, 151, 173, .105),
+      inset 0 1px 0 rgba(255,255,255,.995),
+      inset 0 -1px 3px rgba(166, 124, 148, .085) !important;
+    transform: translateY(-1px) !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item.is-active .fbl-digikala-grade-dock-v9__icon::before {
+    inset: 4px !important;
+    border-color: rgba(255,255,255,.82) !important;
+    opacity: .72 !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item.is-active .fbl-digikala-grade-dock-v9__icon::after {
+    top: 8px !important;
+    right: 10px !important;
+    width: 3px !important;
+    height: 3px !important;
+    border-width: 1px !important;
+    background: linear-gradient(145deg, #e4d4bd 0%, #c9ad8d 56%, #c19bad 100%) !important;
+    box-shadow: 0 0 0 1px rgba(255,255,255,.68), 0 1px 3px rgba(105, 69, 86, .16) !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item.is-active .fbl-digikala-grade-dock-v9__icon svg {
+    stroke-width: 2 !important;
+    filter: drop-shadow(0 .5px 0 rgba(255,255,255,.7)) !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__badge {
+    background: linear-gradient(145deg, #cd4a87 0%, #ba2c70 74%, #a92162 100%) !important;
+    border-color: rgba(255,255,255,.99) !important;
+    box-shadow: 0 1px 4px rgba(119, 35, 76, .16), inset 0 1px 0 rgba(255,255,255,.24) !important;
+  }
+
+  .fbl-support-float.is-above-bottom-nav .fbl-support-trigger {
+    border-color: rgba(255,255,255,.96) !important;
+    background:
+      radial-gradient(circle at 30% 17%, rgba(255,255,255,.27) 0%, rgba(255,255,255,0) 42%),
+      linear-gradient(148deg, #cf4a8a 0%, #c12e78 52%, #ad1c67 100%) !important;
+    box-shadow:
+      0 9px 21px rgba(151, 37, 91, .205),
+      0 2px 6px rgba(43, 23, 34, .075),
+      inset 0 1px 0 rgba(255,255,255,.39),
+      inset 0 -1px 0 rgba(105, 19, 61, .13) !important;
+  }
+
+  .fbl-support-float.is-above-bottom-nav .fbl-support-trigger::before {
+    inset: 3px !important;
+    border-color: rgba(255,255,255,.34) !important;
+  }
+
+  .fbl-support-float.is-above-bottom-nav .fbl-support-trigger svg {
+    filter: drop-shadow(0 1px 1px rgba(83, 18, 52, .12)) !important;
+  }
+}
+
+/* On devices without backdrop-filter, keep the porcelain material fully legible. */
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  @media (max-width: 767px) {
+    nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__surface {
+      background: linear-gradient(180deg, #fff 0%, #fffefe 52%, #faf7f9 100%) !important;
+    }
+  }
+}
+
+@media (forced-colors: active) {
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__surface {
+    border: 1px solid CanvasText !important;
+    background: Canvas !important;
+    box-shadow: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item,
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item.is-active,
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__icon {
+    color: CanvasText !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item.is-active .fbl-digikala-grade-dock-v9__icon {
+    border: 2px solid Highlight !important;
+    box-shadow: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item,
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__icon,
+  .fbl-support-float.is-above-bottom-nav .fbl-support-trigger {
+    animation: none !important;
+    transition: none !important;
+  }
+}
