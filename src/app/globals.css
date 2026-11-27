@@ -11873,3 +11873,335 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* ==========================================================================
+   FBL ATELIER PRISMATIC LIQUID GLASS VISUAL EDITION V16
+   Same V15 capsule / deeper translucent glass / optical reflections / refined detail.
+   No dimensions, routes, component structure or interaction behavior are changed.
+   ========================================================================== */
+
+@media (max-width: 767px) {
+  nav.fbl-digikala-grade-dock-v9 {
+    -webkit-font-smoothing: antialiased !important;
+    text-rendering: geometricPrecision !important;
+  }
+
+  /* A clearer glass body: the page softly shows through the pearl material. */
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__surface {
+    border: 1px solid rgba(255,255,255,.78) !important;
+    background-color: rgba(255,255,255,.43) !important;
+    background-image:
+      linear-gradient(112deg,
+        rgba(255,255,255,.70) 0%,
+        rgba(255,255,255,.43) 24%,
+        rgba(255,247,252,.40) 52%,
+        rgba(255,255,255,.64) 100%),
+      radial-gradient(ellipse 62% 118% at 48% -44%,
+        rgba(255,255,255,.91) 0%, rgba(255,255,255,0) 72%),
+      radial-gradient(ellipse 34% 94% at 2% 118%,
+        rgba(232,190,216,.22) 0%, rgba(232,190,216,0) 76%),
+      radial-gradient(ellipse 32% 92% at 98% 116%,
+        rgba(218,199,177,.17) 0%, rgba(218,199,177,0) 76%),
+      linear-gradient(180deg,
+        rgba(255,255,255,.57) 0%,
+        rgba(255,251,254,.48) 54%,
+        rgba(248,240,247,.57) 100%) !important;
+    background-blend-mode: normal, screen, normal, normal, normal !important;
+    box-shadow:
+      0 25px 58px rgba(50, 29, 46, .145),
+      0 10px 25px rgba(116, 70, 99, .082),
+      0 2px 7px rgba(58, 34, 51, .05),
+      inset 0 1.35px 0 rgba(255,255,255,.99),
+      inset 0 0 0 1px rgba(255,255,255,.34),
+      inset 0 -1.2px 0 rgba(172, 130, 158, .19) !important;
+    -webkit-backdrop-filter: blur(36px) saturate(205%) brightness(1.075) contrast(1.035) !important;
+    backdrop-filter: blur(36px) saturate(205%) brightness(1.075) contrast(1.035) !important;
+    background-clip: padding-box !important;
+  }
+
+  /* The inner rim now carries a soft reflection, not just a white outline. */
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__surface::before {
+    inset: 1px !important;
+    border: 1px solid rgba(255,255,255,.91) !important;
+    background:
+      linear-gradient(126deg,
+        rgba(255,255,255,.34) 0%,
+        rgba(255,255,255,0) 31%,
+        rgba(255,255,255,0) 70%,
+        rgba(255,255,255,.20) 100%),
+      radial-gradient(ellipse 48% 70% at 50% 0%,
+        rgba(255,255,255,.35) 0%, rgba(255,255,255,0) 78%) !important;
+    box-shadow:
+      inset 0 0 0 1px rgba(195, 155, 181, .075),
+      inset 0 1px 5px rgba(255,255,255,.50) !important;
+    opacity: .97 !important;
+  }
+
+  /* Polished bevel highlight across the upper edge of the existing capsule. */
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__surface::after {
+    top: 1px !important;
+    left: 10% !important;
+    right: 10% !important;
+    height: 2px !important;
+    opacity: .96 !important;
+    background: linear-gradient(90deg,
+      rgba(255,255,255,0),
+      rgba(255,255,255,.80) 11%,
+      rgba(255,255,255,1) 29%,
+      rgba(239,222,235,.86) 50%,
+      rgba(255,255,255,.98) 74%,
+      rgba(255,255,255,0)) !important;
+    box-shadow:
+      0 0 8px rgba(255,255,255,.68),
+      0 1px 2px rgba(197,155,181,.16) !important;
+  }
+
+  /* Consistent optical quality and calm contrast across the five glyphs. */
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item {
+    z-index: 1 !important;
+    color: #756b78 !important;
+    -webkit-tap-highlight-color: transparent !important;
+    transition:
+      color .24s ease,
+      transform .24s cubic-bezier(.2,.78,.22,1),
+      filter .24s ease !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item:not(.is-active) .fbl-digikala-grade-dock-v9__icon {
+    color: #756b78 !important;
+    border-color: transparent !important;
+    background: transparent !important;
+    transition:
+      color .24s ease,
+      transform .24s cubic-bezier(.2,.78,.22,1),
+      filter .24s ease !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item:not(.is-active) .fbl-digikala-grade-dock-v9__icon svg {
+    stroke-width: 1.85 !important;
+    filter:
+      drop-shadow(0 .8px 0 rgba(255,255,255,.96))
+      drop-shadow(0 1px 1.5px rgba(91,65,85,.075)) !important;
+    opacity: .99 !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item.is-active {
+    color: #281d29 !important;
+  }
+
+  /* Convex pearl-glass lens: transparent body, bright crown and rose refraction. */
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item.is-active .fbl-digikala-grade-dock-v9__icon {
+    position: relative !important;
+    border: 1px solid rgba(198, 151, 180, .50) !important;
+    border-radius: 50% !important;
+    background-color: rgba(255,255,255,.47) !important;
+    background-image:
+      radial-gradient(ellipse 76% 49% at 28% 7%,
+        rgba(255,255,255,.99) 0%, rgba(255,255,255,.48) 35%, rgba(255,255,255,0) 78%),
+      radial-gradient(ellipse 50% 57% at 84% 91%,
+        rgba(222,180,208,.35) 0%, rgba(222,180,208,0) 75%),
+      linear-gradient(145deg,
+        rgba(255,255,255,.82) 0%,
+        rgba(255,248,252,.64) 44%,
+        rgba(237,220,233,.72) 100%) !important;
+    color: #281f2a !important;
+    -webkit-backdrop-filter: blur(18px) saturate(195%) brightness(1.07) !important;
+    backdrop-filter: blur(18px) saturate(195%) brightness(1.07) !important;
+    box-shadow:
+      0 12px 25px rgba(105, 52, 87, .155),
+      0 4px 9px rgba(78, 39, 66, .085),
+      0 0 0 2px rgba(255,255,255,.90),
+      0 0 0 3.5px rgba(191,145,174,.18),
+      inset 0 1.5px 0 rgba(255,255,255,1),
+      inset 1px 0 0 rgba(255,255,255,.68),
+      inset 0 -2.5px 6px rgba(154,105,139,.15) !important;
+    transform: translateY(-1.5px) !important;
+  }
+
+  /* A second curved glint makes the selected surface read as polished glass. */
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item.is-active .fbl-digikala-grade-dock-v9__icon::before {
+    inset: 3px !important;
+    border: 1px solid rgba(255,255,255,.88) !important;
+    background:
+      radial-gradient(ellipse 72% 36% at 29% 5%,
+        rgba(255,255,255,.70) 0%, rgba(255,255,255,0) 82%),
+      linear-gradient(145deg,
+        rgba(255,255,255,.14), rgba(255,255,255,0) 48%, rgba(255,255,255,.12)) !important;
+    box-shadow:
+      inset 0 1px 1px rgba(255,255,255,.72),
+      0 0 0 1px rgba(255,255,255,.10) !important;
+    opacity: .98 !important;
+  }
+
+  /* The tiny champagne glint remains restrained and aligned with the V15 lens. */
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item.is-active .fbl-digikala-grade-dock-v9__icon::after {
+    top: 7px !important;
+    right: 9px !important;
+    width: 4px !important;
+    height: 4px !important;
+    border: 1px solid rgba(255,255,255,.99) !important;
+    background: linear-gradient(145deg, #f5e5ce 0%, #cfaa87 50%, #bd91ad 100%) !important;
+    box-shadow:
+      0 0 0 1.5px rgba(255,255,255,.72),
+      0 1px 5px rgba(106,60,88,.24),
+      0 0 7px rgba(255,239,222,.30) !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item.is-active .fbl-digikala-grade-dock-v9__icon svg {
+    stroke-width: 2.05 !important;
+    filter:
+      drop-shadow(0 .8px 0 rgba(255,255,255,.98))
+      drop-shadow(0 1.4px 2px rgba(76,43,68,.16)) !important;
+  }
+
+  /* Cart quantity: glossy ruby enamel with a bright glass perimeter. */
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__badge {
+    border: 1.8px solid rgba(255,255,255,.98) !important;
+    background:
+      radial-gradient(ellipse 78% 52% at 27% 8%, rgba(255,255,255,.52), rgba(255,255,255,0) 76%),
+      linear-gradient(145deg, #e45b9e 0%, #c92d7b 58%, #a71964 100%) !important;
+    box-shadow:
+      0 3px 7px rgba(125,28,78,.24),
+      0 0 0 1px rgba(255,255,255,.24),
+      inset 0 1px 0 rgba(255,255,255,.48),
+      inset 0 -1px 0 rgba(96,14,57,.20) !important;
+    text-shadow: 0 1px 1px rgba(89,16,55,.16) !important;
+  }
+
+  /* Ruby-glass support control, visually related but still a separate button. */
+  .fbl-support-float.is-above-bottom-nav .fbl-support-trigger {
+    border: 1px solid rgba(255,255,255,.98) !important;
+    background-color: rgba(190,38,112,.70) !important;
+    background-image:
+      radial-gradient(ellipse 78% 48% at 27% 8%,
+        rgba(255,255,255,.58) 0%, rgba(255,255,255,0) 77%),
+      radial-gradient(circle at 84% 92%,
+        rgba(255,194,222,.27) 0%, rgba(255,194,222,0) 65%),
+      linear-gradient(145deg,
+        rgba(226,83,153,.94) 0%,
+        rgba(194,39,119,.90) 54%,
+        rgba(157,23,91,.94) 100%) !important;
+    box-shadow:
+      0 14px 29px rgba(145,31,89,.27),
+      0 4px 10px rgba(47,20,37,.11),
+      0 0 0 2px rgba(255,255,255,.30),
+      inset 0 1.4px 0 rgba(255,255,255,.60),
+      inset 1px 0 0 rgba(255,255,255,.22),
+      inset 0 -1.5px 0 rgba(91,12,56,.22) !important;
+    -webkit-backdrop-filter: blur(18px) saturate(190%) brightness(1.06) !important;
+    backdrop-filter: blur(18px) saturate(190%) brightness(1.06) !important;
+    transition:
+      transform .24s cubic-bezier(.2,.78,.22,1),
+      box-shadow .24s ease,
+      filter .24s ease !important;
+  }
+
+  .fbl-support-float.is-above-bottom-nav .fbl-support-trigger::before {
+    inset: 3px !important;
+    border-color: rgba(255,255,255,.54) !important;
+    background: linear-gradient(135deg,
+      rgba(255,255,255,.22), rgba(255,255,255,0) 42%, rgba(255,255,255,.10)) !important;
+    box-shadow: inset 0 1px 1px rgba(255,255,255,.30) !important;
+  }
+
+  .fbl-support-float.is-above-bottom-nav .fbl-support-trigger svg {
+    filter:
+      drop-shadow(0 1px 0 rgba(255,255,255,.34))
+      drop-shadow(0 1.2px 2px rgba(75,12,48,.20)) !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item:active {
+    transform: scale(.975) !important;
+    filter: brightness(1.025) !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item:active .fbl-digikala-grade-dock-v9__icon {
+    transform: scale(.945) !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item.is-active:active .fbl-digikala-grade-dock-v9__icon {
+    transform: translateY(0) scale(.95) !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item:focus-visible {
+    outline: 2px solid rgba(158,71,113,.78) !important;
+    outline-offset: -3px !important;
+  }
+}
+
+/* Hover glints are restricted to devices that actually have a fine pointer. */
+@media (hover: hover) and (pointer: fine) and (max-width: 767px) {
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item:not(.is-active):hover .fbl-digikala-grade-dock-v9__icon {
+    color: #985075 !important;
+    filter: drop-shadow(0 2px 5px rgba(174,96,143,.14)) !important;
+    transform: translateY(-1px) !important;
+  }
+
+  .fbl-support-float.is-above-bottom-nav .fbl-support-trigger:hover {
+    transform: translateY(-2px) !important;
+    filter: brightness(1.045) saturate(1.04) !important;
+    box-shadow:
+      0 17px 32px rgba(145,31,89,.29),
+      0 5px 11px rgba(47,20,37,.12),
+      0 0 0 2px rgba(255,255,255,.34),
+      inset 0 1.5px 0 rgba(255,255,255,.64),
+      inset 0 -1.5px 0 rgba(91,12,56,.22) !important;
+  }
+}
+
+/* Fully legible fallback for browsers without backdrop-filter support. */
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  @media (max-width: 767px) {
+    nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__surface {
+      background: linear-gradient(180deg, #fff 0%, #fffdfd 54%, #faf5f9 100%) !important;
+    }
+    nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item.is-active .fbl-digikala-grade-dock-v9__icon {
+      background: linear-gradient(145deg, #fff 0%, #fbf4f9 55%, #eddfeb 100%) !important;
+    }
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  @media (max-width: 767px) {
+    nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__surface {
+      background: rgba(255,255,255,.97) !important;
+      -webkit-backdrop-filter: none !important;
+      backdrop-filter: none !important;
+    }
+    nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item.is-active .fbl-digikala-grade-dock-v9__icon {
+      -webkit-backdrop-filter: none !important;
+      backdrop-filter: none !important;
+    }
+  }
+}
+
+@media (forced-colors: active) {
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__surface {
+    border: 1px solid CanvasText !important;
+    background: Canvas !important;
+    box-shadow: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item,
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item.is-active,
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__icon {
+    color: CanvasText !important;
+  }
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item.is-active .fbl-digikala-grade-dock-v9__icon {
+    border: 2px solid Highlight !important;
+    box-shadow: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item,
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__icon,
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__icon::before,
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__icon::after,
+  .fbl-support-float.is-above-bottom-nav .fbl-support-trigger {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
