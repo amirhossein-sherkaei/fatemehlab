@@ -11191,3 +11191,232 @@ body {
     transition: none !important;
   }
 }
+
+
+/* ==========================================================================
+   FBL ATELIER OPALINE VISUAL EDITION V13
+   A brand-specific pearl-ceramic finish for the already-approved dock.
+   Composition, routes, dimensions and support placement remain untouched.
+   ========================================================================== */
+
+@media (max-width: 767px) {
+  nav.fbl-digikala-grade-dock-v9 {
+    -webkit-font-smoothing: antialiased !important;
+    text-rendering: geometricPrecision !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__surface {
+    position: relative !important;
+    isolation: isolate !important;
+    border: 1px solid rgba(222, 207, 217, .94) !important;
+    background:
+      radial-gradient(ellipse 66% 115% at 50% -43%, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 72%),
+      radial-gradient(ellipse 34% 88% at 7% 120%, rgba(237, 214, 226, .24) 0%, rgba(237,214,226,0) 74%),
+      radial-gradient(ellipse 34% 88% at 93% 120%, rgba(231, 218, 202, .18) 0%, rgba(231,218,202,0) 74%),
+      linear-gradient(180deg, #fff 0%, #fffdfd 48%, #faf7f9 100%) !important;
+    box-shadow:
+      0 18px 42px rgba(49, 30, 43, .115),
+      0 4px 12px rgba(135, 79, 108, .055),
+      0 1px 2px rgba(53, 31, 44, .035),
+      inset 0 1px 0 rgba(255,255,255,.99),
+      inset 0 -1px 0 rgba(190, 157, 176, .16) !important;
+    -webkit-backdrop-filter: blur(22px) saturate(152%) !important;
+    backdrop-filter: blur(22px) saturate(152%) !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__surface::before {
+    content: '' !important;
+    position: absolute !important;
+    inset: 1px !important;
+    z-index: 0 !important;
+    border: 1px solid rgba(255,255,255,.91) !important;
+    border-radius: inherit !important;
+    box-shadow: inset 0 0 0 1px rgba(198, 164, 182, .055) !important;
+    pointer-events: none !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__surface::after {
+    content: '' !important;
+    position: absolute !important;
+    top: 1px !important;
+    left: 14% !important;
+    right: 14% !important;
+    height: 1px !important;
+    z-index: 2 !important;
+    border-radius: 99px !important;
+    background: linear-gradient(90deg,
+      rgba(255,255,255,0),
+      rgba(255,255,255,.98) 18%,
+      rgba(213,187,200,.72) 50%,
+      rgba(255,255,255,.98) 82%,
+      rgba(255,255,255,0)) !important;
+    opacity: .82 !important;
+    pointer-events: none !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item {
+    color: #8d858d !important;
+    transition:
+      color .22s ease,
+      transform .2s cubic-bezier(.2,.75,.25,1) !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item:not(.is-active) .fbl-digikala-grade-dock-v9__icon {
+    color: #8d858d !important;
+    transition:
+      color .22s ease,
+      background .22s ease,
+      transform .22s cubic-bezier(.2,.75,.25,1) !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item:not(.is-active) .fbl-digikala-grade-dock-v9__icon svg {
+    filter: drop-shadow(0 .5px 0 rgba(255,255,255,.8)) !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item.is-active {
+    color: #281e26 !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item.is-active .fbl-digikala-grade-dock-v9__icon {
+    position: relative !important;
+    border: 1px solid rgba(190, 145, 169, .42) !important;
+    border-radius: 50% !important;
+    background:
+      radial-gradient(ellipse 76% 54% at 35% 13%, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 75%),
+      radial-gradient(circle at 78% 86%, rgba(225, 194, 209, .2) 0%, rgba(225,194,209,0) 58%),
+      linear-gradient(148deg, #fff 0%, #fcf7fa 47%, #f1e7ed 100%) !important;
+    color: #251d24 !important;
+    box-shadow:
+      0 7px 17px rgba(117, 57, 91, .13),
+      0 0 0 2px rgba(255,255,255,.96),
+      0 0 0 3px rgba(192, 151, 173, .14),
+      inset 0 1px 0 rgba(255,255,255,.99),
+      inset 0 -2px 4px rgba(169, 125, 151, .105) !important;
+    transform: translateY(-1px) !important;
+    animation: fbl-opaline-select-v13 .34s cubic-bezier(.2,.82,.22,1) both !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item.is-active .fbl-digikala-grade-dock-v9__icon::before {
+    content: '' !important;
+    position: absolute !important;
+    inset: 3px !important;
+    border: 1px solid rgba(255,255,255,.72) !important;
+    border-radius: 50% !important;
+    opacity: .9 !important;
+    pointer-events: none !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item.is-active .fbl-digikala-grade-dock-v9__icon::after {
+    top: 7px !important;
+    right: 9px !important;
+    width: 4px !important;
+    height: 4px !important;
+    border: 1px solid rgba(255,255,255,.96) !important;
+    background: linear-gradient(145deg, #e4d0b3 0%, #c6a17c 48%, #b98d9f 100%) !important;
+    box-shadow:
+      0 0 0 1.5px rgba(255,255,255,.56),
+      0 1px 4px rgba(123, 77, 98, .23) !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item.is-active .fbl-digikala-grade-dock-v9__icon svg {
+    filter: drop-shadow(0 1px 0 rgba(255,255,255,.52)) !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item:active {
+    transform: scale(.975) !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item:active .fbl-digikala-grade-dock-v9__icon {
+    transform: scale(.94) !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item.is-active:active .fbl-digikala-grade-dock-v9__icon {
+    transform: translateY(0) scale(.95) !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item:focus-visible {
+    outline: 2px solid rgba(158, 71, 113, .76) !important;
+    outline-offset: -3px !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__badge {
+    border-color: rgba(255,255,255,.98) !important;
+    background: linear-gradient(145deg, #d7478b 0%, #bd1d68 78%, #a9155c 100%) !important;
+    box-shadow:
+      0 2px 5px rgba(137, 26, 79, .2),
+      inset 0 1px 0 rgba(255,255,255,.24) !important;
+  }
+
+  .fbl-support-float.is-above-bottom-nav .fbl-support-trigger {
+    position: relative !important;
+    overflow: hidden !important;
+    border: 1px solid rgba(255,255,255,.92) !important;
+    background:
+      radial-gradient(circle at 30% 18%, rgba(255,255,255,.3) 0%, rgba(255,255,255,0) 38%),
+      linear-gradient(148deg, #d94b94 0%, #cc2c80 48%, #b81768 100%) !important;
+    box-shadow:
+      0 10px 24px rgba(165, 31, 98, .24),
+      0 3px 8px rgba(48, 22, 36, .1),
+      inset 0 1px 0 rgba(255,255,255,.38),
+      inset 0 -1px 0 rgba(115, 16, 65, .16) !important;
+    animation: none !important;
+    transition:
+      transform .2s cubic-bezier(.2,.75,.25,1),
+      box-shadow .2s ease,
+      filter .2s ease !important;
+  }
+
+  .fbl-support-float.is-above-bottom-nav .fbl-support-trigger::before {
+    content: '' !important;
+    position: absolute !important;
+    inset: 2px !important;
+    border: 1px solid rgba(255,255,255,.3) !important;
+    border-radius: inherit !important;
+    pointer-events: none !important;
+  }
+
+  .fbl-support-float.is-above-bottom-nav .fbl-support-trigger svg {
+    position: relative !important;
+    z-index: 1 !important;
+    filter: drop-shadow(0 1px 1px rgba(89, 13, 52, .13)) !important;
+  }
+
+  .fbl-support-float.is-above-bottom-nav .fbl-support-trigger:active {
+    transform: scale(.94) !important;
+    filter: saturate(.96) !important;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) and (max-width: 767px) {
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item:not(.is-active):hover .fbl-digikala-grade-dock-v9__icon {
+    color: #a65a7e !important;
+    background: radial-gradient(circle, rgba(246, 233, 240, .72), rgba(246,233,240,0) 72%) !important;
+    transform: translateY(-1px) !important;
+  }
+
+  .fbl-support-float.is-above-bottom-nav .fbl-support-trigger:hover {
+    transform: translateY(-2px) !important;
+    box-shadow:
+      0 13px 27px rgba(165, 31, 98, .26),
+      0 4px 9px rgba(48, 22, 36, .1),
+      inset 0 1px 0 rgba(255,255,255,.4) !important;
+  }
+}
+
+@keyframes fbl-opaline-select-v13 {
+  0% { transform: translateY(1px) scale(.965); }
+  62% { transform: translateY(-1.5px) scale(1.018); }
+  100% { transform: translateY(-1px) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item,
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__icon,
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__icon::before,
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__icon::after,
+  .fbl-support-float.is-above-bottom-nav .fbl-support-trigger {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
