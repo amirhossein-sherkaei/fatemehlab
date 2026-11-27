@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   alternates: { canonical: '/track' },
-  title: 'رهگیری سفارش | فاطمه بیوتی لند',
+  title: 'رهگیری سفارش',
   description: 'با کد رهگیری و شماره تماس، وضعیت دقیق سفارش خود را پیگیری کنید.',
 };
 

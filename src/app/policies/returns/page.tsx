@@ -5,7 +5,7 @@ import { ArrowRight } from 'lucide-react';
 
 export const metadata = {
   alternates: { canonical: '/policies/returns' },
-  title: 'مرجوعی و تعویض | فاطمه بیوتی لند',
+  title: 'مرجوعی و تعویض',
   description: 'اطلاعات مربوط به مرجوعی و تعویض در فروشگاه فاطمه بیوتی لند',
 };
 

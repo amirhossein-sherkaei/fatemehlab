@@ -11,7 +11,7 @@ import LoadMoreProducts from '@/components/storefront/LoadMoreProducts';
 import { ArrowLeft, ArrowUpLeft, Search, Sparkles } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'محصولات | فاطمه بیوتی لند',
+  title: 'محصولات آرایشی و بهداشتی',
   description: 'کالکشن محصولات آرایشی و مراقبتی فاطمه بیوتی لند؛ جست‌وجو، مقایسه و انتخاب آگاهانه محصولات.',
   alternates: { canonical: '/products' },
 };

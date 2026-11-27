@@ -6,7 +6,7 @@ import { ArrowLeft, ClipboardCheck, Eye, Search, Heart, ShieldCheck, Users, Pack
 
 export const metadata: Metadata = {
   alternates: { canonical: '/about' },
-  title: 'درباره فاطمه بیوتی لند',
+  title: 'درباره ما',
   description: 'آشنایی با فروشگاه آنلاین فاطمه بیوتی لند، فلسفه انتخاب محصولات و شیوه بررسی اطلاعات.',
 };
 

@@ -7,7 +7,7 @@ import { InstagramIcon, RubikaIcon } from '@/components/icons/SocialIcons';
 
 export const metadata: Metadata = {
   alternates: { canonical: '/contact' },
-  title: 'تماس با فاطمه بیوتی لند',
+  title: 'تماس با ما',
   description: 'راه‌های ارتباطی فروشگاه فاطمه بیوتی لند.',
 };
 

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   alternates: { canonical: '/' },
-  title: 'فاطمه بیوتی لند | فروشگاه لوکس محصولات آرایشی و بهداشتی',
+  title: 'فروشگاه آنلاین محصولات آرایشی و بهداشتی',
   description: 'خرید آنلاین محصولات آرایشی و مراقبت پوست با تضمین اصالت، ارسال سریع و پرداخت امن. فاطمه بیوتی لند، همراه زیبایی شما.',
   openGraph: {
     title: 'فاطمه بیوتی لند',
@@ -152,8 +152,18 @@ export default async function Home() {
       <main className="flex-1 relative z-10">
         
         {homeBannerSlides.length > 0 ? (
-          <HomeBannerCarousel slides={homeBannerSlides} interval={homeBannerInterval} autoPlay={homeBannerAutoPlay} />
-        ) : (
+          <>
+            <HomeBannerCarousel slides={homeBannerSlides} interval={homeBannerInterval} autoPlay={homeBannerAutoPlay} />
+            <section className="container-custom px-4 pt-7 pb-2 md:pt-9">
+              <h1 className="text-xl md:text-2xl font-black text-[#28242b] tracking-tight">
+                فروشگاه آنلاین محصولات آرایشی و بهداشتی
+              </h1>
+              <p className="mt-2 max-w-3xl text-sm leading-8 text-[#77717b]">
+                در فاطمه بیوتی لند می‌توانید محصولات آرایشی و مراقبت پوست و مو را بررسی کنید و با مشاهده مشخصات و قیمت، انتخاب آگاهانه‌تری داشته باشید.
+              </p>
+            </section>
+          </>
+      ) : (
 <section className="fl-home-hero">
           <div className="container-custom fl-hero-grid">
             <div className="fl-hero-copy-wrap">

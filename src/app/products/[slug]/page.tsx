@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://fatemehbeautyland.ir';
   const productUrl = `${baseUrl}/products/${product.slug}`;
-  const title = `${product.name} | فاطمه بیوتی لند`;
+  const title = product.name;
   const description = product.description || `خرید ${product.name} از فاطمه بیوتی لند با تضمین اصالت.`;
 
   return {

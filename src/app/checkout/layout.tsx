@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'تسویه‌حساب | فاطمه بیوتی لند',
+  title: 'تسویه‌حساب',
   description: 'تسویه‌حساب و پرداخت امن سفارش شما.',
   robots: { index: false, follow: false },
 };

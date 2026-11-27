@@ -5,7 +5,7 @@ import { ArrowRight } from 'lucide-react';
 
 export const metadata = {
   alternates: { canonical: '/policies/privacy' },
-  title: 'حریم خصوصی | فاطمه بیوتی لند',
+  title: 'حریم خصوصی',
   description: 'اطلاعات مربوط به حریم خصوصی در فروشگاه فاطمه بیوتی لند',
 };
 
