@@ -5,6 +5,7 @@ import Footer from '@/components/storefront/Footer';
 import { ArrowLeft, ClipboardCheck, Eye, Search, Heart, ShieldCheck, Users, Package } from 'lucide-react';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/about' },
   title: 'درباره فاطمه بیوتی لند',
   description: 'آشنایی با فروشگاه آنلاین فاطمه بیوتی لند، فلسفه انتخاب محصولات و شیوه بررسی اطلاعات.',
 };

@@ -6,6 +6,7 @@ import { ArrowLeft, Mail, MapPin, Phone, Clock } from 'lucide-react';
 import { InstagramIcon, RubikaIcon } from '@/components/icons/SocialIcons';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/contact' },
   title: 'تماس با فاطمه بیوتی لند',
   description: 'راه‌های ارتباطی فروشگاه فاطمه بیوتی لند.',
 };

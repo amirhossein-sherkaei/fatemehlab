@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/' },
   title: 'فاطمه بیوتی لند | فروشگاه لوکس محصولات آرایشی و بهداشتی',
   description: 'خرید آنلاین محصولات آرایشی و مراقبت پوست با تضمین اصالت، ارسال سریع و پرداخت امن. فاطمه بیوتی لند، همراه زیبایی شما.',
   openGraph: {

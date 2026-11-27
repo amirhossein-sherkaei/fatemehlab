@@ -4,6 +4,7 @@ import Footer from '@/components/storefront/Footer';
 import { ArrowRight } from 'lucide-react';
 
 export const metadata = {
+  alternates: { canonical: '/policies/shipping' },
   title: 'شرایط ارسال | فاطمه بیوتی لند',
   description: 'اطلاعات مربوط به شرایط ارسال در فروشگاه فاطمه بیوتی لند',
 };

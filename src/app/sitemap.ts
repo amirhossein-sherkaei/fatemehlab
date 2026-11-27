@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next';
 import { db } from '@/lib/db';
-import { products, articles, categories } from '@/db/schema';
+import { products, articles } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -53,18 +53,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error('Sitemap articles error:', e);
   }
 
-  let categoryRoutes: MetadataRoute.Sitemap = [];
-  try {
-    const allCategories = await db.select({ slug: categories.slug }).from(categories);
-    categoryRoutes = allCategories.map((c) => ({
-      url: `${baseUrl}/products?category=${c.slug}`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly' as const,
-      priority: 0.6,
-    }));
-  } catch (e) {
-    console.error('Sitemap categories error:', e);
-  }
-
-  return [...staticRoutes, ...productRoutes, ...articleRoutes, ...categoryRoutes];
+  return [...staticRoutes, ...productRoutes, ...articleRoutes];
 }

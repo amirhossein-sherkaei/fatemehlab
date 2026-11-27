@@ -14,6 +14,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: ['GPTBot', 'Claude-Web', 'ClaudeBot', 'anthropic-ai', 'OAI-SearchBot', 'PerplexityBot'],
         allow: '/',
+        disallow: ['/admin/', '/account/', '/api/', '/cart', '/checkout', '/_next/'],
       },
     ],
     sitemap: `${baseUrl}/sitemap.xml`,

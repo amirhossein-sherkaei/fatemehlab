@@ -5,6 +5,7 @@ import Footer from '@/components/storefront/Footer';
 import { ArrowLeft } from 'lucide-react';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/faq' },
   title: 'راهنمای خرید و سؤالات متداول',
   description: 'راهنمای استفاده از فروشگاه فاطمه بیوتی لند، مشاهده اطلاعات محصولات و پیگیری سفارش.',
 };

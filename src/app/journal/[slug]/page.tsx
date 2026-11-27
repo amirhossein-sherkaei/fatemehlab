@@ -28,6 +28,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     title: article.seoTitle || article.title,
     description: article.seoDescription || article.excerpt,
+    alternates: { canonical: `/journal/${article.slug}` },
   };
 }
 

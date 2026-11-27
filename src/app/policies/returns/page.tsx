@@ -4,6 +4,7 @@ import Footer from '@/components/storefront/Footer';
 import { ArrowRight } from 'lucide-react';
 
 export const metadata = {
+  alternates: { canonical: '/policies/returns' },
   title: 'مرجوعی و تعویض | فاطمه بیوتی لند',
   description: 'اطلاعات مربوط به مرجوعی و تعویض در فروشگاه فاطمه بیوتی لند',
 };
