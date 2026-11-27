@@ -96,7 +96,7 @@ export default function BottomNav() {
               aria-label={accessibleLabel}
               aria-current={active ? 'page' : undefined}
               title={item.label}
-              prefetch
+              prefetch={null}
             >
               <span className="fbl-digikala-grade-dock-v9__icon" aria-hidden="true">
                 {isHome ? <HomeGlyph active={active} /> : <Icon size={25} strokeWidth={active ? 2.1 : 1.8} />}

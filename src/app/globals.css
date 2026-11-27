@@ -11157,3 +11157,37 @@ body {
     transition: none !important;
   }
 }
+
+
+/* ==========================================================================
+   FBL ATELIER DOCK QA AND POLISH V12
+   Responsive icon fit + reduced-motion support for the separate support control.
+   The approved rail silhouette, proportions and palette remain unchanged.
+   ========================================================================== */
+
+@media (max-width: 380px) {
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__item {
+    min-width: 0 !important;
+    overflow: visible !important;
+  }
+
+  nav.fbl-digikala-grade-dock-v9 .fbl-digikala-grade-dock-v9__icon {
+    width: min(52px, calc(100% - 2px)) !important;
+    height: 52px !important;
+    flex: 0 1 auto !important;
+  }
+}
+
+.fbl-support-float .fbl-support-trigger:focus-visible {
+  outline: 2px solid rgba(166, 53, 105, .82) !important;
+  outline-offset: 3px !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fbl-support-float .fbl-support-trigger,
+  .fbl-support-float .fbl-support-popover,
+  .fbl-support-float .fbl-support-trigger * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
